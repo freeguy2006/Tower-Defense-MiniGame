@@ -1,3 +1,10 @@
+// game 主迴圈與邏輯，擁有 player, castle, vector<enemy>, vector<projectile>
+// 自己的: update(float dt), draw(), run(), add_enemy(enemy)
+// player 可用: update(), get_rect(), get_position(), is_attackable(), reset_attack_timer()
+// castle 可用: get_rect(), get_hp(), is_alive(), take_damage(int)
+// enemy 可用: update(), get_rect(), get_hp(), is_alive(), take_damage(int)
+// projectile 可用: update(), get_rect(), get_damage(), get_position()
+// factory 可用: game_factory::create_player(), create_enemy(), create_castle(), create_projectile()
 #include "Game.h"
 
 void game::update(float dt){
@@ -16,6 +23,22 @@ void game::update(float dt){
             _projectiles.erase(_projectiles.begin() + i);
         }
     }
+    for(int i = _projectiles.size()-1 ; i>=0 ; i--){
+        for(int j = _enemies.size()-1 ; j>=0 ; j--){
+            if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j].get_rect())){
+                _enemies[j].take_damage(_projectiles[i].get_damage());
+                _projectiles.erase(_projectiles.begin() + i);
+                break;
+            }
+        }
+    }
+    for(int i = _enemies.size()-1 ; i>=0 ; i--){
+        if(_enemies[i].get_hp()<=0){
+            _enemies.erase(_enemies.begin() + i);
+        }
+    }
+
+
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
         Vector2 mouse_pos = GetMousePosition();
