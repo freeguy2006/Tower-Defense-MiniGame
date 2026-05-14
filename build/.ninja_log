@@ -1,0 +1,49 @@
+# ninja log v7
+3	129	8004640511480938	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+251	1030	8002823087526360	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/utils.c.obj	e10dfd21b7486c6b
+228	1226	8002823087300754	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rshapes.c.obj	da7b1123851205b9
+235	2040	8002823087371569	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rtext.c.obj	1ab3fd8a20b4c547
+274	2616	8002823087764078	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/init.c.obj	2c675f4338d2ee84
+265	2638	8002823087671474	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/context.c.obj	8da2e125af3db21e
+311	2780	8002823088129444	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/monitor.c.obj	6e4452a3783d3faf
+338	2851	8002823088390270	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/platform.c.obj	d7bda005bcd657f4
+373	2863	8002823088743674	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/vulkan.c.obj	912258ffcdd8b77f
+292	3009	8002823087926597	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/input.c.obj	43fac47ed3b05de1
+625	3034	8002823092478488	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/osmesa_context.c.obj	d52f3e28d492bb93
+482	3129	8002823090570941	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/egl_context.c.obj	63f2fafd73334a9f
+428	3146	8002823089292558	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/window.c.obj	c2ff0b43bf41c79b
+811	3203	8002823093191489	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_init.c.obj	a773e67c9dda02f4
+1227	3219	8002823097292997	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_joystick.c.obj	6c933f4d5f35f345
+896	3220	8002823094014232	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_monitor.c.obj	72e0c562780d6405
+1071	3250	8002823095732283	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_window.c.obj	ad2464b0e4156cc2
+166	270	8002825096024526	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/gameObject.cpp.obj	c153657966dd1ef0
+2044	3608	8002823105444427	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_module.c.obj	13732b3e335589f8
+218	3754	8002823087177467	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rcore.c.obj	887542d55c8b0588
+222	3802	8002823087245695	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rmodels.c.obj	c9f820fcd856eb14
+2619	4018	8002823111209152	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_time.c.obj	606db5fce0cc4470
+2679	4055	8002823111805143	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_thread.c.obj	a396d8e1e03ed455
+2780	4086	8002823112819618	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_init.c.obj	92b1f898d5767682
+2851	4176	8002823113530844	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_joystick.c.obj	44ed631766db9752
+2864	4189	8002823113655704	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_monitor.c.obj	c71dfcea867a89a6
+3039	4257	8002823115412909	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/wgl_context.c.obj	d7c56c6c1b99f509
+3010	4327	8002823115120663	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_window.c.obj	5fee1439f8ca9b4a
+243	4642	8002823087432218	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rtextures.c.obj	54db2932a7cdf4b4
+213	5951	8002823087127704	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/raudio.c.obj	71b6982c07f3e816
+176	499	8002825096125215	_deps/raylib-build/raylib/libraylib.a	357b737842a93f64
+137	367	8004640512823613	CMakeFiles/OOP_Raylib_Lab.dir/src/main.cpp.obj	b96abf3d24bb85a3
+182	288	8002825375026253	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/player.cpp.obj	e875616ad2cabd03
+362	545	8004640515077790	libOOP_Raylib_Lab_lib.a	8c186916c5c4f5c7
+545	881	8004640516872420	OOP_Raylib_Lab.exe	45ee7fcab710a66c
+128	2816	8004640572801829	build.ninja	a7dc2ad3646b0c56
+128	2816	8004640572674641	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/cmake_install.cmake	a7dc2ad3646b0c56
+128	2816	8004640572674641	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/cmake_install.cmake	a7dc2ad3646b0c56
+128	2816	8004640572727569	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/cmake_install.cmake	a7dc2ad3646b0c56
+128	2816	8004640572743264	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/external/glfw/cmake_install.cmake	a7dc2ad3646b0c56
+128	2816	8004640572766101	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/external/glfw/src/cmake_install.cmake	a7dc2ad3646b0c56
+128	2816	8004640572707191	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/CTestTestfile.cmake	a7dc2ad3646b0c56
+128	2816	8004640572727569	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/CTestTestfile.cmake	a7dc2ad3646b0c56
+181	480	8003123493621823	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/Character.cpp.obj	432596e81d202ff9
+147	221	8003127474579717	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/Damageable.cpp.obj	a8dd44b760e77099
+155	228	8003127474653109	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/Projectile.cpp.obj	8ca899a05462a4f0
+150	225	8004625424088820	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/Player.cpp.obj	1e48d23215096d23
+133	362	8004640512787584	CMakeFiles/OOP_Raylib_Lab_lib.dir/src/Game.cpp.obj	f1b6024ebb3793f7

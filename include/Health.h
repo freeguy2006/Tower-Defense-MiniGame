@@ -1,0 +1,16 @@
+// 獨立元件，用 has-a 組合進其他 class
+// 可用: get_hp(), is_alive(), take_damage(int)
+#pragma once
+class health{
+    private:
+        int _hp;
+    public:
+        health(int hp): _hp(hp){}
+        ~health() = default;
+        int get_hp() const { return _hp; }
+        bool is_alive() const { return _hp > 0; }
+        void take_damage(int damage){
+            _hp -= damage;
+            if(_hp < 0) _hp = 0;
+        }
+};

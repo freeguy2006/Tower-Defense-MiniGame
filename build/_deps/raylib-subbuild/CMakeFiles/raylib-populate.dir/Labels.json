@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/CMakeFiles/raylib-populate"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/CMakeFiles/raylib-populate.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/CMakeFiles/raylib-populate-complete.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-build.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-configure.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-download.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-install.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-patch.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-test.rule"
+		},
+		{
+			"file" : "D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"raylib-populate"
+		],
+		"name" : "raylib-populate"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/cmake_install.cmake",
+		"D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-build/cmake_install.cmake",
+		"D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/cmake_install.cmake",
+		"D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/external/glfw/cmake_install.cmake",
+		"D:/\u5927\u5b78/\u653f\u5927 \u8ab2\u7a0b/\u5927\u4e00\u4e0b/\u7269\u4ef6\u5c0e\u5411\u7a0b\u5f0f\u8a2d\u8a08_\u7d00\u660e\u5fb7/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/external/glfw/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
