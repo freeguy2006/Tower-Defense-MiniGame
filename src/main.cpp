@@ -1,6 +1,6 @@
 #include "Game.h"
 int main() {
-    InitWindow(2400, 900, "Raylib OOP");
+    InitWindow(2400, 900, "Tower Defense Game");
     SetTargetFPS(60);
     player p1 = game_factory::create_player({640, 360});
     castle c1 = game_factory::create_castle({50, 700});

@@ -1,4 +1,4 @@
-prefix=C:/Program Files (x86)/OOP_Raylib_Lab
+prefix=C:/Program Files (x86)/TowerDefenseGame
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

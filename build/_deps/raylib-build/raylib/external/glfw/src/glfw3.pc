@@ -1,7 +1,7 @@
-prefix=C:/Program Files (x86)/OOP_Raylib_Lab
+prefix=C:/Program Files (x86)/TowerDefenseGame
 exec_prefix=${prefix}
-includedir=C:/Program Files (x86)/OOP_Raylib_Lab/include
-libdir=C:/Program Files (x86)/OOP_Raylib_Lab/lib
+includedir=C:/Program Files (x86)/TowerDefenseGame/include
+libdir=C:/Program Files (x86)/TowerDefenseGame/lib
 
 Name: GLFW
 Description: A multi-platform library for OpenGL, window and input

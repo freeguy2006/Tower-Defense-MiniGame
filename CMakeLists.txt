@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(OOP_Raylib_Lab LANGUAGES CXX)
+project(TowerDefenseGame LANGUAGES CXX)
 
 # If compiler not found, uncomment and set your compiler path 
 # set(CMAKE_CXX_COMPILER "directory to g++") 

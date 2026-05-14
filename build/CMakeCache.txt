@@ -154,7 +154,7 @@ CMAKE_INSTALL_MANDIR:PATH=
 CMAKE_INSTALL_OLDINCLUDEDIR:PATH=/usr/include
 
 //Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=C:/Program Files (x86)/OOP_Raylib_Lab
+CMAKE_INSTALL_PREFIX:PATH=C:/Program Files (x86)/TowerDefenseGame
 
 //Run-time variable data (LOCALSTATEDIR/run)
 CMAKE_INSTALL_RUNSTATEDIR:PATH=
@@ -213,7 +213,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=OOP_Raylib_Lab
+CMAKE_PROJECT_NAME:STATIC=TowerDefenseGame
 
 //Value Computed by CMake
 CMAKE_PROJECT_SPDX_LICENSE:STATIC=
@@ -390,15 +390,6 @@ GLFW_USE_HYBRID_HPG:BOOL=OFF
 //Include everything disabled by default (for CI usage
 INCLUDE_EVERYTHING:BOOL=OFF
 
-//Value Computed by CMake
-OOP_Raylib_Lab_BINARY_DIR:STATIC=D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build
-
-//Value Computed by CMake
-OOP_Raylib_Lab_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-OOP_Raylib_Lab_SOURCE_DIR:STATIC=D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template
-
 //Force a specific OpenGL Version?
 OPENGL_VERSION:STRING=OFF
 
@@ -410,6 +401,15 @@ OPENGL_glu_LIBRARY:STRING=glu32
 
 //Platform to build for.
 PLATFORM:STRING=Desktop
+
+//Value Computed by CMake
+TowerDefenseGame_BINARY_DIR:STATIC=D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build
+
+//Value Computed by CMake
+TowerDefenseGame_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+TowerDefenseGame_SOURCE_DIR:STATIC=D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template
 
 //Link raylib against system GLFW instead of embedded one
 USE_EXTERNAL_GLFW:STRING=OFF
@@ -673,5 +673,5 @@ USE_EXTERNAL_GLFW-STRINGS:INTERNAL=OFF;IF_POSSIBLE;ON
 //Have include xinput.h
 XINPUT_H_FOUND:INTERNAL=1
 //CMAKE_INSTALL_PREFIX during last run
-_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=C:/Program Files (x86)/OOP_Raylib_Lab
+_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=C:/Program Files (x86)/TowerDefenseGame
 
