@@ -4,10 +4,12 @@
 class health{
     private:
         int _hp;
+        int _max_hp;
     public:
-        health(int hp): _hp(hp){}
+        health(int hp): _hp(hp), _max_hp(hp){}
         ~health() = default;
         int get_hp() const { return _hp; }
+        int get_max_hp() const { return _max_hp; }
         bool is_alive() const { return _hp > 0; }
         void take_damage(int damage){
             _hp -= damage;

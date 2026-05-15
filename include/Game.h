@@ -7,11 +7,16 @@
 #include "Projectile.h"
 #include "GameFactory.h"
 
+enum game_statement{START,PLAYING,PAUSE,LOSE};
 
 class game{
     private:
-        player _player;
+        player _player; 
         castle _castle;
+        float _enemy_spawn_timer = 0;
+        float _enemy_spawn_cooldown = 1.0;  
+        int _kill_count = 0; // the number of enemy killed
+        game_statement _game_statement = START;
         std::vector<enemy> _enemies;
         std::vector<projectile> _projectiles;
     public:

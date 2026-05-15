@@ -11,6 +11,7 @@ class building : public game_object{
         building(Vector2 position, Vector2 size, bool active, int hp):game_object(position, size, active),_health(hp){}
         ~building() = default;
         int get_hp() const { return _health.get_hp(); }
+        int get_max_hp() const { return _health.get_max_hp(); }
         bool is_alive() const { return _health.is_alive(); }
         void take_damage(int damage){ _health.take_damage(damage); }
 

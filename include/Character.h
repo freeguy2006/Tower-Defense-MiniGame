@@ -13,6 +13,7 @@ class character: public game_object{
         character(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed):game_object(position, size, active), _health(hp), _speed(speed){}
         ~character() = default;
         int get_hp() const { return _health.get_hp(); }
+        int get_max_hp() const { return _health.get_max_hp(); }
         bool is_alive() const { return _health.is_alive(); }
         void take_damage(int damage){ _health.take_damage(damage); }
         Vector2 get_speed()const{ return _speed; }

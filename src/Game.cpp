@@ -16,14 +16,16 @@ void game::update(float dt){
     for(int i = 0;i<_projectiles.size();i++){
         _projectiles[i].update(dt);
     }
-    // 移除飛出畫面的子彈
-    for(int i = _projectiles.size() - 1; i >= 0; i--){
-        Vector2 pos = _projectiles[i].get_position();
-        if(pos.x < 0 || pos.x > 2400 || pos.y < 0 || pos.y > 900){
-            _projectiles.erase(_projectiles.begin() + i);
-        }
+    // enemy spawn
+    _enemy_spawn_timer+=dt;
+    if(_enemy_spawn_timer>=_enemy_spawn_cooldown){
+        enemy e = game_factory::create_enemy({2300, 800});
+        _enemies.push_back(e);
+        _enemy_spawn_timer = 0;
     }
-    for(int i = _projectiles.size()-1 ; i>=0 ; i--){ // projectile, enemy 
+    // object collision ----------------------------------------------------
+    // projectile, enemy 
+    for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
             if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j].get_rect())){
                 _enemies[j].take_damage(_projectiles[i].get_damage());
@@ -32,26 +34,46 @@ void game::update(float dt){
             }
         }
     }
-    for(int i = _enemies.size()-1;i>=0;i--){      // castle, enemy
+    // castle, enemy
+    for(int i = _enemies.size()-1;i>=0;i--){      
         if(CheckCollisionRecs(_enemies[i].get_rect(),_castle.get_rect())){
             _castle.take_damage(_enemies[i].get_hp());
             _enemies.erase(_enemies.begin() + i);
         }
     }
-    for(int i = _enemies.size()-1;i>=0;i--){      // player, enemy
+    // player, enemy
+    for(int i = _enemies.size()-1;i>=0;i--){      
         if(CheckCollisionRecs(_enemies[i].get_rect(),_player.get_rect())){
             _player.take_damage(_enemies[i].get_hp());
             _enemies.erase(_enemies.begin() + i);
         }
     }
+    //------------------------------------------------------------------------
 
-    for(int i = _enemies.size()-1 ; i>=0 ; i--){ // check enemy is dead
+    // check enemy is dead
+    for(int i = _enemies.size()-1 ; i>=0 ; i--){ 
         if(_enemies[i].get_hp()<=0){
             _enemies.erase(_enemies.begin() + i);
+            _kill_count++;
         }
     }
-
-
+    // delete projectiles out of window
+    for(int i = _projectiles.size() - 1; i >= 0; i--){
+        Vector2 pos = _projectiles[i].get_position();
+        if(pos.x < 0 || pos.x > 2400 || pos.y < 0 || pos.y > 900){
+            _projectiles.erase(_projectiles.begin() + i);
+        }
+    }
+    // _game_statement
+    if(_player.get_hp() == 0 || _castle.get_hp() == 0){
+        _game_statement = LOSE;
+    }
+    
+    // game pause
+    if(IsKeyPressed(KEY_ESCAPE)){
+        _game_statement = PAUSE;
+    }
+    // player shoot
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
         Vector2 mouse_pos = GetMousePosition();
@@ -59,7 +81,7 @@ void game::update(float dt){
         Vector2 delta = {mouse_pos.x - player_pos.x, mouse_pos.y - player_pos.y};
         float length = sqrt(delta.x * delta.x + delta.y * delta.y);
         if(length > 0){
-            float bullet_speed = 1000.0;
+            float bullet_speed = 1400.0;
             Vector2 speed = {(delta.x/length)*bullet_speed,(delta.y/length)*bullet_speed};
             projectile p = game_factory::create_projectile(player_pos, speed);
             _projectiles.push_back(p);
@@ -78,11 +100,53 @@ void game::draw(){
     for(int i = 0;i<_projectiles.size();i++){
         DrawRectangleRec(_projectiles[i].get_rect(), BLACK);
     }
+
+    DrawRectangleRec({20, 20, 200, 20}, GRAY);
+    DrawRectangleRec({20, 20, 200.0f * _castle.get_hp() / _castle.get_max_hp(), 20}, RED);
+    DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,20,BLACK);
+    
+    DrawRectangleRec({20, 50, 200, 20}, GRAY);
+    DrawRectangleRec({20, 50, 200.0f * _player.get_hp() / _player.get_max_hp(), 20}, ORANGE);
+    DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,50,20,BLACK);
+    
+    DrawText(TextFormat("Kills: %d",_kill_count),20,80,20,BLACK);
     EndDrawing();
 }
 void game::run(){
     while(WindowShouldClose() == false){
-        update(GetFrameTime());
-        draw();
+        if(_game_statement == START){
+            //開始畫面
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            DrawText("Tower Defense Game",200,400,100,DARKGRAY);
+            DrawText("Press Enter to start",200,600,70,DARKGRAY);
+            EndDrawing();
+            if(IsKeyPressed(KEY_ENTER)){
+                _game_statement = PLAYING;
+            }
+        }else if(_game_statement == PLAYING){
+            update(GetFrameTime());
+            draw();
+        }else if(_game_statement == PAUSE){
+            //暫停畫面
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            DrawText("Paused",200,400,100,DARKGRAY);
+            DrawText("Press Enter to continue",200,600,70,DARKGRAY);
+            EndDrawing();
+            if(IsKeyPressed(KEY_ENTER)){
+                _game_statement = PLAYING;
+            }
+        }else if(_game_statement == LOSE){
+            //失敗畫面
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            DrawText("Game Over",200,400,100,DARKGRAY);
+            DrawText("Press Enter to exit",200,600,70,DARKGRAY);
+            EndDrawing();
+            if(IsKeyPressed(KEY_ENTER)){
+                break;
+            } 
+        }
     }
 }
