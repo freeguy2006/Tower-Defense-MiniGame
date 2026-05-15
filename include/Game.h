@@ -17,6 +17,9 @@ class game{
     public:
         game(player p, castle c):_player(p),_castle(c){} 
         ~game() = default;
+
+        int get_enemies_size(){ return _enemies.size(); }
+
         void update(float dt);
         void draw(); 
         void run();

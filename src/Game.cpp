@@ -23,7 +23,7 @@ void game::update(float dt){
             _projectiles.erase(_projectiles.begin() + i);
         }
     }
-    for(int i = _projectiles.size()-1 ; i>=0 ; i--){
+    for(int i = _projectiles.size()-1 ; i>=0 ; i--){ // projectile, enemy 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
             if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j].get_rect())){
                 _enemies[j].take_damage(_projectiles[i].get_damage());
@@ -32,7 +32,20 @@ void game::update(float dt){
             }
         }
     }
-    for(int i = _enemies.size()-1 ; i>=0 ; i--){
+    for(int i = _enemies.size()-1;i>=0;i--){      // castle, enemy
+        if(CheckCollisionRecs(_enemies[i].get_rect(),_castle.get_rect())){
+            _castle.take_damage(_enemies[i].get_hp());
+            _enemies.erase(_enemies.begin() + i);
+        }
+    }
+    for(int i = _enemies.size()-1;i>=0;i--){      // player, enemy
+        if(CheckCollisionRecs(_enemies[i].get_rect(),_player.get_rect())){
+            _player.take_damage(_enemies[i].get_hp());
+            _enemies.erase(_enemies.begin() + i);
+        }
+    }
+
+    for(int i = _enemies.size()-1 ; i>=0 ; i--){ // check enemy is dead
         if(_enemies[i].get_hp()<=0){
             _enemies.erase(_enemies.begin() + i);
         }
