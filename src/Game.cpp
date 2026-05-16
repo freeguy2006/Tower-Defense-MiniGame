@@ -6,7 +6,7 @@
 // projectile 可用: update(), get_rect(), get_damage(), get_position()
 // factory 可用: game_factory::create_player(), create_enemy(), create_castle(), create_projectile()
 #include "Game.h"
-
+// ------------------------------------  update ----------------------------------
 void game::update(float dt){
     _player.update(dt);
     _castle.update(dt);
@@ -19,11 +19,11 @@ void game::update(float dt){
     // enemy spawn
     _enemy_spawn_timer+=dt;
     if(_enemy_spawn_timer>=_enemy_spawn_cooldown){
-        enemy e = game_factory::create_enemy({2300, 800});
+        enemy e = game_factory::create_enemy({2300,game_factory::GROUND_Y-64});
         _enemies.push_back(e);
         _enemy_spawn_timer = 0;
     }
-    // object collision ----------------------------------------------------
+    // -----------------object collision ----------------------- 
     // projectile, enemy 
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
@@ -48,7 +48,7 @@ void game::update(float dt){
             _enemies.erase(_enemies.begin() + i);
         }
     }
-    //------------------------------------------------------------------------
+    //------------------------------------------------------
 
     // check enemy is dead
     for(int i = _enemies.size()-1 ; i>=0 ; i--){ 
@@ -94,15 +94,19 @@ void game::update(float dt){
     }
 
 }
+
+ //------------------------- draw ---------------------------------
 void game::draw(){
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    //DrawTextureEx(_player_texture,_player.get_position(),0,1.5,WHITE);
+    DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 2400, 900},{0, 0}, 0, WHITE);
+    
     // castle
     DrawTextureEx(_castle_texture,_castle.get_position(),0,2,WHITE);
     // enemy
     for(int i = 0;i<_enemies.size();i++){
         DrawTextureEx(_enemy_texture,_enemies[i].get_position(),0,1.5,WHITE);
+        // enemy 血條
         DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x * (float)_enemies[i].get_hp() / (float)_enemies[i].get_max_hp(), 5}, RED);
     }
@@ -118,21 +122,29 @@ void game::draw(){
         Vector2 origin = {w/2, h/2};
         DrawTexturePro(_projectile_texture, source, dest, origin, angle, WHITE);
     }
-    //player
-    DrawRectangleRec(_player.get_rect(), BLUE);
+    // player
+    float w = _player_texture.width;
+    float h = _player_texture.height;
+    if(_player.get_speed().x>0) source = {0, 0, w, h};
+    else source = {0, 0, -w, h};
+    Vector2 pos = _player.get_position();
+    Rectangle dest = {pos.x, pos.y, (float)_player.get_size().x, (float)_player.get_size().y};
+    DrawTexturePro(_player_texture, source, dest, {0,0}, 0, WHITE);
 
     // 血條
-    DrawRectangleRec({20, 20, 200, 20}, GRAY);
-    DrawRectangleRec({20, 20, 200.0f * _castle.get_hp() / _castle.get_max_hp(), 20}, RED);
+    DrawRectangleRec({20, 20, 1000, 20}, GRAY);
+    DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 20}, RED);
     DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,20,BLACK);
     
-    DrawRectangleRec({20, 50, 200, 20}, GRAY);
-    DrawRectangleRec({20, 50, 200.0f * _player.get_hp() / _player.get_max_hp(), 20}, ORANGE);
+    DrawRectangleRec({20, 50, 500, 20}, GRAY);
+    DrawRectangleRec({20, 50, 500.0f * _player.get_hp() / _player.get_max_hp(), 20}, ORANGE);
     DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,50,20,BLACK);
     
     DrawText(TextFormat("Kills: %d",_kill_count),20,80,20,BLACK);
     EndDrawing();
 }
+
+// ----------------------------- run -------------------------------
 void game::run(){
     while(WindowShouldClose() == false){
         if(_game_statement == START){

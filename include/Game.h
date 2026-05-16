@@ -20,7 +20,8 @@ class game{
         Texture2D _enemy_texture;
         Texture2D _projectile_texture;
         Texture2D _castle_texture;
-        
+        Texture2D _background_texture;
+        Texture2D _player_texture;
         std::vector<enemy> _enemies;
         std::vector<projectile> _projectiles;
     public:
@@ -28,13 +29,15 @@ class game{
             _enemy_texture = LoadTexture("resources/monster/monster_3.png");
             _projectile_texture = LoadTexture("resources/ammo/ammo_3.png");
             _castle_texture = LoadTexture("resources/castle/castle.png");
-            //_player_texture = LoadTexture("resources/player/player.png");
+            _background_texture = LoadTexture("resources/background/background.png");
+            _player_texture = LoadTexture("resources/player/player_archer.png");
         } 
         ~game(){    
             UnloadTexture(_enemy_texture);
             UnloadTexture(_projectile_texture);
             UnloadTexture(_castle_texture);
-            //UnloadTexture(_player_texture);
+            UnloadTexture(_background_texture);
+            UnloadTexture(_player_texture);
         };
 
         int get_enemies_size(){ return _enemies.size(); }
