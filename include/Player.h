@@ -12,8 +12,8 @@ class player : public character{
         float _gravity;
         float _jump_force;
         float _ground_y;
-        float _move_speed;
-    public:
+            float _move_speed;
+        public:
         player(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed,float atkcooldown,float gravity,float jump_force, float ground_y, float move_speed):character(position, size, active, hp, speed),_attack_timer(0), _attack_cooldown(atkcooldown),_gravity(gravity),_jump_force(jump_force),_ground_y(ground_y), _move_speed(move_speed){}
         ~player() = default;
         float get_gravity()const { return _gravity; }
@@ -25,6 +25,6 @@ class player : public character{
         bool is_on_ground()const { return get_position().y >= _ground_y; }
         
         void reset_attack_timer(){ _attack_timer = 0; }
-        void update(float dt) override;        
+        void update(float dt) override;
     
 };

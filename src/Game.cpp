@@ -78,12 +78,17 @@ void game::update(float dt){
         _player.reset_attack_timer();
         Vector2 mouse_pos = GetMousePosition();
         Vector2 player_pos = _player.get_position();
-        Vector2 delta = {mouse_pos.x - player_pos.x, mouse_pos.y - player_pos.y};
+        Vector2 player_center = {
+            player_pos.x + _player.get_size().x / 2,
+            player_pos.y + _player.get_size().y / 2
+        };
+        Vector2 delta = {mouse_pos.x - player_center.x, mouse_pos.y - player_center.y};
         float length = sqrt(delta.x * delta.x + delta.y * delta.y);
         if(length > 0){
             float bullet_speed = 1400.0;
             Vector2 speed = {(delta.x/length)*bullet_speed,(delta.y/length)*bullet_speed};
-            projectile p = game_factory::create_projectile(player_pos, speed);
+            
+            projectile p = game_factory::create_projectile(player_center, speed);
             _projectiles.push_back(p);
         }
     }
@@ -92,15 +97,31 @@ void game::update(float dt){
 void game::draw(){
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    DrawRectangleRec(_player.get_rect(), BLUE);
-    DrawRectangleRec(_castle.get_rect(), GRAY);
+    //DrawTextureEx(_player_texture,_player.get_position(),0,1.5,WHITE);
+    // castle
+    DrawTextureEx(_castle_texture,_castle.get_position(),0,2,WHITE);
+    // enemy
     for(int i = 0;i<_enemies.size();i++){
-        DrawRectangleRec(_enemies[i].get_rect(), RED);
+        DrawTextureEx(_enemy_texture,_enemies[i].get_position(),0,1.5,WHITE);
+        DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x, 5}, GRAY);
+        DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x * (float)_enemies[i].get_hp() / (float)_enemies[i].get_max_hp(), 5}, RED);
     }
+    // projectile
     for(int i = 0;i<_projectiles.size();i++){
-        DrawRectangleRec(_projectiles[i].get_rect(), BLACK);
+        Vector2 spd = _projectiles[i].get_speed(); 
+        float angle = atan2(spd.y, spd.x) * 180.0f / PI - 135;
+        Vector2 pos = _projectiles[i].get_position();
+        float w = _projectile_texture.width;
+        float h = _projectile_texture.height;
+        Rectangle source = {0, 0, w, h};
+        Rectangle dest = {pos.x, pos.y, w, h};
+        Vector2 origin = {w/2, h/2};
+        DrawTexturePro(_projectile_texture, source, dest, origin, angle, WHITE);
     }
+    //player
+    DrawRectangleRec(_player.get_rect(), BLUE);
 
+    // 血條
     DrawRectangleRec({20, 20, 200, 20}, GRAY);
     DrawRectangleRec({20, 20, 200.0f * _castle.get_hp() / _castle.get_max_hp(), 20}, RED);
     DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,20,BLACK);
