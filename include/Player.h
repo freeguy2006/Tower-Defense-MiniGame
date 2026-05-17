@@ -12,7 +12,7 @@ class player : public character{
         float _gravity;
         float _jump_force;
         float _ground_y;
-            float _move_speed;
+        float _move_speed;
         public:
         player(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed,float atkcooldown,float gravity,float jump_force, float ground_y, float move_speed):character(position, size, active, hp, speed),_attack_timer(0), _attack_cooldown(atkcooldown),_gravity(gravity),_jump_force(jump_force),_ground_y(ground_y), _move_speed(move_speed){}
         ~player() = default;

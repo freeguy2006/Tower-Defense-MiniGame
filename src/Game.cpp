@@ -125,6 +125,7 @@ void game::draw(){
     // player
     float w = _player_texture.width;
     float h = _player_texture.height;
+    Rectangle source;
     if(_player.get_speed().x>0) source = {0, 0, w, h};
     else source = {0, 0, -w, h};
     Vector2 pos = _player.get_position();
@@ -182,4 +183,32 @@ void game::run(){
             } 
         }
     }
+}
+
+
+game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({100, game_factory::GROUND_Y-400})){}
+
+
+// init 
+void game::init(){
+    // 開window, 載入圖片
+    InitWindow(2400, 900, "Tower Defense Game");
+    SetExitKey(0);  // 取消 ESC 關閉視窗
+    SetTargetFPS(60);
+    _enemy_texture = LoadTexture("resources/monster/monster_3.png");
+    _projectile_texture = LoadTexture("resources/ammo/ammo_3.png");
+    _castle_texture = LoadTexture("resources/castle/castle.png");
+    _background_texture = LoadTexture("resources/background/background.png");
+    _player_texture = LoadTexture("resources/player/player_archer.png");
+}
+
+
+// close 
+void game::close(){
+    UnloadTexture(_enemy_texture);
+    UnloadTexture(_projectile_texture);
+    UnloadTexture(_castle_texture);
+    UnloadTexture(_background_texture);
+    UnloadTexture(_player_texture);
+    CloseWindow();
 }
