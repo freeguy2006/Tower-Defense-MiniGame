@@ -11,7 +11,7 @@ void game::update(float dt){
     _player.update(dt);
     _castle.update(dt);
     for(int i = 0;i<_enemies.size();i++){
-        _enemies[i].update(dt);
+        _enemies[i]->update(dt);
     }
     for(int i = 0;i<_projectiles.size();i++){
         _projectiles[i].update(dt);
@@ -19,7 +19,7 @@ void game::update(float dt){
     // enemy spawn
     _enemy_spawn_timer+=dt;
     if(_enemy_spawn_timer>=_enemy_spawn_cooldown){
-        enemy e = game_factory::create_enemy({2300,game_factory::GROUND_Y-64});
+        enemy *e = new enemy(game_factory::create_enemy_green({2300,game_factory::GROUND_Y-64}));
         _enemies.push_back(e);
         _enemy_spawn_timer = 0;
     }
@@ -27,8 +27,8 @@ void game::update(float dt){
     // projectile, enemy 
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
-            if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j].get_rect())){
-                _enemies[j].take_damage(_projectiles[i].get_damage());
+            if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j]->get_rect())){
+                _enemies[j]->take_damage(_projectiles[i].get_damage());
                 _projectiles.erase(_projectiles.begin() + i);
                 break;
             }
@@ -36,15 +36,17 @@ void game::update(float dt){
     }
     // castle, enemy
     for(int i = _enemies.size()-1;i>=0;i--){      
-        if(CheckCollisionRecs(_enemies[i].get_rect(),_castle.get_rect())){
-            _castle.take_damage(_enemies[i].get_hp());
+        if(CheckCollisionRecs(_enemies[i]->get_rect(),_castle.get_rect())){
+            _castle.take_damage(_enemies[i]->get_hp());
+            delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
     }
     // player, enemy
     for(int i = _enemies.size()-1;i>=0;i--){      
-        if(CheckCollisionRecs(_enemies[i].get_rect(),_player.get_rect())){
-            _player.take_damage(_enemies[i].get_hp());
+        if(CheckCollisionRecs(_enemies[i]->get_rect(),_player.get_rect())){
+            _player.take_damage(_enemies[i]->get_hp());
+            delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
     }
@@ -52,7 +54,8 @@ void game::update(float dt){
 
     // check enemy is dead
     for(int i = _enemies.size()-1 ; i>=0 ; i--){ 
-        if(_enemies[i].get_hp()<=0){
+        if(_enemies[i]->get_hp()<=0){
+            delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
             _kill_count++;
         }
@@ -105,10 +108,16 @@ void game::draw(){
     DrawTextureEx(_castle_texture,_castle.get_position(),0,2,WHITE);
     // enemy
     for(int i = 0;i<_enemies.size();i++){
-        DrawTextureEx(_enemy_texture,_enemies[i].get_position(),0,1.5,WHITE);
+        switch(_enemies[i]->get_enemy_type()){
+            case GREEN: DrawTextureEx(_enemy_green_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case BLACK: DrawTextureEx(_enemy_black_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case RED: DrawTextureEx(_enemy_red_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case PURPLE: DrawTextureEx(_enemy_purple_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case BLUE: DrawTextureEx(_enemy_blue_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+        }
         // enemy 血條
-        DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x, 5}, GRAY);
-        DrawRectangleRec({_enemies[i].get_position().x, _enemies[i].get_position().y-5, (float)_enemies[i].get_size().x * (float)_enemies[i].get_hp() / (float)_enemies[i].get_max_hp(), 5}, RED);
+        DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
+        DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
     }
     // projectile
     for(int i = 0;i<_projectiles.size();i++){
@@ -176,9 +185,13 @@ void game::run(){
             BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawText("Game Over",200,400,100,DARKGRAY);
-            DrawText("Press Enter to exit",200,600,70,DARKGRAY);
+            DrawText("Press Enter to restart",200,600,70,DARKGRAY);
+            DrawText("Press Q to exit",200,700,70,DARKGRAY);
             EndDrawing();
             if(IsKeyPressed(KEY_ENTER)){
+                reset();
+            }
+            if(IsKeyPressed(KEY_Q)){
                 break;
             } 
         }
@@ -188,6 +201,20 @@ void game::run(){
 
 game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({100, game_factory::GROUND_Y-400})){}
 
+void game::reset(){
+    _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
+    _castle = game_factory::create_castle({100, game_factory::GROUND_Y-400});
+    // _wave = 0;
+    _kill_count = 0;
+    for(int i = 0;i<_enemies.size();i++){
+        delete _enemies[i];
+    }
+    _enemies.clear();
+    _projectiles.clear();
+    _game_statement = START;
+    _enemy_spawn_timer = 0;
+
+}
 
 // init 
 void game::init(){
@@ -195,7 +222,11 @@ void game::init(){
     InitWindow(2400, 900, "Tower Defense Game");
     SetExitKey(0);  // 取消 ESC 關閉視窗
     SetTargetFPS(60);
-    _enemy_texture = LoadTexture("resources/monster/monster_3.png");
+    _enemy_green_texture = LoadTexture("resources/monster/slime/monster_green.png");
+    _enemy_black_texture = LoadTexture("resources/monster/slime/monster_black.png");
+    _enemy_red_texture = LoadTexture("resources/monster/slime/monster_red.png");
+    _enemy_purple_texture = LoadTexture("resources/monster/slime/monster_purple.png");
+    _enemy_blue_texture = LoadTexture("resources/monster/slime/monster_blue.png");
     _projectile_texture = LoadTexture("resources/ammo/ammo_3.png");
     _castle_texture = LoadTexture("resources/castle/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
@@ -205,7 +236,11 @@ void game::init(){
 
 // close 
 void game::close(){
-    UnloadTexture(_enemy_texture);
+    UnloadTexture(_enemy_green_texture);
+    UnloadTexture(_enemy_black_texture);
+    UnloadTexture(_enemy_red_texture);
+    UnloadTexture(_enemy_purple_texture);
+    UnloadTexture(_enemy_blue_texture);
     UnloadTexture(_projectile_texture);
     UnloadTexture(_castle_texture);
     UnloadTexture(_background_texture);
