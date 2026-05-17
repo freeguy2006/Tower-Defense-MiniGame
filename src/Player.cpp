@@ -4,8 +4,10 @@ void player::update(float dt){
     _attack_timer += dt;
     if(IsKeyDown(KEY_A)){
         set_speed({-_move_speed, get_speed().y});
+        _facing_right = false;
     }else if(IsKeyDown(KEY_D)){
         set_speed({_move_speed, get_speed().y});
+        _facing_right = true;
     }else{
         set_speed({0, get_speed().y});
     }

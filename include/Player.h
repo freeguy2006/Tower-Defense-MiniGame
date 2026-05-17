@@ -12,6 +12,7 @@ class player : public character{
         float _gravity;
         float _jump_force;
         float _ground_y;
+        bool _facing_right;
         float _move_speed;
         public:
         player(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed,float atkcooldown,float gravity,float jump_force, float ground_y, float move_speed):character(position, size, active, hp, speed),_attack_timer(0), _attack_cooldown(atkcooldown),_gravity(gravity),_jump_force(jump_force),_ground_y(ground_y), _move_speed(move_speed){}
@@ -20,6 +21,7 @@ class player : public character{
         float get_jump_force()const { return _jump_force; }
         float get_ground_y()const { return _ground_y; }
         float get_move_speed()const { return _move_speed; }
+        bool is_facing_right()const { return _facing_right; }
         
         bool is_attackable()const { return _attack_timer>=_attack_cooldown; }
         bool is_on_ground()const { return get_position().y >= _ground_y; }

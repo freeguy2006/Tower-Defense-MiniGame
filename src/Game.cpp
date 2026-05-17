@@ -17,12 +17,48 @@ void game::update(float dt){
         _projectiles[i].update(dt);
     }
     // enemy spawn
-    _enemy_spawn_timer+=dt;
-    if(_enemy_spawn_timer>=_enemy_spawn_cooldown){
-        enemy *e = new enemy(game_factory::create_enemy_green({2300,game_factory::GROUND_Y-64}));
-        _enemies.push_back(e);
-        _enemy_spawn_timer = 0;
+    if(_current_wave >= _waves.size()){
+        _game_statement = WIN;
+    }else{
+        if(_is_wave_active == false){
+            // 中場休息
+            _wave_rest_timer+=dt;
+            if(_wave_rest_timer>=_wave_rest_duration){
+                _is_wave_active = true;
+                _enemies_spawned = 0;
+                _wave_rest_timer = 0;
+            }
+        }else{
+            // 幹架
+            wave& w = _waves[_current_wave]; // reference
+            _enemy_spawn_timer += dt;
+            if(_enemy_spawn_timer >= w.get_spawn_cooldown() && _enemies_spawned < w.get_total_enemies()){
+                enemy_type type = w.get_coming_enemies()[_enemies_spawned];
+                
+                switch(type){
+                    case SLIMEGREEN: _enemies.push_back(new enemy(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-64}))); break;
+                    case SLIMEBLACK: _enemies.push_back(new enemy(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-96}))); break;
+                    case SLIMERED: _enemies.push_back(new enemy(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-38}))); break;
+                    case SLIMEPURPLE: _enemies.push_back(new enemy(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-72}))); break;
+                    case SLIMEBLUE: _enemies.push_back(new enemy(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-72}))); break;
+                    case FLYINGANGEL: _enemies.push_back(new flying_enemy(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-200}))); break;
+                    case FLYINGBIRD: _enemies.push_back(new flying_enemy(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-250}))); break;
+                    case FLYINGDRAGON: _enemies.push_back(new flying_enemy(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-200}))); break;
+                }
+                
+                _enemies_spawned++;
+                _enemy_spawn_timer = 0;
+                
+            }
+            if(_enemies_spawned >= w.get_total_enemies()&&_enemies.empty()){
+                _is_wave_active = false;
+                _current_wave++;
+            }
+
+        }
     }
+
+
     // -----------------object collision ----------------------- 
     // projectile, enemy 
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
@@ -68,7 +104,7 @@ void game::update(float dt){
         }
     }
     // _game_statement
-    if(_player.get_hp() == 0 || _castle.get_hp() == 0){
+    if(_player.is_alive()==false || _castle.is_alive()==false){
         _game_statement = LOSE;
     }
     
@@ -109,11 +145,14 @@ void game::draw(){
     // enemy
     for(int i = 0;i<_enemies.size();i++){
         switch(_enemies[i]->get_enemy_type()){
-            case GREEN: DrawTextureEx(_enemy_green_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
-            case BLACK: DrawTextureEx(_enemy_black_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
-            case RED: DrawTextureEx(_enemy_red_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
-            case PURPLE: DrawTextureEx(_enemy_purple_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
-            case BLUE: DrawTextureEx(_enemy_blue_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMEGREEN: DrawTextureEx(_enemy_green_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMEBLACK: DrawTextureEx(_enemy_black_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMERED: DrawTextureEx(_enemy_red_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMEPURPLE: DrawTextureEx(_enemy_purple_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMEBLUE: DrawTextureEx(_enemy_blue_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case FLYINGANGEL: DrawTextureEx(_enemy_angel_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case FLYINGBIRD: DrawTextureEx(_enemy_bird_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case FLYINGDRAGON: DrawTextureEx(_enemy_dragon_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
         }
         // enemy 血條
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
@@ -135,7 +174,7 @@ void game::draw(){
     float w = _player_texture.width;
     float h = _player_texture.height;
     Rectangle source;
-    if(_player.get_speed().x>0) source = {0, 0, w, h};
+    if(_player.is_facing_right()) source = {0, 0, w, h};
     else source = {0, 0, -w, h};
     Vector2 pos = _player.get_position();
     Rectangle dest = {pos.x, pos.y, (float)_player.get_size().x, (float)_player.get_size().y};
@@ -180,11 +219,12 @@ void game::run(){
             if(IsKeyPressed(KEY_ENTER)){
                 _game_statement = PLAYING;
             }
-        }else if(_game_statement == LOSE){
+        }else if(_game_statement == LOSE || _game_statement == WIN){
             //失敗畫面
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("Game Over",200,400,100,DARKGRAY);
+            if(_game_statement == LOSE) DrawText("Game Over",200,400,100,DARKGRAY);
+            else DrawText("VICTORY!",200,400,100,YELLOW);
             DrawText("Press Enter to restart",200,600,70,DARKGRAY);
             DrawText("Press Q to exit",200,700,70,DARKGRAY);
             EndDrawing();
@@ -193,7 +233,7 @@ void game::run(){
             }
             if(IsKeyPressed(KEY_Q)){
                 break;
-            } 
+            }
         }
     }
 }
@@ -213,7 +253,10 @@ void game::reset(){
     _projectiles.clear();
     _game_statement = START;
     _enemy_spawn_timer = 0;
-
+    _current_wave = 0;
+    _enemies_spawned = 0;
+    _is_wave_active = false;
+    _wave_rest_timer = 0;
 }
 
 // init 
@@ -227,10 +270,20 @@ void game::init(){
     _enemy_red_texture = LoadTexture("resources/monster/slime/monster_red.png");
     _enemy_purple_texture = LoadTexture("resources/monster/slime/monster_purple.png");
     _enemy_blue_texture = LoadTexture("resources/monster/slime/monster_blue.png");
+    _enemy_angel_texture = LoadTexture("resources/monster/angel/angel_2.png");
+    _enemy_bird_texture = LoadTexture("resources/monster/bird/bird_24.png");
+    _enemy_dragon_texture = LoadTexture("resources/monster/dragon/dragon_2.png");
     _projectile_texture = LoadTexture("resources/ammo/ammo_3.png");
     _castle_texture = LoadTexture("resources/castle/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/player/player_archer.png");
+
+    // wave
+    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEGREEN, SLIMEGREEN, SLIMEGREEN}, 1));
+    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMEBLACK}, 1));
+    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMERED}, 1));
+    _waves.push_back(wave({SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMERED, SLIMERED}, 1));
+    _waves.push_back(wave({SLIMEBLACK, SLIMEBLACK, SLIMERED, SLIMERED, SLIMERED}, 1));
 }
 
 
@@ -241,6 +294,9 @@ void game::close(){
     UnloadTexture(_enemy_red_texture);
     UnloadTexture(_enemy_purple_texture);
     UnloadTexture(_enemy_blue_texture);
+    UnloadTexture(_enemy_angel_texture);
+    UnloadTexture(_enemy_bird_texture);
+    UnloadTexture(_enemy_dragon_texture);
     UnloadTexture(_projectile_texture);
     UnloadTexture(_castle_texture);
     UnloadTexture(_background_texture);

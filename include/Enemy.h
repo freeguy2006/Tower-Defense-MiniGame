@@ -3,7 +3,7 @@
 //          get_hp(), is_alive(), take_damage(int), get_speed(), set_speed()
 #pragma once
 #include "Character.h"
-enum enemy_type {GREEN,BLACK,RED,PURPLE,BLUE};
+enum enemy_type {SLIMEGREEN,SLIMEBLACK,SLIMERED,SLIMEPURPLE,SLIMEBLUE,FLYINGANGEL,FLYINGBIRD,FLYINGDRAGON};
 class enemy : public character{
     private:
         enemy_type _enemy_type;
