@@ -190,7 +190,7 @@ void game::update(float dt){
             Vector2 pos = _enemies[i]->get_position();
             int coin_num = _enemies[i]->get_reward();
             for(int c = 0; c < coin_num; c++){
-                _coins.push_back(coin(pos, 1, game_factory::GROUND_Y-16));
+                _coins.push_back(coin(pos, 1, game_factory::GROUND_Y-32));
             }
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
