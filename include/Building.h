@@ -14,5 +14,5 @@ class building : public game_object{
         int get_max_hp() const { return _health.get_max_hp(); }
         bool is_alive() const { return _health.is_alive(); }
         void take_damage(int damage){ _health.take_damage(damage); }
-
+        void increase_max_hp(int amount){ _health.increase_max_hp(amount); }
 };

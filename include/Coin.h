@@ -11,7 +11,7 @@ class coin: public game_object{
         int _value;
     public:
         coin(Vector2 position, int value, float ground_y) 
-        : game_object(position, {16,16}, true), _value(value), _ground_y(ground_y), _speed({-(float)GetRandomValue(-15,15),-(float)GetRandomValue(300,500)}){}
+        : game_object(position, {41,39}, true), _value(value), _ground_y(ground_y), _speed({-(float)GetRandomValue(-15,15),-(float)GetRandomValue(300,500)}){}
         
         void update(float dt)override{
             Vector2 pos = get_position();

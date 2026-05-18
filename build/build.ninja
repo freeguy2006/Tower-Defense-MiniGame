@@ -53,15 +53,6 @@ build CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj: CXX_COMPILER__TowerD
   OBJECT_FILE_DIR = CMakeFiles\TowerDefenseGame_lib.dir\src
   TARGET_SUPPORT_DIR = CMakeFiles\TowerDefenseGame_lib.dir
 
-build CMakeFiles/TowerDefenseGame_lib.dir/src/Player.cpp.obj: CXX_COMPILER__TowerDefenseGame_lib_unscanned_ D$:/大學/政大$ 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/Player.cpp || cmake_object_order_depends_target_TowerDefenseGame_lib
-  DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
-  DEP_FILE = CMakeFiles\TowerDefenseGame_lib.dir\src\Player.cpp.obj.d
-  FLAGS = -std=c++17
-  INCLUDES = -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src/external/glfw/include"
-  OBJECT_DIR = CMakeFiles\TowerDefenseGame_lib.dir
-  OBJECT_FILE_DIR = CMakeFiles\TowerDefenseGame_lib.dir\src
-  TARGET_SUPPORT_DIR = CMakeFiles\TowerDefenseGame_lib.dir
-
 
 # =============================================================================
 # Link build statements for STATIC_LIBRARY target TowerDefenseGame_lib
@@ -70,7 +61,7 @@ build CMakeFiles/TowerDefenseGame_lib.dir/src/Player.cpp.obj: CXX_COMPILER__Towe
 #############################################
 # Link the static library libTowerDefenseGame_lib.a
 
-build libTowerDefenseGame_lib.a: CXX_STATIC_LIBRARY_LINKER__TowerDefenseGame_lib_ CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj CMakeFiles/TowerDefenseGame_lib.dir/src/Player.cpp.obj || _deps/raylib-build/raylib/external/glfw/src/glfw _deps/raylib-build/raylib/libraylib.a
+build libTowerDefenseGame_lib.a: CXX_STATIC_LIBRARY_LINKER__TowerDefenseGame_lib_ CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj || _deps/raylib-build/raylib/external/glfw/src/glfw _deps/raylib-build/raylib/libraylib.a
   OBJECT_DIR = CMakeFiles\TowerDefenseGame_lib.dir
   POST_BUILD = cd .
   PRE_LINK = cd .

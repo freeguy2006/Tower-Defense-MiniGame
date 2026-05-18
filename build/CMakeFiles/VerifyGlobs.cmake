@@ -48,7 +48,6 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/*.cpp")
 set(OLD_GLOB
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/Game.cpp"
-  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/Player.cpp"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/main.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")

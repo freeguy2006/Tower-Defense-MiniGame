@@ -29,16 +29,22 @@ class game{
         std::vector<projectile> _projectiles;
         std::vector<wave> _waves;
         std::vector<coin> _coins;
-        int _current_wave = 0;
-        int _enemies_spawned = 0;
+        // wave
         bool _is_wave_active = false;
         float _wave_rest_timer = 0; 
         float _wave_rest_duration = 5;
-        // details
+        int _current_wave = 0;        
+        // player
+        int _player_damage = 2;
+        int _multi_shot = 1;
+        // enemy
+        int _enemies_spawned = 0;
         float _enemy_spawn_timer = 0;
         float _enemy_spawn_cooldown = 1.0;
-        int _kill_count = 0; // the number of enemy killed
+        int _kill_count = 0; 
+        // statement
         game_statement _game_statement = START;
+        // golds
         int _golds = 0;
         int _max_golds = 100;
         // textures

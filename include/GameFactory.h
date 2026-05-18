@@ -21,8 +21,8 @@ class game_factory {
             return castle(position, {200,700}, true, 100);
         }
         // projectile(位置, 大小, 活著, 傷害, 速度)
-        static projectile create_projectile(Vector2 position, Vector2 speed) {
-            return projectile(position, {10,10}, true, 2, speed);
+        static projectile create_projectile(Vector2 position, int damage, Vector2 speed) {
+            return projectile(position, {10,10}, true, damage, speed);
         }
 
         // enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型)

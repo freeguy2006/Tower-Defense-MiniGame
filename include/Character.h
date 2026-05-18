@@ -19,4 +19,5 @@ class character: public game_object{
         void take_damage(int damage){ _health.take_damage(damage); }
         Vector2 get_speed()const{ return _speed; }
         void set_speed(Vector2 speed){ _speed = speed; }
+        void increase_max_hp(int amount){ _health.increase_max_hp(amount); }
 };

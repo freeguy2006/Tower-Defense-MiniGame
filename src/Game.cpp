@@ -6,6 +6,7 @@
 // projectile 可用: update(), get_rect(), get_damage(), get_position()
 // factory 可用: game_factory::create_player(), create_enemy(), create_castle(), create_projectile()
 #include "Game.h"
+// #define DEBUG_HITBOX
 // ------------------------------------  update ----------------------------------
 void game::update(float dt){
     _player.update(dt);
@@ -223,19 +224,23 @@ void game::update(float dt){
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
         Vector2 mouse_pos = GetMousePosition();
-        Vector2 player_pos = _player.get_position();
         Vector2 player_center = {
-            player_pos.x + _player.get_size().x / 2,
-            player_pos.y + _player.get_size().y / 2
+            _player.get_position().x + _player.get_size().x / 2,
+            _player.get_position().y + _player.get_size().y / 2
         };
         Vector2 delta = {mouse_pos.x - player_center.x, mouse_pos.y - player_center.y};
         float length = sqrt(delta.x * delta.x + delta.y * delta.y);
+
         if(length > 0){
             float bullet_speed = 1400.0;
-            Vector2 speed = {(delta.x/length)*bullet_speed,(delta.y/length)*bullet_speed};
-            
-            projectile p = game_factory::create_projectile(player_center, speed);
-            _projectiles.push_back(p);
+            float spread = 0.1;
+            for(int i = 0;i<_multi_shot;i++){
+                float offset = (i - (_multi_shot - 1)/2.0f) *spread;
+                Vector2 dir = {delta.x/length, delta.y/length};
+                Vector2 speed = {(dir.x*cos(offset)-dir.y*sin(offset))*bullet_speed,(dir.x*sin(offset)+dir.y*cos(offset))*bullet_speed };
+                projectile p = game_factory::create_projectile(player_center, _player_damage, speed);
+                _projectiles.push_back(p);
+            }
         }
     }
 
@@ -321,20 +326,24 @@ void game::draw(){
     // coin
     for(int i = 0;i<_coins.size();i++){
         DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
+#ifdef DEBUG_HITBOX
+        DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
+#endif
     }
-    // 血條
+    //血條
+    //castle
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
     DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
     DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,25,BLACK);
-    
+    //player
     DrawRectangleRec({20, 60, 500, 25}, GRAY);
     DrawRectangleRec({20, 60, 500.0f * _player.get_hp() / _player.get_max_hp(), 25}, ORANGE);
-    
-    // golds
-    DrawRectangleRec({2100, 20, 250, 25}, GRAY);
-    DrawRectangleRec({2100, 20, 250.0f * _golds / _max_golds, 25}, GOLD);
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2100, 20, 25, BLACK);
     DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,60,25,BLACK);
+    // golds
+    float gold_bar_width = 250.0f * _golds / _max_golds;
+    DrawRectangleRec({2100, 20, 250, 30}, GRAY);
+    DrawRectangleRec({2350 - gold_bar_width, 20, gold_bar_width, 30}, GOLD);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2100, 20, 30, BLACK);
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
@@ -391,24 +400,36 @@ void game::run(){
 game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({-10, game_factory::GROUND_Y-568})){}
 
 void game::reset(){
+    
+    
     _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
     _castle = game_factory::create_castle({100, game_factory::GROUND_Y-568});
-    // _wave = 0;
-    _kill_count = 0;
+    
     for(int i = 0;i<_enemies.size();i++){
         delete _enemies[i];
     }
-    _enemies.clear();
-    _projectiles.clear();
+    
+    // game
     _game_statement = START;
+    // player
+    _player_damage = 2;
+    _multi_shot = 1;
+    // enemy
+    _enemies.clear();
     _enemy_spawn_timer = 0;
-    _current_wave = 0;
     _enemies_spawned = 0;
+    _kill_count = 0;
+    // projectiles
+    _projectiles.clear();
+    // wave
+    _current_wave = 0;
     _is_wave_active = false;
     _wave_rest_timer = 0;
+    // golds
     _coins.clear();
     _golds = 0;
     _max_golds = 100;
+
 }
 
 // init 

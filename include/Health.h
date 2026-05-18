@@ -21,4 +21,8 @@ class health{
             _hp -= damage;
             if(_hp < 0) _hp = 0;
         }
+        void increase_max_hp(int amount){
+            _max_hp += amount;
+            _hp += amount;
+        }
 };
