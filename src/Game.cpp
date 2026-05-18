@@ -10,6 +10,31 @@
 void game::update(float dt){
     _player.update(dt);
     _castle.update(dt);
+
+    // buff 
+    for(int i = 0;i<_enemies.size();i++){
+        _enemies[i]->reset_speed();
+    }
+    for(int i = 0;i<_enemies.size();i++){
+        for(int j = 0;j<_enemies.size();j++){
+            if(i==j) continue;
+            for(int k = 0;k<_enemies[j]->get_behaviors().size();k++){
+                buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[j]->get_behaviors()[k]);
+                if(buff){
+                    float dx = _enemies[i]->get_position().x - _enemies[j]->get_position().x;
+                    float dy = _enemies[i]->get_position().y - _enemies[j]->get_position().y;
+                    float dist = sqrt(dx*dx+dy*dy);
+                    if(dist <= buff->get_buff_range()){
+                        Vector2 spd = _enemies[i]->get_speed();
+                        spd.x *= buff->get_speed_boost();
+                        _enemies[i]->set_speed(spd);
+                    }
+                }
+            }
+        }
+    }
+    
+    // position update
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->update(dt);
     }
@@ -55,7 +80,6 @@ void game::update(float dt){
                 _current_wave++;
                 _enemy_spawn_timer = 0;
             }
-
         }
     }
 
@@ -96,7 +120,22 @@ void game::update(float dt){
     // castle, enemy
     for(int i = _enemies.size()-1;i>=0;i--){      
         if(CheckCollisionRecs(_enemies[i]->get_rect(),_castle.get_rect())){
-            _castle.take_damage(_enemies[i]->get_hp());
+            int damage = _enemies[i]->get_hp();
+            for(int k = 0; k < _enemies.size(); k++){
+                if(k == i) continue;
+                for(int b = 0; b < _enemies[k]->get_behaviors().size(); b++){
+                    buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]);
+                    if(buff){
+                        float dx = _enemies[i]->get_position().x - _enemies[k]->get_position().x;
+                        float dy = _enemies[i]->get_position().y - _enemies[k]->get_position().y;
+                        float dist = sqrt(dx*dx + dy*dy);
+                        if(dist <= buff->get_buff_range()){
+                            damage *= buff->get_damage_boost();
+                        }
+                    }
+                }
+            }
+            _castle.take_damage(damage);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -104,7 +143,22 @@ void game::update(float dt){
     // player, enemy
     for(int i = _enemies.size()-1;i>=0;i--){      
         if(CheckCollisionRecs(_enemies[i]->get_rect(),_player.get_rect())){
-            _player.take_damage(_enemies[i]->get_hp());
+            int damage = _enemies[i]->get_hp();
+            for(int k = 0; k < _enemies.size(); k++){
+                if(k == i) continue;
+                for(int b = 0; b < _enemies[k]->get_behaviors().size(); b++){
+                    buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]);
+                    if(buff){
+                        float dx = _enemies[i]->get_position().x - _enemies[k]->get_position().x;
+                        float dy = _enemies[i]->get_position().y - _enemies[k]->get_position().y;
+                        float dist = sqrt(dx*dx + dy*dy);
+                        if(dist <= buff->get_buff_range()){
+                            damage *= buff->get_damage_boost();
+                        }
+                    }
+                }
+            }
+            _player.take_damage(damage);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -186,6 +240,19 @@ void game::draw(){
         // enemy 血條
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
+    }
+    // buff 光圈
+    for(int i = 0;i<_enemies.size();i++){
+        for(int j = 0;j < _enemies[i]->get_behaviors().size();j++){
+            buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[i]->get_behaviors()[j]);
+            if(buff){
+                Vector2 center = {
+                    _enemies[i]->get_position().x+_enemies[i]->get_size().x/2,
+                    _enemies[i]->get_position().y+_enemies[i]->get_size().y/2
+                };
+                DrawCircleLines(center.x,center.y,buff->get_buff_range(),BLUE); 
+            }
+        }
     }
     // projectile
     for(int i = 0;i<_projectiles.size();i++){
@@ -277,7 +344,7 @@ game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-
 
 void game::reset(){
     _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
-    _castle = game_factory::create_castle({100, game_factory::GROUND_Y-400});
+    _castle = game_factory::create_castle({100, game_factory::GROUND_Y-568});
     // _wave = 0;
     _kill_count = 0;
     for(int i = 0;i<_enemies.size();i++){

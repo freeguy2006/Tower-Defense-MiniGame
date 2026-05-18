@@ -45,7 +45,7 @@ cmake_ninja_workdir = D$:/大學/政大$ 課程/大一下/物件導向程式設�
 build cmake_object_order_depends_target_TowerDefenseGame_lib: phony || cmake_object_order_depends_target_glfw cmake_object_order_depends_target_raylib
 
 build CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj: CXX_COMPILER__TowerDefenseGame_lib_unscanned_ D$:/大學/政大$ 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/Game.cpp || cmake_object_order_depends_target_TowerDefenseGame_lib
-  DEFINES = -DDEBUG_HITBOX -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
+  DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
   DEP_FILE = CMakeFiles\TowerDefenseGame_lib.dir\src\Game.cpp.obj.d
   FLAGS = -std=c++17
   INCLUDES = -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src/external/glfw/include"
@@ -54,7 +54,7 @@ build CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj: CXX_COMPILER__TowerD
   TARGET_SUPPORT_DIR = CMakeFiles\TowerDefenseGame_lib.dir
 
 build CMakeFiles/TowerDefenseGame_lib.dir/src/Player.cpp.obj: CXX_COMPILER__TowerDefenseGame_lib_unscanned_ D$:/大學/政大$ 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/Player.cpp || cmake_object_order_depends_target_TowerDefenseGame_lib
-  DEFINES = -DDEBUG_HITBOX -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
+  DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
   DEP_FILE = CMakeFiles\TowerDefenseGame_lib.dir\src\Player.cpp.obj.d
   FLAGS = -std=c++17
   INCLUDES = -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src/external/glfw/include"
@@ -88,7 +88,7 @@ build libTowerDefenseGame_lib.a: CXX_STATIC_LIBRARY_LINKER__TowerDefenseGame_lib
 build cmake_object_order_depends_target_TowerDefenseGame: phony || cmake_object_order_depends_target_TowerDefenseGame_lib cmake_object_order_depends_target_glfw cmake_object_order_depends_target_raylib
 
 build CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj: CXX_COMPILER__TowerDefenseGame_unscanned_ D$:/大學/政大$ 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/src/main.cpp || cmake_object_order_depends_target_TowerDefenseGame
-  DEFINES = -DDEBUG_HITBOX -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
+  DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
   DEP_FILE = CMakeFiles\TowerDefenseGame.dir\src\main.cpp.obj.d
   FLAGS = -std=c++17
   INCLUDES = -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src" -I"D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-src/src/external/glfw/include"

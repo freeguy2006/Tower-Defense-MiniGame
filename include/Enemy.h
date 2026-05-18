@@ -9,10 +9,11 @@ class enemy : public character{
     private:
         enemy_type _enemy_type;
         int _target_x;
+        Vector2 _base_speed;
         std::vector<enemy_behavior*> _behaviors;
     public:
         enemy(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed, int target_x, enemy_type type) 
-        : character(position, size, active, hp, speed), _target_x(target_x), _enemy_type(type) {}
+        : character(position, size, active, hp, speed), _target_x(target_x), _enemy_type(type), _base_speed(speed){}
         
         virtual ~enemy(){
             for(int i = 0;i<_behaviors.size();i++){
@@ -22,6 +23,8 @@ class enemy : public character{
 
         void add_behavior(enemy_behavior* behavior){ _behaviors.push_back(behavior); }
         std::vector<enemy_behavior*> get_behaviors() const { return _behaviors; }
+        void reset_speed(){ set_speed(_base_speed); }
+        Vector2 get_base_speed() const { return _base_speed; }
         enemy_type get_enemy_type() const { return _enemy_type; }
         void update(float dt) override {
             if (get_position().x > _target_x) {
