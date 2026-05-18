@@ -326,9 +326,9 @@ void game::draw(){
     // coin
     for(int i = 0;i<_coins.size();i++){
         DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
-#ifdef DEBUG_HITBOX
-        DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
-#endif
+    #ifdef DEBUG_HITBOX
+            DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
+    #endif
     }
     //血條
     //castle
@@ -371,9 +371,39 @@ void game::run(){
             //暫停畫面
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("Paused",200,400,100,DARKGRAY);
-            DrawText("Press Enter to continue",200,600,70,DARKGRAY);
+            const char* item[6] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1"};
+            const int cost[6] = {20,20,20,40,50,80};
+            const int cost_gain[6] = {10,10,10,30,30,80};
+            DrawText("~~ SHOP ~~",200,50,100,DARKGRAY);
+            for(int i = 0;i<6;i++){
+                DrawText(TextFormat("%s",item[i]), 200, 250 + i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+                DrawText(TextFormat("Lv: %d", _player_level[i]), 700, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+                DrawText(TextFormat("Cost: %d",cost[i]+cost_gain[i]*_player_level[i]), 850, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+                
+            }
+            DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 200, 670, 40, GOLD);
+            DrawText("Press Enter to continue", 200, 730, 40, DARKGRAY);
             EndDrawing();
+
+            if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]+cost_gain[0]*_player_level[0]){
+                _golds -= cost[0]+cost_gain[0]*_player_level[0]; _player_damage += 1; _player_level[0]++;
+            }
+            if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]+cost_gain[1]*_player_level[1]){
+                _golds -= cost[1]+cost_gain[1]*_player_level[1]; _player.increase_max_hp(10); _player_level[1]++;
+            }
+            if(IsKeyPressed(KEY_THREE) && _golds >= cost[2]+cost_gain[2]*_player_level[2]){
+                _golds -= cost[2]+cost_gain[2]*_player_level[2]; _castle.increase_max_hp(20); _player_level[2]++;
+            }
+            if(IsKeyPressed(KEY_FOUR) && _golds >= cost[3]+cost_gain[3]*_player_level[3]){
+                _golds -= cost[3]+cost_gain[3]*_player_level[3]; _max_golds += 50; _player_level[3]++;
+            }
+            if(IsKeyPressed(KEY_FIVE) && _golds >= cost[4]+cost_gain[4]*_player_level[4]){
+                _golds -= cost[4]+cost_gain[4]*_player_level[4]; _player.decrease_cooldown(0.05f); _player_level[4]++;
+            }
+            if(IsKeyPressed(KEY_SIX) && _golds >= cost[5]+cost_gain[5]*_player_level[5]){
+                _golds -= cost[5]+cost_gain[5]*_player_level[5]; _multi_shot += 1; _player_level[5]++;
+            }
+            
             if(IsKeyPressed(KEY_ENTER)){
                 _game_statement = PLAYING;
             }
@@ -429,7 +459,10 @@ void game::reset(){
     _coins.clear();
     _golds = 0;
     _max_golds = 100;
-
+    // player_levels
+    for(int i = 0;i<_player_level[i];i++){
+        _player_level[i] = 0;
+    }
 }
 
 // init 

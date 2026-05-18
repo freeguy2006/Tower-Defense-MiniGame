@@ -47,6 +47,8 @@ class game{
         // golds
         int _golds = 0;
         int _max_golds = 100;
+        // player_levels
+        int _player_level[6] = {0};
         // textures
         Texture2D _enemy_green_texture;
         Texture2D _enemy_black_texture;
