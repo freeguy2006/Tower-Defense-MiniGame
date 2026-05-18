@@ -15,12 +15,12 @@ void game::update(float dt){
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->reset_speed();
     }
-    for(int i = 0;i<_enemies.size();i++){
+    for(int i = 0;i<_enemies.size();i++){ 
         for(int j = 0;j<_enemies.size();j++){
             if(i==j) continue;
             for(int k = 0;k<_enemies[j]->get_behaviors().size();k++){
                 buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[j]->get_behaviors()[k]);
-                if(buff){
+                if(buff){ // 加速，加傷害，抗性
                     float dx = _enemies[i]->get_position().x - _enemies[j]->get_position().x;
                     float dy = _enemies[i]->get_position().y - _enemies[j]->get_position().y;
                     float dist = sqrt(dx*dx+dy*dy);
@@ -30,10 +30,19 @@ void game::update(float dt){
                         _enemies[i]->set_speed(spd);
                     }
                 }
+                heal_behavior* heal = dynamic_cast<heal_behavior*>(_enemies[j]->get_behaviors()[k]);
+                if(heal && heal->is_able_to_heal()){ // 治療
+                    float dx = _enemies[i]->get_position().x - _enemies[j]->get_position().x;
+                    float dy = _enemies[i]->get_position().y - _enemies[j]->get_position().y;
+                    float dist = sqrt(dx*dx + dy*dy);
+                    if(dist <= heal->get_heal_range()){
+                        _enemies[i]->heal(heal->get_heal_amount());
+                    }
+                }
             }
         }
     }
-    
+
     // position update
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->update(dt);
@@ -82,8 +91,10 @@ void game::update(float dt){
             }
         }
     }
-
-
+    // coin
+    for(int i = 0;i<_coins.size();i++){
+        _coins[i].update(dt);
+    }
     // -----------------object collision ----------------------- 
     // projectile, enemy 
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
@@ -163,14 +174,33 @@ void game::update(float dt){
             _enemies.erase(_enemies.begin() + i);
         }
     }
+    // coin, player
+    for(int i = _coins.size()-1; i >= 0; i--){
+        if(CheckCollisionRecs(_player.get_rect(), _coins[i].get_rect())){
+            _golds += _coins[i].get_value();
+            if(_golds > _max_golds) _golds = _max_golds;
+            _coins.erase(_coins.begin() + i);
+        }
+    }
     //------------------------------------------------------
 
     // check enemy is dead
     for(int i = _enemies.size()-1 ; i>=0 ; i--){ 
         if(_enemies[i]->get_hp()<=0){
+            Vector2 pos = _enemies[i]->get_position();
+            int coin_num = _enemies[i]->get_reward();
+            for(int c = 0; c < coin_num; c++){
+                _coins.push_back(coin(pos, 1, game_factory::GROUND_Y-16));
+            }
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
             _kill_count++;
+        }
+    }
+    // delete expired coin
+    for(int i = _coins.size()-1; i >= 0; i--){
+        if(_coins[i].is_expired()){
+            _coins.erase(_coins.begin() + i);
         }
     }
     // delete projectiles out of window
@@ -215,8 +245,9 @@ void game::update(float dt){
 void game::draw(){
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     
+    // background
+    DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     // castle
     DrawTextureEx(_castle_texture,_castle.get_position(),0,0.6,WHITE);
     #ifdef DEBUG_HITBOX
@@ -241,7 +272,7 @@ void game::draw(){
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
     }
-    // buff 光圈
+    // buff, heal 光圈
     for(int i = 0;i<_enemies.size();i++){
         for(int j = 0;j < _enemies[i]->get_behaviors().size();j++){
             buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[i]->get_behaviors()[j]);
@@ -251,6 +282,14 @@ void game::draw(){
                     _enemies[i]->get_position().y+_enemies[i]->get_size().y/2
                 };
                 DrawCircleLines(center.x,center.y,buff->get_buff_range(),BLUE); 
+            }
+            heal_behavior* heal = dynamic_cast<heal_behavior*>(_enemies[i]->get_behaviors()[j]);
+            if(heal){
+                Vector2 center = {
+                    _enemies[i]->get_position().x+_enemies[i]->get_size().x/2,
+                    _enemies[i]->get_position().y+_enemies[i]->get_size().y/2
+                };
+                DrawCircleLines(center.x,center.y,heal->get_heal_range(),YELLOW); 
             }
         }
     }
@@ -279,6 +318,10 @@ void game::draw(){
         DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
     #endif
 
+    // coin
+    for(int i = 0;i<_coins.size();i++){
+        DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
+    }
     // 血條
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
     DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
@@ -286,6 +329,11 @@ void game::draw(){
     
     DrawRectangleRec({20, 60, 500, 25}, GRAY);
     DrawRectangleRec({20, 60, 500.0f * _player.get_hp() / _player.get_max_hp(), 25}, ORANGE);
+    
+    // golds
+    DrawRectangleRec({2100, 20, 250, 25}, GRAY);
+    DrawRectangleRec({2100, 20, 250.0f * _golds / _max_golds, 25}, GOLD);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2100, 20, 25, BLACK);
     DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,60,25,BLACK);
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
@@ -358,6 +406,9 @@ void game::reset(){
     _enemies_spawned = 0;
     _is_wave_active = false;
     _wave_rest_timer = 0;
+    _coins.clear();
+    _golds = 0;
+    _max_golds = 100;
 }
 
 // init 
@@ -378,7 +429,7 @@ void game::init(){
     _castle_texture = LoadTexture("resources/castle/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/player/player_archer.png");
-
+    _coin_texture = LoadTexture("resources/coin/coin_4.png");
     // wave
     load_waves("resources/levels.txt");
 }
@@ -398,6 +449,7 @@ void game::close(){
     UnloadTexture(_castle_texture);
     UnloadTexture(_background_texture);
     UnloadTexture(_player_texture);
+    UnloadTexture(_coin_texture);
     CloseWindow();
 }
 

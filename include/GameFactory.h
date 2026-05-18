@@ -5,6 +5,7 @@
 #include "FlyingEnemy.h"
 #include "JumpBehavior.h"
 #include "BuffBehavior.h"
+#include "HealBehavior.h"
 #include "Projectile.h"
 
 class game_factory {
@@ -32,43 +33,45 @@ class game_factory {
 
         // 黑色（不跳）
         static enemy* create_enemy_black(Vector2 position) {
-            return new enemy(position, {94,88}, true, 30, {-(float)GetRandomValue(90,110),0}, 0, SLIMEBLACK);
+            return new enemy(position, {94,88}, true, 30, {-(float)GetRandomValue(90,110),0}, 0, SLIMEBLACK, GetRandomValue(1,3));
         }
         // 綠色（小跳）
         static enemy* create_enemy_green(Vector2 position) {
-            enemy* e = new enemy(position, {60,54}, true, 5, {-(float)GetRandomValue(180,220),0}, 0, SLIMEGREEN);
+            enemy* e = new enemy(position, {60,54}, true, 5, {-(float)GetRandomValue(180,220),0}, 0, SLIMEGREEN, GetRandomValue(-1,1));
             e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue(500,650), (float)GetRandomValue(145,155)/100.0f));
             return e;
         }
         // 紅色（小跳）
         static enemy* create_enemy_red(Vector2 position) {
-            enemy* e = new enemy(position, {67,60}, true, 3, {-(float)GetRandomValue(380,420),0}, 0, SLIMERED);
+            enemy* e = new enemy(position, {67,60}, true, 3, {-(float)GetRandomValue(380,420),0}, 0, SLIMERED, GetRandomValue(-1,2));
             e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue(700,900), (float)GetRandomValue(95,145)/100.0f));
             return e;
         }
         // 紫色（小跳+大跳交替）
         static enemy* create_enemy_purple(Vector2 position) {
-            enemy* e = new enemy(position, {63,61}, true, 10, {-(float)GetRandomValue(170,190),0}, 0, SLIMEPURPLE);
+            enemy* e = new enemy(position, {63,61}, true, 10, {-(float)GetRandomValue(170,190),0}, 0, SLIMEPURPLE, GetRandomValue(1,3));
             e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue(750,850),(float)GetRandomValue(1200,1400),(float)GetRandomValue(135,155)/100.0f));
             return e;
         }
         // 藍色（buff）
         static enemy* create_enemy_blue(Vector2 position) {
-            enemy* e = new enemy(position, {61,54}, true, 10, {-(float)GetRandomValue(170,190),0}, 0, SLIMEBLUE);
+            enemy* e = new enemy(position, {61,54}, true, 10, {-(float)GetRandomValue(170,190),0}, 0, SLIMEBLUE, GetRandomValue(2,4));
             e->add_behavior(new buff_behavior(385, 0.5f, 3.0f, 1.1f));
             return e;
         }
         // 天使
         static flying_enemy* create_enemy_angel(Vector2 position) {
-            return new flying_enemy(position, {88,81}, true, 10, {-(float)GetRandomValue(170,200),0}, 0, FLYINGANGEL, (float)GetRandomValue(100,160),(float)GetRandomValue(200,250)/100.0f);
+            flying_enemy* e = new flying_enemy(position, {88,81}, true, 10, {-(float)GetRandomValue(170,200),0}, 0, FLYINGANGEL, (float)GetRandomValue(100,160),(float)GetRandomValue(200,250)/100.0f,GetRandomValue(2,3));
+            e->add_behavior(new heal_behavior(2,2,200));
+            return e;
         }
         // 小鳥
         static flying_enemy* create_enemy_bird(Vector2 position) {
-            return new flying_enemy(position, {39,37}, true, 5, {-(float)GetRandomValue(170,200),0}, 0, FLYINGBIRD, (float)GetRandomValue(100,160),(float)GetRandomValue(300,500)/100.0f);
+            return new flying_enemy(position, {39,37}, true, 5, {-(float)GetRandomValue(170,200),0}, 0, FLYINGBIRD, (float)GetRandomValue(100,160),(float)GetRandomValue(300,500)/100.0f,1);
         }
         // 飛龍（Boss）
         static flying_enemy* create_enemy_dragon(Vector2 position) {
-            return new flying_enemy(position, {136,136}, true, 50, {-(float)GetRandomValue(150,180),0}, 0, FLYINGDRAGON, (float)GetRandomValue(100,120),(float)GetRandomValue(100,150)/100.0f);
+            return new flying_enemy(position, {136,136}, true, 50, {-(float)GetRandomValue(150,180),0}, 0, FLYINGDRAGON, (float)GetRandomValue(100,120),(float)GetRandomValue(100,150)/100.0f,GetRandomValue(7,12));
         }
 
 };

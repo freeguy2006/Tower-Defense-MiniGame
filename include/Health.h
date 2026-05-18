@@ -8,6 +8,12 @@ class health{
     public:
         health(int hp): _hp(hp), _max_hp(hp){}
         ~health() = default;
+        
+        void heal(float amount){
+            _hp += amount;
+            if(_hp > _max_hp) _hp = _max_hp;
+        }
+
         int get_hp() const { return _hp; }
         int get_max_hp() const { return _max_hp; }
         bool is_alive() const { return _hp > 0; }

@@ -14,6 +14,8 @@
 #include "GameFactory.h"
 #include "BuffBehavior.h"
 #include "JumpBehavior.h"
+#include "HealBehavior.h"
+#include "Coin.h"
 
 enum game_statement{START,PLAYING,PAUSE,WIN,LOSE};
 
@@ -26,6 +28,7 @@ class game{
         std::vector<enemy*> _enemies;
         std::vector<projectile> _projectiles;
         std::vector<wave> _waves;
+        std::vector<coin> _coins;
         int _current_wave = 0;
         int _enemies_spawned = 0;
         bool _is_wave_active = false;
@@ -36,7 +39,8 @@ class game{
         float _enemy_spawn_cooldown = 1.0;
         int _kill_count = 0; // the number of enemy killed
         game_statement _game_statement = START;
-        
+        int _golds = 0;
+        int _max_golds = 100;
         // textures
         Texture2D _enemy_green_texture;
         Texture2D _enemy_black_texture;
@@ -50,7 +54,7 @@ class game{
         Texture2D _castle_texture;
         Texture2D _background_texture;
         Texture2D _player_texture;
-        
+        Texture2D _coin_texture;
     public:
         game();
         ~game() = default;

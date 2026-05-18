@@ -15,6 +15,7 @@ class character: public game_object{
         int get_hp() const { return _health.get_hp(); }
         int get_max_hp() const { return _health.get_max_hp(); }
         bool is_alive() const { return _health.is_alive(); }
+        void heal(float amount){ _health.heal(amount); }
         void take_damage(int damage){ _health.take_damage(damage); }
         Vector2 get_speed()const{ return _speed; }
         void set_speed(Vector2 speed){ _speed = speed; }
