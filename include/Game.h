@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <map>
+#include <string>
+#include <sstream>
+#include <fstream>
 #include "Player.h"
 #include "Enemy.h"
 #include "Castle.h"
@@ -8,6 +12,8 @@
 #include "Wave.h"
 #include "Projectile.h"
 #include "GameFactory.h"
+#include "BuffBehavior.h"
+#include "JumpBehavior.h"
 
 enum game_statement{START,PLAYING,PAUSE,WIN,LOSE};
 
@@ -51,12 +57,11 @@ class game{
         void init();
         void close();
         void reset();
-        int get_enemies_size(){ return _enemies.size(); }
+        int get_enemies_size() const { return _enemies.size(); }
 
         void update(float dt);
         void draw();
         void run();
-        void add_enemy(enemy* e){
-            _enemies.push_back(e);
-        }
+        void add_enemy(enemy* e){ _enemies.push_back(e); }
+        void load_waves(const char* path);
 };

@@ -36,23 +36,24 @@ void game::update(float dt){
                 enemy_type type = w.get_coming_enemies()[_enemies_spawned];
                 
                 switch(type){
-                    case SLIMEGREEN: _enemies.push_back(new enemy(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-64}))); break;
-                    case SLIMEBLACK: _enemies.push_back(new enemy(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-96}))); break;
-                    case SLIMERED: _enemies.push_back(new enemy(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-38}))); break;
-                    case SLIMEPURPLE: _enemies.push_back(new enemy(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-72}))); break;
-                    case SLIMEBLUE: _enemies.push_back(new enemy(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-72}))); break;
-                    case FLYINGANGEL: _enemies.push_back(new flying_enemy(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-200}))); break;
-                    case FLYINGBIRD: _enemies.push_back(new flying_enemy(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-250}))); break;
-                    case FLYINGDRAGON: _enemies.push_back(new flying_enemy(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-200}))); break;
+                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-64})); break;
+                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-96})); break;
+                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-38})); break;
+                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-72})); break;
+                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-72})); break;
+                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-200})); break;
+                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-250})); break;
+                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-200})); break;
                 }
                 
                 _enemies_spawned++;
                 _enemy_spawn_timer = 0;
                 
             }
-            if(_enemies_spawned >= w.get_total_enemies()&&_enemies.empty()){
+            if(_enemies_spawned >= w.get_total_enemies() && _enemies.empty()){
                 _is_wave_active = false;
                 _current_wave++;
+                _enemy_spawn_timer = 0;
             }
 
         }
@@ -64,7 +65,29 @@ void game::update(float dt){
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
             if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j]->get_rect())){
-                _enemies[j]->take_damage(_projectiles[i].get_damage());
+                int damage = _projectiles[i].get_damage();
+                // 所有enemy找一遍
+                for(int k = 0;k<_enemies.size();k++){ 
+                    if(k == j) continue;
+
+                    // 各個 enemies 的所有 behavior 搜一遍
+                    for(int b = 0;b<_enemies[k]->get_behaviors().size();b++){
+                        // dynamic cast 把 enemy 轉成 buff ，jump 變 null
+                        buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]); 
+                        // 如果 behavior 是 buff  
+                        if(buff != nullptr){
+                            // 算距離
+                            float dx = _enemies[j]->get_position().x-_enemies[k]->get_position().x;
+                            float dy = _enemies[j]->get_position().y-_enemies[k]->get_position().y;
+                            float dist = sqrt(dx*dx+dy*dy);
+                            if(dist <= buff->get_buff_range()){
+                                damage *= buff->get_damage_reduction(); 
+                            }
+                        }
+                    }
+                }
+                
+                _enemies[j]->take_damage(damage);
                 _projectiles.erase(_projectiles.begin() + i);
                 break;
             }
@@ -181,15 +204,17 @@ void game::draw(){
     DrawTexturePro(_player_texture, source, dest, {0,0}, 0, WHITE);
 
     // 血條
-    DrawRectangleRec({20, 20, 1000, 20}, GRAY);
-    DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 20}, RED);
-    DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,20,BLACK);
+    DrawRectangleRec({20, 20, 1000, 25}, GRAY);
+    DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
+    DrawText(TextFormat("Castle HP: %d",_castle.get_hp()),20,20,25,BLACK);
     
-    DrawRectangleRec({20, 50, 500, 20}, GRAY);
-    DrawRectangleRec({20, 50, 500.0f * _player.get_hp() / _player.get_max_hp(), 20}, ORANGE);
-    DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,50,20,BLACK);
-    
-    DrawText(TextFormat("Kills: %d",_kill_count),20,80,20,BLACK);
+    DrawRectangleRec({20, 60, 500, 25}, GRAY);
+    DrawRectangleRec({20, 60, 500.0f * _player.get_hp() / _player.get_max_hp(), 25}, ORANGE);
+    DrawText(TextFormat("Player HP: %d",_player.get_hp()),20,60,25,BLACK);
+    // 殺敵數
+    DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
+    // 第幾波
+    DrawText(TextFormat("Wave: %d / %d", _current_wave, _waves.size()),1300,20,40,BLACK );
     EndDrawing();
 }
 
@@ -279,11 +304,7 @@ void game::init(){
     _player_texture = LoadTexture("resources/player/player_archer.png");
 
     // wave
-    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEGREEN, SLIMEGREEN, SLIMEGREEN}, 1));
-    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMEBLACK}, 1));
-    _waves.push_back(wave({SLIMEGREEN, SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMERED}, 1));
-    _waves.push_back(wave({SLIMEGREEN, SLIMEBLACK, SLIMEBLACK, SLIMERED, SLIMERED}, 1));
-    _waves.push_back(wave({SLIMEBLACK, SLIMEBLACK, SLIMERED, SLIMERED, SLIMERED}, 1));
+    load_waves("resources/levels.txt");
 }
 
 
@@ -302,4 +323,31 @@ void game::close(){
     UnloadTexture(_background_texture);
     UnloadTexture(_player_texture);
     CloseWindow();
+}
+
+// load waves from  "resources\levels.txt"
+void game::load_waves(const char* path){
+    std::map<std::string, enemy_type> string_to_type = {
+        {"SG", SLIMEGREEN},
+        {"SK", SLIMEBLACK},
+        {"SR", SLIMERED},
+        {"SB", SLIMEBLUE},
+        {"SP", SLIMEPURPLE},
+        {"FA", FLYINGANGEL},
+        {"FB", FLYINGBIRD},
+        {"FD", FLYINGDRAGON}
+    };
+    std::ifstream file(path);
+    std::string line;
+    while(std::getline(file,line)){
+        std::istringstream ss(line);  
+        float cooldown;
+        ss >> cooldown;
+        std::vector<enemy_type> enemies;
+        std::string enemy_str;
+        while(ss>>enemy_str){
+            enemies.push_back(string_to_type[enemy_str]);
+        }
+        _waves.push_back(wave(enemies,cooldown));
+    }
 }

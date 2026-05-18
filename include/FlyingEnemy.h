@@ -20,6 +20,9 @@ class flying_enemy : public enemy{
                 temp.y = _base_y + sin(_fly_timer*_fly_speed)*_fly_amplitude;
                 set_position(temp);    
             }
+            for (int i = 0;i<get_behaviors().size();i++){
+                get_behaviors()[i]->apply(*this, dt);
+            }
         }
 
 };
