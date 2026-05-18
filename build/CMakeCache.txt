@@ -325,6 +325,9 @@ CPACK_SOURCE_ZIP:BOOL=ON
 //Show options for customizing your Raylib library build.
 CUSTOMIZE_BUILD:BOOL=OFF
 
+//顯示碰撞箱
+DEBUG_HITBOX:BOOL=ON
+
 //Enable AddressSanitizer (ASAN) for debugging (degrades performance)
 ENABLE_ASAN:BOOL=OFF
 

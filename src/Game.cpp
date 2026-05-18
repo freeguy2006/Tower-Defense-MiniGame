@@ -36,14 +36,14 @@ void game::update(float dt){
                 enemy_type type = w.get_coming_enemies()[_enemies_spawned];
                 
                 switch(type){
-                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-64})); break;
-                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-96})); break;
-                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-38})); break;
-                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-72})); break;
-                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-72})); break;
-                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-200})); break;
-                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-250})); break;
-                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-200})); break;
+                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-54})); break;
+                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-88})); break;
+                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-60})); break;
+                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-61})); break;
+                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-54})); break;
+                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-GetRandomValue(250,300)})); break;
+                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-GetRandomValue(300,550)})); break;
+                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-GetRandomValue(300,500)})); break;
                 }
                 
                 _enemies_spawned++;
@@ -161,15 +161,18 @@ void game::update(float dt){
 void game::draw(){
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 2400, 900},{0, 0}, 0, WHITE);
+    DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     
     // castle
-    DrawTextureEx(_castle_texture,_castle.get_position(),0,2,WHITE);
+    DrawTextureEx(_castle_texture,_castle.get_position(),0,0.6,WHITE);
+    #ifdef DEBUG_HITBOX
+        DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
+    #endif
     // enemy
     for(int i = 0;i<_enemies.size();i++){
         switch(_enemies[i]->get_enemy_type()){
             case SLIMEGREEN: DrawTextureEx(_enemy_green_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
-            case SLIMEBLACK: DrawTextureEx(_enemy_black_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
+            case SLIMEBLACK: DrawTextureEx(_enemy_black_texture,_enemies[i]->get_position(),0,2,WHITE); break;
             case SLIMERED: DrawTextureEx(_enemy_red_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
             case SLIMEPURPLE: DrawTextureEx(_enemy_purple_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
             case SLIMEBLUE: DrawTextureEx(_enemy_blue_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
@@ -177,6 +180,9 @@ void game::draw(){
             case FLYINGBIRD: DrawTextureEx(_enemy_bird_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
             case FLYINGDRAGON: DrawTextureEx(_enemy_dragon_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
         }
+        #ifdef DEBUG_HITBOX 
+                DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
+        #endif
         // enemy 血條
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
@@ -202,6 +208,9 @@ void game::draw(){
     Vector2 pos = _player.get_position();
     Rectangle dest = {pos.x, pos.y, (float)_player.get_size().x, (float)_player.get_size().y};
     DrawTexturePro(_player_texture, source, dest, {0,0}, 0, WHITE);
+    #ifdef DEBUG_HITBOX 
+        DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
+    #endif
 
     // 血條
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
@@ -214,7 +223,7 @@ void game::draw(){
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
-    DrawText(TextFormat("Wave: %d / %d", _current_wave, _waves.size()),1300,20,40,BLACK );
+    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , _waves.size()),1300,20,40,BLACK );
     EndDrawing();
 }
 
@@ -264,7 +273,7 @@ void game::run(){
 }
 
 
-game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({100, game_factory::GROUND_Y-400})){}
+game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({-10, game_factory::GROUND_Y-568})){}
 
 void game::reset(){
     _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
