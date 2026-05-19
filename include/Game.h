@@ -17,8 +17,8 @@
 #include "HealBehavior.h"
 #include "Coin.h"
 
-enum game_statement{START,PLAYING,PAUSE,WIN,LOSE};
-
+enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WIN,LOSE};
+float get_distance(enemy* a, enemy* b);
 
 class game{
     private:
@@ -32,7 +32,7 @@ class game{
         // wave
         bool _is_wave_active = false;
         float _wave_rest_timer = 0; 
-        float _wave_rest_duration = 5;
+        float _wave_rest_duration = 4;
         int _current_wave = 0;        
         // player
         int _player_damage = 2;
@@ -48,7 +48,19 @@ class game{
         int _golds = 0;
         int _max_golds = 100;
         // player_levels
-        int _player_level[6] = {0};
+        int _player_level[7] = {0};
+        // debug
+        bool _debug_hitbox = false;
+        // details
+        float _press_delay = 0;
+        // announce
+        float _announce_wave_timer = 0;
+        float _announce_wave_duration = 3.0f;
+        bool _is_announcing_wave = false;
+        
+        // tutorial
+        int _tutorial_page = 0;
+
         // textures
         Texture2D _enemy_green_texture;
         Texture2D _enemy_black_texture;

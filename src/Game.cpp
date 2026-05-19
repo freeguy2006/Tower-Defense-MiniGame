@@ -22,9 +22,7 @@ void game::update(float dt){
             for(int k = 0;k<_enemies[j]->get_behaviors().size();k++){
                 buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[j]->get_behaviors()[k]);
                 if(buff){ // 加速，加傷害，抗性
-                    float dx = _enemies[i]->get_position().x - _enemies[j]->get_position().x;
-                    float dy = _enemies[i]->get_position().y - _enemies[j]->get_position().y;
-                    float dist = sqrt(dx*dx+dy*dy);
+                    float dist = get_distance(_enemies[i],_enemies[j]);
                     if(dist <= buff->get_buff_range()){
                         Vector2 spd = _enemies[i]->get_speed();
                         spd.x *= buff->get_speed_boost();
@@ -33,9 +31,7 @@ void game::update(float dt){
                 }
                 heal_behavior* heal = dynamic_cast<heal_behavior*>(_enemies[j]->get_behaviors()[k]);
                 if(heal && heal->is_able_to_heal()){ // 治療
-                    float dx = _enemies[i]->get_position().x - _enemies[j]->get_position().x;
-                    float dy = _enemies[i]->get_position().y - _enemies[j]->get_position().y;
-                    float dist = sqrt(dx*dx + dy*dy);
+                    float dist = get_distance(_enemies[i],_enemies[j]);
                     if(dist <= heal->get_heal_range()){
                         _enemies[i]->heal(heal->get_heal_amount());
                     }
@@ -51,24 +47,33 @@ void game::update(float dt){
     for(int i = 0;i<_projectiles.size();i++){
         _projectiles[i].update(dt);
     }
-    // enemy spawn
+    // enemy spawn, wave 
     if(_current_wave >= _waves.size()){
         _game_statement = WIN;
     }else{
         if(_is_wave_active == false){
             // 中場休息
-            _wave_rest_timer+=dt;
-            if(_wave_rest_timer>=_wave_rest_duration){
-                _is_wave_active = true;
-                _enemies_spawned = 0;
-                _wave_rest_timer = 0;
+            if(_is_announcing_wave){
+                _announce_wave_timer += dt; // 提示wave開始 2秒
+                if(_announce_wave_timer >= _announce_wave_duration){
+                    _is_announcing_wave = false;
+                    _is_wave_active = true;
+                    _enemies_spawned = 0;
+                }
+            }else{
+                _wave_rest_timer += dt; // 休息 5秒 
+                if(_wave_rest_timer >= _wave_rest_duration){
+                    _is_announcing_wave = true;
+                    _announce_wave_timer = 0;
+                    _wave_rest_timer = 0;
+                }
             }
         }else{
             // 幹架
             wave& w = _waves[_current_wave]; // reference
             _enemy_spawn_timer += dt;
-            if(_enemy_spawn_timer >= w.get_spawn_cooldown() && _enemies_spawned < w.get_total_enemies()){
-                enemy_type type = w.get_coming_enemies()[_enemies_spawned];
+            if( _enemies_spawned < w.get_total_enemies() && _enemy_spawn_timer >= w.get_spawn_cooldown(_enemies_spawned)){
+                enemy_type type = w.get_type(_enemies_spawned);
                 
                 switch(type){
                     case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-54})); break;
@@ -113,19 +118,46 @@ void game::update(float dt){
                         // 如果 behavior 是 buff  
                         if(buff != nullptr){
                             // 算距離
-                            float dx = _enemies[j]->get_position().x-_enemies[k]->get_position().x;
-                            float dy = _enemies[j]->get_position().y-_enemies[k]->get_position().y;
-                            float dist = sqrt(dx*dx+dy*dy);
+                            float dist = get_distance(_enemies[i],_enemies[j]);
                             if(dist <= buff->get_buff_range()){
                                 damage *= buff->get_damage_reduction(); 
                             }
                         }
                     }
                 }
-                
+                if(_projectiles[i].get_crit_chance() > 0){
+                    float roll = (float)GetRandomValue(0,100)/100.0f;
+                    if(roll <= _projectiles[i].get_crit_chance()){
+                        damage = (int)((float)damage * _projectiles[i].get_crit_multiplier()) + _projectiles[i].get_crit_damage();
+                    }
+                }
+                if(_projectiles[i].get_crit_hp_percent()>0){
+                    damage += (int)((float)_enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent());
+                }
                 _enemies[j]->take_damage(damage);
-                _projectiles.erase(_projectiles.begin() + i);
-                break;
+                if(_projectiles[i].get_splash_range() > 0){
+                    for(int k = _enemies.size()-1;k>=0;k--){
+                        if(k == j) continue;
+                        float dist = get_distance(_enemies[i],_enemies[j]);
+                        if(dist <= _projectiles[i].get_splash_range()){
+                            _enemies[k]->take_damage(_projectiles[i].get_splash_damage());
+                            
+                        }
+                    }
+                }
+                if(_projectiles[i].get_slow_percent() > 0){
+                    _enemies[j]->apply_slow(_projectiles[i].get_slow_percent(), _projectiles[i].get_slow_duration());
+                }
+                if(_projectiles[i].get_freeze_duration() > 0){
+                    _enemies[j]->apply_freeze(_projectiles[i].get_freeze_duration());
+                }
+                if(_projectiles[i].get_poison_damage() > 0){
+                    _enemies[j]->add_poison(_projectiles[i].get_poison_damage(),_projectiles[i].get_poison_interval());
+                }
+                if(_projectiles[i].is_piercing() == false){
+                    _projectiles.erase(_projectiles.begin() + i);
+                    break;
+                }
             }
         }
     }
@@ -138,9 +170,7 @@ void game::update(float dt){
                 for(int b = 0; b < _enemies[k]->get_behaviors().size(); b++){
                     buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]);
                     if(buff){
-                        float dx = _enemies[i]->get_position().x - _enemies[k]->get_position().x;
-                        float dy = _enemies[i]->get_position().y - _enemies[k]->get_position().y;
-                        float dist = sqrt(dx*dx + dy*dy);
+                        float dist = get_distance(_enemies[i],_enemies[j]);
                         if(dist <= buff->get_buff_range()){
                             damage *= buff->get_damage_boost();
                         }
@@ -161,9 +191,7 @@ void game::update(float dt){
                 for(int b = 0; b < _enemies[k]->get_behaviors().size(); b++){
                     buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]);
                     if(buff){
-                        float dx = _enemies[i]->get_position().x - _enemies[k]->get_position().x;
-                        float dy = _enemies[i]->get_position().y - _enemies[k]->get_position().y;
-                        float dist = sqrt(dx*dx + dy*dy);
+                        float dist = get_distance(_enemies[i],_enemies[j]);
                         if(dist <= buff->get_buff_range()){
                             damage *= buff->get_damage_boost();
                         }
@@ -215,11 +243,6 @@ void game::update(float dt){
     if(_player.is_alive()==false || _castle.is_alive()==false){
         _game_statement = LOSE;
     }
-    
-    // game pause
-    if(IsKeyPressed(KEY_ESCAPE)){
-        _game_statement = PAUSE;
-    }
     // player shoot
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
@@ -237,7 +260,7 @@ void game::update(float dt){
             for(int i = 0;i<_multi_shot;i++){
                 float offset = (i - (_multi_shot - 1)/2.0f) *spread;
                 Vector2 dir = {delta.x/length, delta.y/length};
-                Vector2 speed = {(dir.x*cos(offset)-dir.y*sin(offset))*bullet_speed,(dir.x*sin(offset)+dir.y*cos(offset))*bullet_speed };
+                Vector2 speed = {(float)(dir.x*cos(offset)-dir.y*sin(offset))*bullet_speed,(float)(dir.x*sin(offset)+dir.y*cos(offset))*bullet_speed };
                 projectile p = game_factory::create_projectile(player_center, _player_damage, speed);
                 _projectiles.push_back(p);
             }
@@ -255,9 +278,7 @@ void game::draw(){
     DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     // castle
     DrawTextureEx(_castle_texture,_castle.get_position(),0,0.6,WHITE);
-    #ifdef DEBUG_HITBOX
-        DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
-    #endif
+    if(_debug_hitbox) DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
     // enemy
     for(int i = 0;i<_enemies.size();i++){
         switch(_enemies[i]->get_enemy_type()){
@@ -270,9 +291,7 @@ void game::draw(){
             case FLYINGBIRD: DrawTextureEx(_enemy_bird_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
             case FLYINGDRAGON: DrawTextureEx(_enemy_dragon_texture,_enemies[i]->get_position(),0,1.5,WHITE); break;
         }
-        #ifdef DEBUG_HITBOX 
-                DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
-        #endif
+        if(_debug_hitbox) DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
         // enemy 血條
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
@@ -319,16 +338,21 @@ void game::draw(){
     Vector2 pos = _player.get_position();
     Rectangle dest = {pos.x, pos.y, (float)_player.get_size().x, (float)_player.get_size().y};
     DrawTexturePro(_player_texture, source, dest, {0,0}, 0, WHITE);
-    #ifdef DEBUG_HITBOX 
-        DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
-    #endif
+    if(_debug_hitbox) DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
+
+    // wave_announce
+    if(_is_announcing_wave){
+        int blink = (int)(_announce_wave_timer * 3) % 2;
+        if(blink == 0){
+            DrawText(TextFormat("<<< wave %d",_current_wave+1), 1700, 400, 100 ,RED);
+        }
+    }
+    
 
     // coin
     for(int i = 0;i<_coins.size();i++){
         DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
-    #ifdef DEBUG_HITBOX
-            DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
-    #endif
+    if(_debug_hitbox) DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
     }
     //血條
     //castle
@@ -347,42 +371,91 @@ void game::draw(){
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
-    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , _waves.size()),1300,20,40,BLACK );
+    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1300,20,40,BLACK );
     EndDrawing();
 }
 
 // ----------------------------- run -------------------------------
 void game::run(){
     while(WindowShouldClose() == false){
-        if(_game_statement == START){
+        if(_game_statement == START){               // start
             //開始畫面
             BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawText("Tower Defense Game",200,400,100,DARKGRAY);
             DrawText("Press Enter to start",200,600,70,DARKGRAY);
+            // tutorial
+            DrawText("Press G for tutorial", 200, 800, 40, DARKGRAY);
+            // 回饋表單
+            DrawText("Press F for feedback", 800, 800, 40, DARKGRAY);
+            if(IsKeyPressed(KEY_G)){
+                _game_statement = TUTORIAL;
+                _tutorial_page = 0;
+            }
+            if(IsKeyPressed(KEY_F)){
+                OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfff2i4hcdbG2zlOw0zknkJNo24P6YkZn85cvGuxLnKJ1VuGg/viewform?usp=publish-editor");
+            }
             EndDrawing();
             if(IsKeyPressed(KEY_ENTER)){
                 _game_statement = PLAYING;
             }
-        }else if(_game_statement == PLAYING){
-            update(GetFrameTime());
-            draw();
-        }else if(_game_statement == PAUSE){
+        }else if(_game_statement == TUTORIAL){         // tutorial
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            DrawText("~~Tutorial~~", 500, 50, 100, DARKGRAY);
+            if(_tutorial_page == 0){
+                DrawText("Press A D to move", 500, 250, 70, BLACK);
+                DrawText("Press W to jump", 500, 350, 70, BLACK);
+                DrawText("Press ESC to shop", 500, 450, 70, BLACK);
+                DrawText("Press Enter to continue !", 500, 550, 90, RED);
+            }else if(_tutorial_page == 1){
+                DrawText("Use mouse to aim and click to shoot", 500, 250, 70, BLACK);
+                DrawText("Tap numbers to buy items", 500, 350, 70, BLACK);
+                DrawText("Press Enter to continue !!", 500, 450, 90, RED);
+            }else if(_tutorial_page == 2){
+                DrawText("there are 8 types of enemies", 500, 250, 70, BLACK);
+                DrawText("Angels can heal enemies around them", 500, 350, 70, BLACK);
+                DrawText("ICE SLIME can buff enemies around them", 500, 450, 70, BLACK);
+                DrawText("Press ESC to exit !!!", 500, 550, 90, RED);
+            }else if(_tutorial_page == 3){
+                DrawText("Didn't you watch my tutorial ?", 500, 350, 100, BLACK);
+                DrawText("Press ESC to exit !!!", 500, 550, 120, RED);
+            }
+            EndDrawing();
+            if(IsKeyPressed(KEY_ENTER)){
+                _tutorial_page++;
+                if(_tutorial_page>3) _tutorial_page = 3;
+            }
+            if(IsKeyPressed(KEY_ESCAPE)){
+                _game_statement = START;
+            }
+        }else if(_game_statement == PLAYING){           // playing
+            //playing to pause
+            _press_delay -= GetFrameTime();
+            if(IsKeyPressed(KEY_ESCAPE)&&_press_delay <= 0){
+                _game_statement = PAUSE;
+                _press_delay =  0.2;
+            }else{
+                if(IsKeyPressed(KEY_H)) _debug_hitbox = !_debug_hitbox;
+                update(GetFrameTime());
+                draw();
+            }
+        }else if(_game_statement == PAUSE){          // pause
             //暫停畫面
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            const char* item[6] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1"};
-            const int cost[6] = {20,20,20,40,50,80};
-            const int cost_gain[6] = {10,10,10,30,30,80};
+            const char* item[7] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1","[7] Move SpeedUp"};
+            const int cost[7] = {20,20,20,40,50,80,40};
+            const int cost_gain[7] = {10,10,10,30,30,80,20};
             DrawText("~~ SHOP ~~",200,50,100,DARKGRAY);
-            for(int i = 0;i<6;i++){
+            for(int i = 0;i<7;i++){
                 DrawText(TextFormat("%s",item[i]), 200, 250 + i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
                 DrawText(TextFormat("Lv: %d", _player_level[i]), 700, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
                 DrawText(TextFormat("Cost: %d",cost[i]+cost_gain[i]*_player_level[i]), 850, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
                 
             }
-            DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 200, 670, 40, GOLD);
-            DrawText("Press Enter to continue", 200, 730, 40, DARKGRAY);
+            DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 200, 700, 40, GOLD);
+            DrawText("Press ESC to continue", 200, 760, 40, DARKGRAY);
             EndDrawing();
 
             if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]+cost_gain[0]*_player_level[0]){
@@ -403,11 +476,16 @@ void game::run(){
             if(IsKeyPressed(KEY_SIX) && _golds >= cost[5]+cost_gain[5]*_player_level[5]){
                 _golds -= cost[5]+cost_gain[5]*_player_level[5]; _multi_shot += 1; _player_level[5]++;
             }
-            
-            if(IsKeyPressed(KEY_ENTER)){
-                _game_statement = PLAYING;
+            if(IsKeyPressed(KEY_SEVEN) && _golds >= cost[6]+cost_gain[6]*_player_level[6]){
+                _golds -= cost[6]+cost_gain[6]*_player_level[6]; _player.increase_move_speed(10); _player_level[6]++;
             }
-        }else if(_game_statement == LOSE || _game_statement == WIN){
+            // pause to playing
+            _press_delay -= GetFrameTime();
+            if(IsKeyPressed(KEY_ESCAPE) && _press_delay <= 0){
+                _game_statement = PLAYING;
+                _press_delay =  0.2;
+            }
+        }else if(_game_statement == LOSE || _game_statement == WIN){    // win, lose
             //失敗畫面
             BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -415,6 +493,12 @@ void game::run(){
             else DrawText("VICTORY!",200,400,100,YELLOW);
             DrawText("Press Enter to restart",200,600,70,DARKGRAY);
             DrawText("Press Q to exit",200,700,70,DARKGRAY);
+            // 回饋表單
+            DrawText("Press F for feedback", 200, 800, 50, DARKGRAY);
+            if(IsKeyPressed(KEY_F)){
+                OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfff2i4hcdbG2zlOw0zknkJNo24P6YkZn85cvGuxLnKJ1VuGg/viewform?usp=publish-editor");
+            }
+
             EndDrawing();
             if(IsKeyPressed(KEY_ENTER)){
                 reset();
@@ -433,7 +517,7 @@ void game::reset(){
     
     
     _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
-    _castle = game_factory::create_castle({100, game_factory::GROUND_Y-568});
+    _castle = game_factory::create_castle({-10, game_factory::GROUND_Y-568});
     
     for(int i = 0;i<_enemies.size();i++){
         delete _enemies[i];
@@ -460,9 +544,16 @@ void game::reset(){
     _golds = 0;
     _max_golds = 100;
     // player_levels
-    for(int i = 0;i<_player_level[i];i++){
+    for(int i = 0;i<7;i++){
         _player_level[i] = 0;
     }
+    // announce
+    _announce_wave_timer = 0;
+    _is_announcing_wave = false;
+    // tutorial
+    _tutorial_page = 0;
+    // press delay
+    _press_delay = 0;
 }
 
 // init 
@@ -479,7 +570,7 @@ void game::init(){
     _enemy_angel_texture = LoadTexture("resources/monster/angel/angel_2.png");
     _enemy_bird_texture = LoadTexture("resources/monster/bird/bird_24.png");
     _enemy_dragon_texture = LoadTexture("resources/monster/dragon/dragon_2.png");
-    _projectile_texture = LoadTexture("resources/ammo/ammo_3.png");
+    _projectile_texture = LoadTexture("resources/ammo/weapon/ammo_3.png");
     _castle_texture = LoadTexture("resources/castle/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/player/player_archer.png");
@@ -521,15 +612,37 @@ void game::load_waves(const char* path){
     };
     std::ifstream file(path);
     std::string line;
-    while(std::getline(file,line)){
+    while(std::getline(file, line)){
         std::istringstream ss(line);  
-        float cooldown;
-        ss >> cooldown;
-        std::vector<enemy_type> enemies;
-        std::string enemy_str;
-        while(ss>>enemy_str){
-            enemies.push_back(string_to_type[enemy_str]);
+        std::vector<wave_data> data; 
+        float current_cooldown = 1.0f;
+        std::string token;
+        while(ss >> token){
+            if(isdigit(token[0])){
+                current_cooldown = std::stof(token);  // stof string to float 
+            }else{
+                std::string name;
+                int star = token.find('*');
+                int count = 1;
+                if(star!= std::string::npos){  // no position
+                    name = token.substr(0,star);
+                    count = std::stoi(token.substr(star+1)); // stoi string to int 
+                }else{
+                    name = token;
+                }
+                for(int i = 0;i<count;i++){
+                    data.push_back({string_to_type[name],current_cooldown});
+                }
+            }
         }
-        _waves.push_back(wave(enemies,cooldown));
+        _waves.push_back(wave(data));
     }
+}
+
+
+// helper function 
+float get_distance(enemy* a, enemy* b){
+    float dx = a->get_position().x - b->get_position().x;
+    float dy = a->get_position().y - b->get_position().y;
+    return sqrt(dx*dx + dy*dy);
 }

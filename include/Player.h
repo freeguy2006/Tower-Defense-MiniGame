@@ -30,7 +30,7 @@ class player : public character{
             _attack_cooldown -= amount;
             if(_attack_cooldown < 0.05f) _attack_cooldown = 0.05f;  // 最低 0.05 秒
         }
-        
+        void increase_move_speed(float amount){ _move_speed += amount; }
         void reset_attack_timer(){ _attack_timer = 0; }
         
         
@@ -55,6 +55,13 @@ class player : public character{
             if(temp.y >= _ground_y){
                 temp.y = _ground_y;
                 set_speed({get_speed().x, 0});
+            }
+            // 邊界
+            if(temp.x<0){
+                temp.x = 0;
+            }
+            if(temp.x>2400-get_size().x){
+                temp.x = 2400-get_size().x;
             }
             set_position(temp);
         }
