@@ -7,21 +7,21 @@
 #include "BuffBehavior.h"
 #include "HealBehavior.h"
 #include "Projectile.h"
-
+enum weapon_type { MUD, ARROW, STONE, ICE_SLOW, POISON, PIERCING_ARROW, IRON_BALL, FIRE_BALL, ROCKET, ICE_FREEZE, MISSILE, WEAPON_COUNT}; 
 class game_factory {
     public:
         static constexpr float GROUND_Y = 765;
 
         // player(位置, 大小, 活著, 血量, 速度, 攻擊冷卻, 重力, 跳躍力, 地面Y, 移動速度)
         static player create_player(Vector2 position) {
-            return player(position, {72,96}, true, 50, {0,0}, 0.3, 1600.0, 800.0, GROUND_Y-96, 200.0);
+            return player(position, {72,96}, true, 50.0f, {0,0}, 0.3f, 1600.0f, 800.0f, GROUND_Y-96, 200.0f);
         }
         // castle(位置, 大小, 活著, 血量)
         static castle create_castle(Vector2 position) {
-            return castle(position, {200,700}, true, 100);
+            return castle(position, {200,700}, true, 100.0f);
         }
         // projectile(位置, 大小, 活著, 傷害, 速度)
-        static projectile create_projectile(Vector2 position, int damage, Vector2 speed) {
+        static projectile create_projectile(Vector2 position, float damage, Vector2 speed) {
             return projectile(position, {10,10}, true, damage, speed);
         }
 
@@ -74,4 +74,58 @@ class game_factory {
             return new flying_enemy(position, {136,136}, true, 50, {-(float)GetRandomValue(150,180),0}, 0, FLYINGDRAGON, (float)GetRandomValue(100,120),(float)GetRandomValue(100,150)/100.0f,GetRandomValue(25,50));
         } 
 
+
+
+        
+        // 武器效果
+        static void apply_weapon(projectile& p, weapon_type type){
+            p.set_weapon_type(type);
+            switch(type){
+                case MUD:
+                    break;
+                case ARROW:
+                    p.set_damage(p.get_damage() * 1.1f);
+                    break;
+                case STONE:
+                    p.set_damage(p.get_damage() * 1.25f);
+                    break;
+                case ICE_SLOW:
+                    p.set_damage(p.get_damage() * 1.4f);
+                    p.set_slow_percent(0.5f);
+                    p.set_slow_duration(2.0f);
+                    break;
+                case POISON:
+                    p.set_damage(p.get_damage() * 1.2f);
+                    p.set_poison_damage(p.get_damage() * 0.1f);
+                    p.set_poison_interval(1.0f);
+                    break;
+                case PIERCING_ARROW:
+                    p.set_damage(p.get_damage() * 1.1f);
+                    p.set_piercing(true);
+                    break;
+                case IRON_BALL:
+                    p.set_damage(p.get_damage() * 1.05f);
+                    p.set_crit_chance(0.03f);
+                    p.set_crit_hp_percent(0.9f);
+                    break;
+                case FIRE_BALL:
+                    p.set_damage(p.get_damage() * 1.1f);
+                    p.set_splash_damage(p.get_damage() * 0.5f);
+                    p.set_splash_range(140.0f);
+                    break;
+                case ROCKET:
+                    p.set_damage(p.get_damage() * 1.5f);
+                    break;
+                case ICE_FREEZE:
+                    p.set_damage(p.get_damage() * 1.2f);
+                    p.set_freeze_duration(1.0f);
+                    break;
+                case MISSILE:
+                    p.set_damage(p.get_damage() * 1.1f);
+                    p.set_splash_range(200.0f);
+                    p.set_splash_damage(p.get_damage() * 0.5f);
+                    p.set_cooldown_multiplier(5.0f);
+                    break;
+            }
+        }
 };

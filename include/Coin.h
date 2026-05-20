@@ -26,6 +26,6 @@ class coin: public game_object{
             set_position(pos);
             _timer += dt;
         }
-        bool is_expired(){ return _timer>=_lifetime; }
-        int get_value(){ return _value; }
+        bool is_expired() const { return _timer>=_lifetime; }
+        int get_value() const { return _value; }
 };

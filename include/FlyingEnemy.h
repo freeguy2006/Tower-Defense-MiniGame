@@ -5,10 +5,10 @@ class flying_enemy : public enemy{
     private:
         float _fly_timer; // 頻率
         float _fly_amplitude;  // 幅度
-        float _fly_speed; 
+        float _fly_speed;
         float _base_y; // y 基準
     public:
-        flying_enemy(Vector2 position, Vector2 size, bool active, int hp, Vector2 speed, int target_x, enemy_type type, float amplitude, float fly_speed, int reward)
+        flying_enemy(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed, float target_x, enemy_type type, float amplitude, float fly_speed, int reward)
         : enemy(position, size, active, hp, speed, target_x, type, reward), _fly_timer(0), _fly_amplitude(amplitude), _fly_speed(fly_speed), _base_y(position.y){}
         void update(float dt) override {
             if(update_status(dt)) return;  // 冰凍就跳過

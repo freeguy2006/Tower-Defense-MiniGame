@@ -17,8 +17,15 @@
 #include "HealBehavior.h"
 #include "Coin.h"
 
-enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WIN,LOSE};
-float get_distance(enemy* a, enemy* b);
+enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WAVE_SHOP,WIN,LOSE};
+enum potion_type { HEAL_PLAYER, HEAL_CASTLE, ATK_POTION, ATKSPD_POTION, SHIELD_POTION, MOVESPD_POTION, REGEN_POTION, POTION_COUNT};
+
+
+struct potion_effect{
+    float value;
+    float default_value;
+    int waves = 0;
+};
 
 class game{
     private:
@@ -29,21 +36,33 @@ class game{
         std::vector<projectile> _projectiles;
         std::vector<wave> _waves;
         std::vector<coin> _coins;
+        // weapon
+        weapon_type _current_weapon = MUD;
+        // waveshop
+        weapon_type _shop_weapon1;
+        weapon_type _shop_weapon2;
+        potion_type _shop_potion;
         // wave
         bool _is_wave_active = false;
         float _wave_rest_timer = 0; 
-        float _wave_rest_duration = 4;
+        float _wave_rest_duration = 4.0f;
         int _current_wave = 0;        
         // player
-        int _player_damage = 2;
+        float _player_damage = 2.0f;
         int _multi_shot = 1;
         // enemy
         int _enemies_spawned = 0;
         float _enemy_spawn_timer = 0;
-        float _enemy_spawn_cooldown = 1.0;
+        float _enemy_spawn_cooldown = 1.0f;
         int _kill_count = 0; 
         // statement
         game_statement _game_statement = START;
+        void handle_start();
+        void handle_tutorial();
+        void handle_playing();
+        void handle_pause();
+        void handle_wave_shop();
+        void handle_end();
         // golds
         int _golds = 0;
         int _max_golds = 100;
@@ -57,24 +76,28 @@ class game{
         float _announce_wave_timer = 0;
         float _announce_wave_duration = 3.0f;
         bool _is_announcing_wave = false;
-        
+
         // tutorial
         int _tutorial_page = 0;
 
+        // potion effects
+        potion_effect _potion_attack = {1.0f, 1.0f, 0};
+        potion_effect _potion_attack_speed = {1.0f, 1.0f, 0};
+        potion_effect _potion_move_speed = {1.0f, 1.0f, 0};
+        potion_effect _potion_regen = {0, 0, 0};
+        
+
         // textures
-        Texture2D _enemy_green_texture;
-        Texture2D _enemy_black_texture;
-        Texture2D _enemy_red_texture;
-        Texture2D _enemy_purple_texture;
-        Texture2D _enemy_blue_texture;
-        Texture2D _enemy_angel_texture;
-        Texture2D _enemy_bird_texture;
-        Texture2D _enemy_dragon_texture;
-        Texture2D _projectile_texture;
+        
         Texture2D _castle_texture;
         Texture2D _background_texture;
         Texture2D _player_texture;
         Texture2D _coin_texture;
+        Texture2D _enemy_textures[8];
+        Texture2D _weapon_textures[11];
+
+        float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
+
     public:
         game();
         ~game() = default;
@@ -82,10 +105,13 @@ class game{
         void close();
         void reset();
         int get_enemies_size() const { return _enemies.size(); }
-
         void update(float dt);
         void draw();
         void run();
         void add_enemy(enemy* e){ _enemies.push_back(e); }
         void load_waves(const char* path);
 };
+
+
+// 好用的函式
+float get_distance(enemy* a, enemy* b);
