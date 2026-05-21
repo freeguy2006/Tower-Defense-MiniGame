@@ -1,10 +1,3 @@
-// game 主迴圈與邏輯，擁有 player, castle, vector<enemy>, vector<projectile>
-// 自己的: update(float dt), draw(), run(), add_enemy(enemy)
-// player 可用: update(), get_rect(), get_position(), is_attackable(), reset_attack_timer()
-// castle 可用: get_rect(), get_hp(), is_alive(), take_damage(int)
-// enemy 可用: update(), get_rect(), get_hp(), is_alive(), take_damage(int)
-// projectile 可用: update(), get_rect(), get_damage(), get_position()
-// factory 可用: game_factory::create_player(), create_enemy(), create_castle(), create_projectile()
 #include "Game.h"
 // ------------------------------------  update ----------------------------------
 void game::update(float dt){
@@ -62,15 +55,16 @@ void game::update(float dt){
             if( _enemies_spawned < w.get_total_enemies() && _enemy_spawn_timer >= w.get_spawn_cooldown(_enemies_spawned)){
                 enemy_type type = w.get_type(_enemies_spawned);
                 
+                float hpm = w.get_hp_multiplier();
                 switch(type){
-                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-54})); break;
-                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-88})); break;
-                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-60})); break;
-                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-61})); break;
-                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-54})); break;
-                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-GetRandomValue(250,300)})); break;
-                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-GetRandomValue(300,550)})); break;
-                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-GetRandomValue(300,500)})); break;
+                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-54}, hpm)); break;
+                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-88}, hpm)); break;
+                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-60}, hpm)); break;
+                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-61}, hpm)); break;
+                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-54}, hpm)); break;
+                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-GetRandomValue(250,300)}, hpm)); break;
+                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-GetRandomValue(300,550)}, hpm)); break;
+                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-GetRandomValue(300,500)}, hpm)); break;
                 }
                 
                 _enemies_spawned++;
@@ -93,6 +87,12 @@ void game::update(float dt){
                         _player.set_attack_cooldown(_player.get_base_cooldown());
                     }
                 }
+                if(_potion_shield.waves > 0){
+                    _potion_shield.waves--;
+                    if(_potion_shield.waves == 0){
+                        _potion_shield.value = 1.0f;
+                    }
+                }
                 if(_potion_move_speed.waves > 0){ 
                     _potion_move_speed.waves--; 
                     if(_potion_move_speed.waves == 0){
@@ -109,7 +109,7 @@ void game::update(float dt){
                     _shop_weapon1 = (weapon_type)GetRandomValue(0,WEAPON_COUNT-1); 
                     _shop_weapon2 = (weapon_type)GetRandomValue(0,WEAPON_COUNT-1); 
                     _shop_potion = (potion_type)GetRandomValue(2,POTION_COUNT-1); 
-                    _game_statement = WAVE_SHOP;
+                    _shop_goblin = game_factory::create_goblin({2300, game_factory::GROUND_Y-96});
                 }
             }
         }
@@ -152,8 +152,11 @@ void game::update(float dt){
     for(int i = 0;i<_coins.size();i++){
         _coins[i].update(dt);
     }
+    if(_shop_goblin != nullptr){
+        _shop_goblin->update(dt);
+    }
     // 4. 碰撞              --------------------------------------------
-    // projectile, enemy 
+    // projectile, enemy
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
         for(int j = _enemies.size()-1 ; j>=0 ; j--){
             if(CheckCollisionRecs(_projectiles[i].get_rect(),_enemies[j]->get_rect())){
@@ -226,7 +229,7 @@ void game::update(float dt){
                     }
                 }
             }
-            _castle.take_damage(damage);
+            _castle.take_damage(damage*_potion_shield.value);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -247,7 +250,7 @@ void game::update(float dt){
                     }
                 }
             }
-            _player.take_damage(damage);
+            _player.take_damage(damage*_potion_shield.value);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -260,6 +263,27 @@ void game::update(float dt){
             _coins.erase(_coins.begin() + i);
         }
     }
+    // globin
+    if(_shop_goblin != nullptr ){
+        for(int i = _projectiles.size()-1;i>=0;i--){
+            if(CheckCollisionRecs(_projectiles[i].get_rect(),_shop_goblin->get_rect())){
+                _shop_goblin->take_damage(_projectiles[i].get_damage());
+                _projectiles.erase(_projectiles.begin() + i);
+            }
+        }
+        if(_shop_goblin->is_alive() && CheckCollisionRecs(_shop_goblin->get_rect(), _castle.get_rect())){
+            _castle.heal(_castle.get_max_hp() * 0.3f);
+            delete _shop_goblin;
+            _shop_goblin = nullptr;
+            
+        }
+        else if(_shop_goblin->is_alive() && CheckCollisionRecs(_shop_goblin->get_rect(), _player.get_rect())){
+            _game_statement = WAVE_SHOP;
+            delete _shop_goblin;
+            _shop_goblin = nullptr;
+        }
+    }
+    
     // 5. 效果              --------------------------------------------
     // player heal
     _player.heal(_potion_regen.value * dt);
@@ -274,6 +298,15 @@ void game::update(float dt){
             _enemies.erase(_enemies.begin() + i);
             _kill_count++;
         }
+    }
+    if(_shop_goblin != nullptr && !_shop_goblin->is_alive()){
+        Vector2 pos = _shop_goblin->get_position();
+        int coin_num = _shop_goblin->get_reward();
+        for(int c = 0; c < coin_num; c++){
+            _coins.push_back(coin(pos, 1, game_factory::GROUND_Y-32));
+        }
+        delete _shop_goblin;
+        _shop_goblin = nullptr;
     }
     
     // 6. 清理              --------------------------------------------
@@ -292,8 +325,6 @@ void game::update(float dt){
         }
     }
 
-
-
     // 7. 遊戲判定              --------------------------------------------
     if(_player.is_alive()==false || _castle.is_alive()==false){
         _game_statement = LOSE;
@@ -311,11 +342,9 @@ void game::draw(){
     DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     // castle
     DrawTextureEx(_castle_texture,_castle.get_position(),0,0.6,WHITE);
-    if(_debug_hitbox) DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
     // enemy
     for(int i = 0;i<_enemies.size();i++){
         DrawTextureEx(_enemy_textures[_enemies[i]->get_enemy_type()], _enemies[i]->get_position(), 0, _enemy_scale[_enemies[i]->get_enemy_type()], WHITE);
-        if(_debug_hitbox) DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
         // enemy 血條
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
         DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
@@ -362,7 +391,6 @@ void game::draw(){
     Vector2 pos = _player.get_position();
     Rectangle dest = {pos.x, pos.y, (float)_player.get_size().x, (float)_player.get_size().y};
     DrawTexturePro(_player_texture, source, dest, {0,0}, 0, WHITE);
-    if(_debug_hitbox) DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
 
     // wave_announce
     if(_is_announcing_wave){
@@ -376,7 +404,6 @@ void game::draw(){
     // coin
     for(int i = 0;i<_coins.size();i++){
         DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
-    if(_debug_hitbox) DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
     }
     //血條
     //castle
@@ -396,6 +423,21 @@ void game::draw(){
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
     DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1300,20,40,BLACK );
+    //_shop_goblin   
+    if(_shop_goblin != nullptr){
+        DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
+    }
+    // debug hitbox
+    if(_debug_hitbox){
+        DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
+        DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
+        for(int i = 0; i < _enemies.size(); i++)
+            DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
+        for(int i = 0; i < _coins.size(); i++)
+            DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
+        if(_shop_goblin != nullptr)
+            DrawRectangleLinesEx(_shop_goblin->get_rect(), 2, GREEN);
+    }
     EndDrawing();
 }
 
@@ -461,6 +503,7 @@ void game::reset(){
     // potion effects
     _potion_attack = {1.0f, 1.0f, 0};
     _potion_attack_speed = {1.0f, 1.0f, 0};
+    _potion_shield = {1.0f, 1.0f, 0};
     _potion_move_speed = {1.0f, 1.0f, 0};
     _potion_regen = {0, 0, 0};
     // tutorial
@@ -469,6 +512,14 @@ void game::reset(){
     _debug_hitbox = false;
     // press delay
     _press_delay = 0;
+    // shop
+    if(_shop_goblin != nullptr){
+        delete _shop_goblin;
+        _shop_goblin = nullptr;
+    }
+    _shop_weapon1 = MUD;
+    _shop_weapon2 = MUD;
+    _shop_potion = HEAL_PLAYER_POTION;
 }
 
 // init 
@@ -489,17 +540,25 @@ void game::init(){
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/player/player_archer.png");
     _coin_texture = LoadTexture("resources/coin/coin_4.png");
-    _weapon_textures[MUD] = LoadTexture("resources/ammo/weapon/ammo_1.png");
-    _weapon_textures[ARROW] = LoadTexture("resources/ammo/weapon/ammo_3.png");
-    _weapon_textures[STONE] = LoadTexture("resources/ammo/weapon/ammo_13.png");
-    _weapon_textures[ICE_SLOW] = LoadTexture("resources/ammo/weapon/ammo_11.png");
-    _weapon_textures[POISON] = LoadTexture("resources/ammo/weapon/ammo_18.png");
-    _weapon_textures[PIERCING_ARROW] = LoadTexture("resources/ammo/weapon/ammo_17.png");
-    _weapon_textures[IRON_BALL] = LoadTexture("resources/ammo/weapon/ammo_24.png");
-    _weapon_textures[FIRE_BALL] = LoadTexture("resources/ammo/weapon/ammo_19.png");
-    _weapon_textures[ROCKET] = LoadTexture("resources/ammo/weapon/ammo_5.png");
-    _weapon_textures[ICE_FREEZE] = LoadTexture("resources/ammo/weapon/ammo_12.png");
-    _weapon_textures[MISSILE] = LoadTexture("resources/ammo/weapon/ammo_26.png");
+    _weapon_textures[MUD] = LoadTexture("resources/weapon/ammo_1.png");
+    _weapon_textures[ARROW] = LoadTexture("resources/weapon/ammo_3.png");
+    _weapon_textures[STONE] = LoadTexture("resources/weapon/ammo_13.png");
+    _weapon_textures[ICE_SLOW] = LoadTexture("resources/weapon/ammo_11.png");
+    _weapon_textures[POISON] = LoadTexture("resources/weapon/ammo_18.png");
+    _weapon_textures[PIERCING_ARROW] = LoadTexture("resources/weapon/ammo_17.png");
+    _weapon_textures[IRON_BALL] = LoadTexture("resources/weapon/ammo_24.png");
+    _weapon_textures[FIRE_BALL] = LoadTexture("resources/weapon/ammo_19.png");
+    _weapon_textures[ROCKET] = LoadTexture("resources/weapon/ammo_5.png");
+    _weapon_textures[ICE_FREEZE] = LoadTexture("resources/weapon/ammo_12.png");
+    _weapon_textures[MISSILE] = LoadTexture("resources/weapon/ammo_26.png");
+    _potion_textures[HEAL_PLAYER_POTION] = LoadTexture("resources/potion/ammo_14.png");
+    _potion_textures[HEAL_CASTLE_POTION] = LoadTexture("resources/potion/ammo_6.png");
+    _potion_textures[ATTACK_POTION] = LoadTexture("resources/potion/ammo_4.png");
+    _potion_textures[ATTACK_SPEED_POTION] = LoadTexture("resources/potion/ammo_28.png");
+    _potion_textures[SHIELD_POTION] = LoadTexture("resources/potion/ammo_21.png");
+    _potion_textures[MOVE_SPEED_POTION] = LoadTexture("resources/potion/ammo_9.png");
+    _potion_textures[REGENERATION_POTION] = LoadTexture("resources/potion/ammo_10.png");
+    _shop_goblin_texture = LoadTexture("resources/shop/goblin.png");
     // wave
     load_waves("resources/levels.txt");
 }
@@ -512,7 +571,9 @@ void game::close(){
     UnloadTexture(_background_texture);
     UnloadTexture(_player_texture);
     UnloadTexture(_coin_texture);
-    for(int i = 0;i<11;i++) UnloadTexture(_weapon_textures[i]);
+    for(int i = 0;i<WEAPON_COUNT;i++) UnloadTexture(_weapon_textures[i]);
+    for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
+    UnloadTexture(_shop_goblin_texture);
     CloseWindow();
 }
 
@@ -534,9 +595,13 @@ void game::load_waves(const char* path){
         std::istringstream ss(line);  
         std::vector<wave_data> data; 
         float current_cooldown = 1.0f;
+        float hp_multiplier = 1.0f;
         std::string token;
         while(ss >> token){
-            if(isdigit(token[0])){
+            if(token[0] == 'x'){
+                hp_multiplier = std::stof(token.substr(1));
+            }
+            else if(isdigit(token[0])){
                 current_cooldown = std::stof(token);  // stof string to float 
             }else{
                 std::string name;
@@ -553,7 +618,7 @@ void game::load_waves(const char* path){
                 }
             }
         }
-        _waves.push_back(wave(data));
+        _waves.push_back(wave(data,hp_multiplier));
     }
 }
 
@@ -603,7 +668,8 @@ void game::handle_tutorial(){
     }else if(_tutorial_page == 1){
         DrawText("Use mouse to aim and click to shoot", 500, 250, 70, BLACK);
         DrawText("Tap numbers to buy items", 500, 350, 70, BLACK);
-        DrawText("Press Enter to continue !!", 500, 450, 90, RED);
+        DrawText("Goblin sells useful items for you", 500, 450, 70, BLACK);
+        DrawText("Press Enter to continue !!", 500, 550, 90, RED);
     }else if(_tutorial_page == 2){
         DrawText("there are 8 types of enemies", 500, 250, 70, BLACK);
         DrawText("Angels can heal enemies around them", 500, 350, 70, BLACK);
@@ -629,15 +695,15 @@ void game::handle_pause(){
     const char* item[7] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1","[7] Move SpeedUp"};
     const int cost[7] = {20,20,20,40,50,80,40};
     const int cost_gain[7] = {10,10,10,30,30,80,20};
-    DrawText("~~ SHOP ~~",200,50,100,DARKGRAY);
+    DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
     for(int i = 0;i<7;i++){
-        DrawText(TextFormat("%s",item[i]), 200, 250 + i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
-        DrawText(TextFormat("Lv: %d", _player_level[i]), 700, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
-        DrawText(TextFormat("Cost: %d",cost[i]+cost_gain[i]*_player_level[i]), 850, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+        DrawText(TextFormat("%s",item[i]), 700, 250 + i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+        DrawText(TextFormat("Lv: %d", _player_level[i]), 1200, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
+        DrawText(TextFormat("Cost: %d",cost[i]+cost_gain[i]*_player_level[i]), 1350, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
         
     }
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 200, 700, 40, GOLD);
-    DrawText("Press ESC to continue", 200, 760, 40, DARKGRAY);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 700, 40, GOLD);
+    DrawText("Press ESC to continue", 700, 760, 40, DARKGRAY);
     EndDrawing();
 
     if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]+cost_gain[0]*_player_level[0]){
@@ -669,53 +735,78 @@ void game::handle_pause(){
     }
 }
 void game::handle_wave_shop(){
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    DrawText("~~Wave Shop~~",200,50,100,DARKGRAY);
-    DrawText("[1] Heal Player 50%", 200, 250, 40, BLUE);
-    DrawText("[2] Heal Castle 50%", 200, 310, 40, BLUE);
-    DrawText(TextFormat("[3] Weapon: %d", _shop_weapon1),200, 370, 40, BLUE);
-    DrawText(TextFormat("[4] Weapon: %d", _shop_weapon2),200, 430, 40, BLUE);
-    DrawText(TextFormat("[5] Potion: %d", _shop_potion),200, 490, 40, BLUE);
-    DrawText("Press ESC to skip", 200, 600, 40, DARKGRAY);
+    DrawTextureEx(_shop_goblin_texture, {1500,100}, 0, 1.0f, WHITE);
+    DrawText("~~Wave Shop~~",550,50,100,GREEN);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 690, 60, GOLD);
+    DrawText("Press ESC to skip", 700, 760, 30, DARKGRAY);
+    // 1
+    DrawTextureEx(_potion_textures[0], {650, 250}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[1] %s", POTION_NAME[0]), 700, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[0]), 1000, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
+    // 2
+    DrawTextureEx(_potion_textures[1], {650, 330}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[2] %s", POTION_NAME[1]), 700, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[1]), 1000, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
+    // 3
+    DrawTextureEx(_weapon_textures[_shop_weapon1], {650, 410}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[3] %s", WEAPON_NAME[_shop_weapon1]), 700, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon1]), 1000, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
+    // 4
+    DrawTextureEx(_weapon_textures[_shop_weapon2], {650, 490}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[4] %s", WEAPON_NAME[_shop_weapon2]), 700, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon2]), 1000, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY); 
+    // 5 
+    DrawTextureEx(_potion_textures[_shop_potion], {650, 570}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[5] %s", POTION_NAME[_shop_potion]), 700, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1000, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
+    
     EndDrawing();
     
-    if(IsKeyPressed(KEY_ONE)){
+    if(IsKeyPressed(KEY_ONE) && _golds >= POTION_COST[HEAL_PLAYER_POTION]){
+        _golds -= POTION_COST[HEAL_PLAYER_POTION];
         _player.heal(_player.get_max_hp() * 0.5f);
         _game_statement = PLAYING;
     }
-    if(IsKeyPressed(KEY_TWO)){
+    if(IsKeyPressed(KEY_TWO) && _golds >= POTION_COST[HEAL_CASTLE_POTION]){
+        _golds -= POTION_COST[HEAL_CASTLE_POTION];
         _castle.heal(_castle.get_max_hp() * 0.5f);
         _game_statement = PLAYING;
     }
-    if(IsKeyPressed(KEY_THREE)){
+    if(IsKeyPressed(KEY_THREE) && _golds >= WEAPON_COST[_shop_weapon1]){
+        _golds -= WEAPON_COST[_shop_weapon1];
         _current_weapon = _shop_weapon1;
         _game_statement = PLAYING;
     }
-    if(IsKeyPressed(KEY_FOUR)){
+    if(IsKeyPressed(KEY_FOUR) && _golds >= WEAPON_COST[_shop_weapon2]){
+        _golds -= WEAPON_COST[_shop_weapon2];
         _current_weapon = _shop_weapon2;
         _game_statement = PLAYING;
     }
-    if(IsKeyPressed(KEY_FIVE)){
+    if(IsKeyPressed(KEY_FIVE) && _golds >= POTION_COST[_shop_potion]){
+        _golds -= POTION_COST[_shop_potion];
         switch(_shop_potion){
-            case ATK_POTION:
+            case ATTACK_POTION:
                 _potion_attack.value = 1.3f;
                 _potion_attack.waves += 3;
                 break;
-            case ATKSPD_POTION:
+            case ATTACK_SPEED_POTION:
                 _potion_attack_speed.value = 0.7f;
                 _potion_attack_speed.waves += 3;
                 _player.set_attack_cooldown(_player.get_attack_cooldown() * _potion_attack_speed.value);
                 break;
-                case SHIELD_POTION:
-                _player.increase_max_hp(_player.get_max_hp() * 0.5f);
+            case SHIELD_POTION:
+                _potion_shield.value = 0.3f;  // 受傷 -70%
+                _potion_shield.waves += 3;
                 break;
-            case MOVESPD_POTION:
+            case MOVE_SPEED_POTION:
                 _potion_move_speed.value = 1.3f;
                 _potion_move_speed.waves += 3;
                 _player.set_move_speed(_player.get_move_base_speed() * _potion_move_speed.value);
                 break;
-            case REGEN_POTION:
+            case REGENERATION_POTION:
                 _potion_regen.value = _player.get_max_hp()*0.01f;
                 _potion_regen.waves += 3;
                 break;
@@ -726,6 +817,7 @@ void game::handle_wave_shop(){
     }
     if(IsKeyPressed(KEY_ESCAPE)){
         _game_statement = PLAYING;
+        _press_delay = 0.2f;
     }
 }
 void game::handle_end(){

@@ -16,9 +16,9 @@
 #include "JumpBehavior.h"
 #include "HealBehavior.h"
 #include "Coin.h"
+#include "Goblin.h"
 
 enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WAVE_SHOP,WIN,LOSE};
-enum potion_type { HEAL_PLAYER, HEAL_CASTLE, ATK_POTION, ATKSPD_POTION, SHIELD_POTION, MOVESPD_POTION, REGEN_POTION, POTION_COUNT};
 
 
 struct potion_effect{
@@ -39,9 +39,7 @@ class game{
         // weapon
         weapon_type _current_weapon = MUD;
         // waveshop
-        weapon_type _shop_weapon1;
-        weapon_type _shop_weapon2;
-        potion_type _shop_potion;
+        
         // wave
         bool _is_wave_active = false;
         float _wave_rest_timer = 0; 
@@ -79,13 +77,18 @@ class game{
 
         // tutorial
         int _tutorial_page = 0;
+        // shop
+        goblin* _shop_goblin = nullptr;
+        weapon_type _shop_weapon1 = MUD;
+        weapon_type _shop_weapon2 = MUD;
+        potion_type _shop_potion = HEAL_PLAYER_POTION;
 
         // potion effects
         potion_effect _potion_attack = {1.0f, 1.0f, 0};
         potion_effect _potion_attack_speed = {1.0f, 1.0f, 0};
         potion_effect _potion_move_speed = {1.0f, 1.0f, 0};
         potion_effect _potion_regen = {0, 0, 0};
-        
+        potion_effect _potion_shield = {1.0f ,1.0f, 0};
 
         // textures
         
@@ -95,7 +98,9 @@ class game{
         Texture2D _coin_texture;
         Texture2D _enemy_textures[8];
         Texture2D _weapon_textures[11];
-
+        Texture2D _potion_textures[7];
+        Texture2D _shop_goblin_texture;
+        
         float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
 
     public:
