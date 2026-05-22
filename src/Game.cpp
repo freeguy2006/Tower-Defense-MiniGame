@@ -44,6 +44,7 @@ void game::update(float dt){
                 _wave_rest_timer += dt; // 休息 5秒 
                 if(_wave_rest_timer >= _wave_rest_duration){
                     _is_announcing_wave = true;
+                    PlaySound(_wave_horn_sfx);
                     _announce_wave_timer = 0;
                     _wave_rest_timer = 0;
                 }
@@ -258,6 +259,7 @@ void game::update(float dt){
     // coin, player
     for(int i = _coins.size()-1; i >= 0; i--){
         if(CheckCollisionRecs(_player.get_rect(), _coins[i].get_rect())){
+            PlaySound(_get_coin_sfx[GetRandomValue(0, 2)]);
             _golds += _coins[i].get_value();
             if(_golds > _max_golds) _golds = _max_golds;
             _coins.erase(_coins.begin() + i);
@@ -335,9 +337,8 @@ void game::update(float dt){
 
  //------------------------- draw ---------------------------------
 void game::draw(){
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-    
+    // 虛擬畫布
+
     // background
     DrawTexturePro(_background_texture,{0, 0, (float)_background_texture.width, (float)_background_texture.height},{0, 0, 3000,1080},{0, 0}, 0, WHITE);
     // castle
@@ -438,12 +439,24 @@ void game::draw(){
         if(_shop_goblin != nullptr)
             DrawRectangleLinesEx(_shop_goblin->get_rect(), 2, GREEN);
     }
-    EndDrawing();
+    
 }
 
 // ----------------------------- run -------------------------------
 void game::run(){
     while(WindowShouldClose() == false){
+        // 音樂
+        if(IsMusicStreamPlaying(_bgm[_current_bgm]) == false){
+            int temp;
+            do{
+                temp = GetRandomValue(0, 2);
+            }while(temp == _current_bgm);
+            _current_bgm = temp;
+            PlayMusicStream(_bgm[_current_bgm]);
+        }
+        UpdateMusicStream(_bgm[_current_bgm]);
+        BeginTextureMode(_canvas);
+        ClearBackground(RAYWHITE);
         if(_game_statement == START){               // start
             handle_start();
         }else if(_game_statement == PLAYING){
@@ -457,6 +470,15 @@ void game::run(){
         }else if(_game_statement == LOSE || _game_statement == WIN){    // win, lose
             handle_end();
         }
+        EndTextureMode();
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        float scale = fmin((float)GetScreenWidth()/2400, (float)GetScreenHeight()/900);
+        float x = (GetScreenWidth() - 2400*scale) / 2;
+        float y = (GetScreenHeight() - 900*scale) / 2;
+        DrawTexturePro(_canvas.texture,{0, 0, 2400, -900},{x, y, 2400*scale, 900*scale},{0, 0}, 0, WHITE);
+        EndDrawing();
     }
 }
 
@@ -526,6 +548,7 @@ void game::reset(){
 void game::init(){
     // 開window, 載入圖片
     InitWindow(2400, 900, "Tower Defense Game");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetExitKey(0);  // 取消 ESC 關閉視窗
     SetTargetFPS(60);
     _enemy_textures[SLIMEGREEN] = LoadTexture("resources/monster/slime/monster_green.png");
@@ -559,6 +582,23 @@ void game::init(){
     _potion_textures[MOVE_SPEED_POTION] = LoadTexture("resources/potion/ammo_9.png");
     _potion_textures[REGENERATION_POTION] = LoadTexture("resources/potion/ammo_10.png");
     _shop_goblin_texture = LoadTexture("resources/shop/goblin.png");
+    // music
+    InitAudioDevice();
+    _bgm[0] = LoadMusicStream("resources/music/suspense-cinematic-ambient.mp3");
+    _bgm[1] = LoadMusicStream("resources/music/Spiral.mp3");
+    _bgm[2] = LoadMusicStream("resources/music/Dragon's Honor.mp3");
+    _current_bgm = GetRandomValue(0, 2);
+    PlayMusicStream(_bgm[_current_bgm]);
+    SetMusicVolume(_bgm[_current_bgm], 0.8f);
+    // sound 
+    _wave_horn_sfx = LoadSound("resources/sound/wave-horn/wave-horn.mp3");
+    _get_coin_sfx[0] = LoadSound("resources/sound/get-coin/get-coin1.mp3");
+    _get_coin_sfx[1] = LoadSound("resources/sound/get-coin/get-coin2.mp3");
+    _get_coin_sfx[2] = LoadSound("resources/sound/get-coin/get-coin3.mp3");
+    SetSoundVolume(_wave_horn_sfx, 0.5f);
+    for(int i = 0;i<3;i++) SetSoundVolume(_get_coin_sfx[i], 0.5f);
+    // canvas
+    _canvas = LoadRenderTexture(2400, 900);
     // wave
     load_waves("resources/levels.txt");
 }
@@ -574,6 +614,13 @@ void game::close(){
     for(int i = 0;i<WEAPON_COUNT;i++) UnloadTexture(_weapon_textures[i]);
     for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
     UnloadTexture(_shop_goblin_texture);
+    // music
+    for(int i = 0;i<3;i++) UnloadMusicStream(_bgm[i]);
+    // sound
+    UnloadSound(_wave_horn_sfx);
+    for(int i = 0;i<3;i++) UnloadSound(_get_coin_sfx[i]);
+    CloseAudioDevice();
+    UnloadRenderTexture(_canvas);
     CloseWindow();
 }
 
@@ -635,9 +682,6 @@ float get_distance(enemy* a, enemy* b){
 
 // 特殊 gamestatement 的介面
 void game::handle_start(){
-    //開始畫面
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
     DrawText("Tower Defense Game",200,400,100,DARKGRAY);
     DrawText("Press Enter to start",200,600,70,DARKGRAY);
     // tutorial
@@ -651,14 +695,11 @@ void game::handle_start(){
     if(IsKeyPressed(KEY_F)){
         OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfff2i4hcdbG2zlOw0zknkJNo24P6YkZn85cvGuxLnKJ1VuGg/viewform?usp=publish-editor");
     }
-    EndDrawing();
     if(IsKeyPressed(KEY_ENTER)){
         _game_statement = PLAYING;
     }
 }
 void game::handle_tutorial(){
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
     DrawText("~~Tutorial~~", 500, 50, 100, DARKGRAY);
     if(_tutorial_page == 0){
         DrawText("Press A D to move", 500, 250, 70, BLACK);
@@ -679,7 +720,7 @@ void game::handle_tutorial(){
         DrawText("Didn't you watch my tutorial ?", 500, 350, 100, BLACK);
         DrawText("Press ESC to exit !!!", 500, 550, 120, RED);
     }
-    EndDrawing();
+    
     if(IsKeyPressed(KEY_ENTER)){
         _tutorial_page++;
         if(_tutorial_page>3) _tutorial_page = 3;
@@ -689,9 +730,6 @@ void game::handle_tutorial(){
     }
 }
 void game::handle_pause(){
-    //暫停畫面
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
     const char* item[7] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1","[7] Move SpeedUp"};
     const int cost[7] = {20,20,20,40,50,80,40};
     const int cost_gain[7] = {10,10,10,30,30,80,20};
@@ -704,8 +742,7 @@ void game::handle_pause(){
     }
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 700, 40, GOLD);
     DrawText("Press ESC to continue", 700, 760, 40, DARKGRAY);
-    EndDrawing();
-
+    
     if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]+cost_gain[0]*_player_level[0]){
         _golds -= cost[0]+cost_gain[0]*_player_level[0]; _player_damage += 1.0f; _player_level[0]++;
     }
@@ -736,8 +773,6 @@ void game::handle_pause(){
 }
 void game::handle_wave_shop(){
 
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
     DrawTextureEx(_shop_goblin_texture, {1500,100}, 0, 1.0f, WHITE);
     DrawText("~~Wave Shop~~",550,50,100,GREEN);
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 690, 60, GOLD);
@@ -763,7 +798,6 @@ void game::handle_wave_shop(){
     DrawText(TextFormat("[5] %s", POTION_NAME[_shop_potion]), 700, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
     DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1000, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
     
-    EndDrawing();
     
     if(IsKeyPressed(KEY_ONE) && _golds >= POTION_COST[HEAL_PLAYER_POTION]){
         _golds -= POTION_COST[HEAL_PLAYER_POTION];
@@ -821,9 +855,6 @@ void game::handle_wave_shop(){
     }
 }
 void game::handle_end(){
-    //失敗畫面
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
     if(_game_statement == LOSE) DrawText("Game Over",200,400,100,DARKGRAY);
     else DrawText("VICTORY!",200,400,100,YELLOW);
     DrawText("Press Enter to restart",200,600,70,DARKGRAY);
@@ -834,7 +865,6 @@ void game::handle_end(){
         OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSfff2i4hcdbG2zlOw0zknkJNo24P6YkZn85cvGuxLnKJ1VuGg/viewform?usp=publish-editor");
     }
 
-    EndDrawing();
     if(IsKeyPressed(KEY_ENTER)){
         reset();
     }

@@ -100,8 +100,16 @@ class game{
         Texture2D _weapon_textures[11];
         Texture2D _potion_textures[7];
         Texture2D _shop_goblin_texture;
-        
+
+        // music
+        int _current_bgm = 0;
+        Music _bgm[3];
+        Sound _wave_horn_sfx;
+        Sound _get_coin_sfx[3];
         float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
+
+        // 虛擬畫布
+        RenderTexture2D _canvas;
 
     public:
         game();
