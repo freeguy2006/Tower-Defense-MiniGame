@@ -715,30 +715,39 @@ void game::handle_start(){
     }
 }
 void game::handle_tutorial(){
-    DrawText("~~Tutorial~~", 500, 50, 100, DARKGRAY);
+    DrawText("~~Tutorial~~", 250, 50, 100, DARKGRAY);
     if(_tutorial_page == 0){
-        DrawText("Press A D to move", 500, 250, 70, BLACK);
-        DrawText("Press W to jump", 500, 350, 70, BLACK);
-        DrawText("Press ESC to shop", 500, 450, 70, BLACK);
-        DrawText("Press Enter to continue !", 500, 550, 90, RED);
+        DrawText("Press A D to move", 250, 300, 70, BLACK);
+        DrawText("Press W to jump", 250, 400, 70, BLACK);
+        DrawText("Press ESC to shop", 250, 500, 70, BLACK);
+        DrawText("Press Enter to continue", 250, 700, 90, RED);
     }else if(_tutorial_page == 1){
-        DrawText("Use mouse to aim and click to shoot", 500, 250, 70, BLACK);
-        DrawText("Tap numbers to buy items", 500, 350, 70, BLACK);
-        DrawText("Goblin sells useful items for you", 500, 450, 70, BLACK);
-        DrawText("Press Enter to continue !!", 500, 550, 90, RED);
+        DrawText("Use mouse to aim and click to shoot", 250, 300, 70, BLACK);
+        DrawText("You can tap ESC to shop", 250, 400, 70, BLACK);
+        DrawText("Tap numbers to buy items", 250, 500, 70, BLACK);
+        DrawText("Press Enter to continue !", 250, 700, 90, RED);
     }else if(_tutorial_page == 2){
-        DrawText("there are 8 types of enemies", 500, 250, 70, BLACK);
-        DrawText("Angels can heal enemies around them", 500, 350, 70, BLACK);
-        DrawText("ICE SLIME can buff enemies around them", 500, 450, 70, BLACK);
-        DrawText("Press ESC to exit !!!", 500, 550, 90, RED);
+        DrawText("there are 8 types of enemies", 250, 300, 70, BLACK);
+        DrawText("Angels can heal enemies around them", 250, 400, 70, BLACK);
+        DrawText("ICE SLIME can buff enemies around them", 250, 500, 70, BLACK);
+        DrawText("Press Enter to continue !!", 250, 700, 90, RED);
     }else if(_tutorial_page == 3){
-        DrawText("Didn't you watch my tutorial ?", 500, 350, 100, BLACK);
-        DrawText("Press ESC to exit !!!", 500, 550, 120, RED);
+        DrawText("Useful tips :", 250, 300, 70, BLACK);
+        DrawText("Goblin is rich and you can buy useful items from it", 250, 400, 70, BLACK);
+        DrawText("You can design your level in resources/levels.txt", 250, 500, 70, BLACK);
+        DrawText("Press Enter to continue !!!", 250, 700, 90, RED);
+    }else if(_tutorial_page == 4){
+        DrawText("Good luck and have fun !", 250, 300, 70, BLACK);
+        DrawText("Upgrade your abilities to protect the castle !", 250, 400, 70, BLACK);
+        DrawText("Press ESC to exit !!!", 250, 700, 90, RED);
+    }else if(_tutorial_page == 5){
+        DrawText("Didn't you watch my tutorial ?", 250, 300, 100, BLACK);
+        DrawText("Press ESC to exit !!!", 250, 670, 120, RED);
     }
     
     if(IsKeyPressed(KEY_ENTER)){
         _tutorial_page++;
-        if(_tutorial_page>3) _tutorial_page = 3;
+        if(_tutorial_page>5) _tutorial_page = 5;
     }
     if(IsKeyPressed(KEY_ESCAPE)){
         _game_statement = START;
