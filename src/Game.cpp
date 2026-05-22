@@ -142,6 +142,17 @@ void game::update(float dt){
             }
         }
     }
+    for(int i = _damage_text.size()-1;i>=0;i--){
+        _damage_text[i].timer += dt;
+        _damage_text[i].position.y -= 50 * dt; 
+        float alpha = 1.0f - (_damage_text[i].timer / _damage_text[i].lifetime);
+        Color c = _damage_text[i].color;
+        c.a = (unsigned char)(alpha * 255);
+        _damage_text[i].color = c;
+        if(_damage_text[i].timer >= _damage_text[i].lifetime){
+            _damage_text.erase(_damage_text.begin() + i);
+        }
+    }
     _player.update(dt);
     _castle.update(dt);
     for(int i = 0;i<_enemies.size();i++){
@@ -188,13 +199,13 @@ void game::update(float dt){
                 }
                 damage = damage * _potion_attack.value;
                 _enemies[j]->take_damage(damage);
+                _damage_text.push_back({_enemies[j]->get_position(),damage,0.0f,1.0f,RED});
                 if(_projectiles[i].get_splash_range() > 0){
                     for(int k = _enemies.size()-1;k>=0;k--){
                         if(k == j) continue;
                         float dist = get_distance(_enemies[j],_enemies[k]);
                         if(dist <= _projectiles[i].get_splash_range()){
-                            _enemies[k]->take_damage(_projectiles[i].get_splash_damage());
-                            
+                            _enemies[k]->take_damage(_projectiles[i].get_damage());
                         }
                     }
                 }
@@ -427,6 +438,10 @@ void game::draw(){
     //_shop_goblin   
     if(_shop_goblin != nullptr){
         DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
+    }
+    // damage text
+    for(int i = 0;i<_damage_text.size();i++){
+        DrawText(TextFormat("%.0f",_damage_text[i].value),_damage_text[i].position.x,_damage_text[i].position.y-20,30,_damage_text[i].color);
     }
     // debug hitbox
     if(_debug_hitbox){

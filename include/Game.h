@@ -17,6 +17,7 @@
 #include "HealBehavior.h"
 #include "Coin.h"
 #include "Goblin.h"
+#include "DamageText.h"
 
 enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WAVE_SHOP,WIN,LOSE};
 
@@ -110,6 +111,9 @@ class game{
 
         // 虛擬畫布
         RenderTexture2D _canvas;
+
+        // damage text
+        std::vector<damage_text> _damage_text;
 
     public:
         game();
