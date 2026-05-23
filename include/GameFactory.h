@@ -74,7 +74,7 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,       1.0f},   // MISSILE
 };
 //                                             hp,damage, cooldown, jump_force, move_speed, start_golds, max_golds
-static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f, 200 ,200};
+static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 150};
 //                                             hp
 static constexpr castle_value CASTLE_VALUES = {500.0f};
 //       name         cost_base,cost_gain
@@ -95,7 +95,7 @@ static constexpr enemy_value ENEMY_VALUES[] = {
     { 70.0f,   {150,200}, {1,4},   {500,650},  {0,0},       {145,155},   {0,0},      {0,0}       },  // SLIMEGREEN
     { 500.0f,  {50,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLACK
     { 40.0f,   {300,500}, {1,4},   {700,900},  {0,0},       {95,145},    {0,0},      {0,0}       },  // SLIMERED
-    { 200.0f,  {110,150}, {6,15},  {750,850},  {1200,1400}, {135,155},   {0,0},      {0,0}       },  // SLIMEPURPLE
+    { 200.0f,  {110,150}, {6,15},  {750,850},  {1300,1600}, {135,155},   {0,0},      {0,0}       },  // SLIMEPURPLE
     { 150.0f,  {80,110},  {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
     { 170.0f,  {80,110},  {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
     { 40.0f,   {160,200}, {1,3},   {0,0},      {0,0},       {0,0},       {100,160},  {300,500}   },  // FLYINGBIRD
