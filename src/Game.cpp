@@ -15,6 +15,7 @@ void game::update(float dt){
         float length = sqrt(delta.x * delta.x + delta.y * delta.y);
 
         if(length > 0){
+
             float bullet_speed = 1400.0;
             float spread = 0.1;
             for(int i = 0;i<_multi_shot;i++){
@@ -217,6 +218,16 @@ void game::update(float dt){
                 }
                 if(_projectiles[i].get_poison_damage() > 0){
                     _enemies[j]->add_poison(_projectiles[i].get_poison_damage(),_projectiles[i].get_poison_interval());
+                }
+                if(_projectiles[i].is_piercing()){
+                    Vector2 pos = _projectiles[i].get_position();
+                    Vector2 spd = _projectiles[i].get_speed();
+                    float len = sqrt(spd.x * spd.x + spd.y * spd.y);
+                    if(len > 0){
+                        pos.x += (spd.x / len) * _enemies[j]->get_size().x;
+                        pos.y += (spd.y / len) * _enemies[j]->get_size().y;
+                        _projectiles[i].set_position(pos);
+                    }
                 }
                 if(_projectiles[i].is_piercing() == false){
                     _projectiles.erase(_projectiles.begin() + i);
@@ -464,7 +475,7 @@ void game::run(){
         if(IsMusicStreamPlaying(_bgm[_current_bgm]) == false){
             int temp;
             do{
-                temp = GetRandomValue(0, 2);
+                temp = GetRandomValue(0, 6);
             }while(temp == _current_bgm);
             _current_bgm = temp;
             PlayMusicStream(_bgm[_current_bgm]);
@@ -511,7 +522,7 @@ void game::reset(){
     // game
     _game_statement = START;
     // player
-    _player_damage = 2.0f;
+    _player_damage = PLAYER_VALUES.damage;
     _multi_shot = 1;
     // enemy
     _enemies.clear();
@@ -566,50 +577,51 @@ void game::init(){
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetExitKey(0);  // 取消 ESC 關閉視窗
     SetTargetFPS(60);
-    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/monster/slime/monster_green.png");
-    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/monster/slime/monster_black.png");
-    _enemy_textures[SLIMERED] = LoadTexture("resources/monster/slime/monster_red.png");
-    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/monster/slime/monster_purple.png");
-    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/monster/slime/monster_blue.png");
-    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/monster/angel/angel_2.png");
-    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/monster/bird/bird_24.png");
-    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/monster/dragon/dragon_2.png");
-    _castle_texture = LoadTexture("resources/castle/castle.png");
+    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/object/monster_green.png");
+    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/object/monster_black.png");
+    _enemy_textures[SLIMERED] = LoadTexture("resources/object/monster_red.png");
+    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/object/monster_purple.png");
+    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/object/monster_blue.png");
+    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/angel_2.png");
+    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/bird_24.png");
+    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/dragon_2.png");
+    _castle_texture = LoadTexture("resources/object/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
-    _player_texture = LoadTexture("resources/player/player_archer.png");
-    _coin_texture = LoadTexture("resources/coin/coin_4.png");
-    _weapon_textures[MUD] = LoadTexture("resources/weapon/ammo_1.png");
-    _weapon_textures[ARROW] = LoadTexture("resources/weapon/ammo_3.png");
-    _weapon_textures[STONE] = LoadTexture("resources/weapon/ammo_13.png");
-    _weapon_textures[ICE_SLOW] = LoadTexture("resources/weapon/ammo_11.png");
-    _weapon_textures[POISON] = LoadTexture("resources/weapon/ammo_18.png");
-    _weapon_textures[PIERCING_ARROW] = LoadTexture("resources/weapon/ammo_17.png");
-    _weapon_textures[IRON_BALL] = LoadTexture("resources/weapon/ammo_24.png");
-    _weapon_textures[FIRE_BALL] = LoadTexture("resources/weapon/ammo_19.png");
-    _weapon_textures[ROCKET] = LoadTexture("resources/weapon/ammo_5.png");
-    _weapon_textures[ICE_FREEZE] = LoadTexture("resources/weapon/ammo_12.png");
-    _weapon_textures[MISSILE] = LoadTexture("resources/weapon/ammo_26.png");
-    _potion_textures[HEAL_PLAYER_POTION] = LoadTexture("resources/potion/ammo_14.png");
-    _potion_textures[HEAL_CASTLE_POTION] = LoadTexture("resources/potion/ammo_6.png");
-    _potion_textures[ATTACK_POTION] = LoadTexture("resources/potion/ammo_4.png");
-    _potion_textures[ATTACK_SPEED_POTION] = LoadTexture("resources/potion/ammo_28.png");
-    _potion_textures[SHIELD_POTION] = LoadTexture("resources/potion/ammo_21.png");
-    _potion_textures[MOVE_SPEED_POTION] = LoadTexture("resources/potion/ammo_9.png");
-    _potion_textures[REGENERATION_POTION] = LoadTexture("resources/potion/ammo_10.png");
-    _shop_goblin_texture = LoadTexture("resources/shop/goblin.png");
+    _player_texture = LoadTexture("resources/object/player_archer.png");
+    _coin_texture = LoadTexture("resources/object/coin_4.png");
+    _weapon_textures[MUD] = LoadTexture("resources/object/ammo_1.png");
+    _weapon_textures[ARROW] = LoadTexture("resources/object/ammo_3.png");
+    _weapon_textures[STONE] = LoadTexture("resources/object/ammo_13.png");
+    _weapon_textures[ICE_SLOW] = LoadTexture("resources/object/ammo_11.png");
+    _weapon_textures[POISON] = LoadTexture("resources/object/ammo_18.png");
+    _weapon_textures[PIERCING_ARROW] = LoadTexture("resources/object/ammo_17.png");
+    _weapon_textures[IRON_BALL] = LoadTexture("resources/object/ammo_24.png");
+    _weapon_textures[FIRE_BALL] = LoadTexture("resources/object/ammo_19.png");
+    _weapon_textures[ROCKET] = LoadTexture("resources/object/ammo_5.png");
+    _weapon_textures[ICE_FREEZE] = LoadTexture("resources/object/ammo_12.png");
+    _weapon_textures[MISSILE] = LoadTexture("resources/object/ammo_26.png");
+    _potion_textures[HEAL_PLAYER_POTION] = LoadTexture("resources/object/ammo_14.png");
+    _potion_textures[HEAL_CASTLE_POTION] = LoadTexture("resources/object/ammo_6.png");
+    _potion_textures[ATTACK_POTION] = LoadTexture("resources/object/ammo_4.png");
+    _potion_textures[ATTACK_SPEED_POTION] = LoadTexture("resources/object/ammo_28.png");
+    _potion_textures[SHIELD_POTION] = LoadTexture("resources/object/ammo_21.png");
+    _potion_textures[MOVE_SPEED_POTION] = LoadTexture("resources/object/ammo_9.png");
+    _potion_textures[REGENERATION_POTION] = LoadTexture("resources/object/ammo_10.png");
+    _shop_goblin_texture = LoadTexture("resources/object/goblin.png");
     // music
     InitAudioDevice();
-    _bgm[0] = LoadMusicStream("resources/music/suspense-cinematic-ambient.mp3");
-    _bgm[1] = LoadMusicStream("resources/music/Spiral.mp3");
-    _bgm[2] = LoadMusicStream("resources/music/Dragon's Honor.mp3");
-    _current_bgm = GetRandomValue(0, 2);
+    for(int i = 0; i < 7; i++){
+        _bgm[i] = LoadMusicStream(TextFormat("resources/music/BGM/GameBoyBGM-%d.mp3", i+1));
+        SetMusicVolume(_bgm[i], 0.8f);
+    }
+    _current_bgm = GetRandomValue(0, 6);
     PlayMusicStream(_bgm[_current_bgm]);
     SetMusicVolume(_bgm[_current_bgm], 0.8f);
     // sound 
-    _wave_horn_sfx = LoadSound("resources/sound/wave-horn/wave-horn.mp3");
-    _get_coin_sfx[0] = LoadSound("resources/sound/get-coin/get-coin1.mp3");
-    _get_coin_sfx[1] = LoadSound("resources/sound/get-coin/get-coin2.mp3");
-    _get_coin_sfx[2] = LoadSound("resources/sound/get-coin/get-coin3.mp3");
+    _wave_horn_sfx = LoadSound("resources/music/SoundEffect/wave-horn/wave-horn.mp3");
+    _get_coin_sfx[0] = LoadSound("resources/music/SoundEffect/get-coin/get-coin1.mp3");
+    _get_coin_sfx[1] = LoadSound("resources/music/SoundEffect/get-coin/get-coin2.mp3");
+    _get_coin_sfx[2] = LoadSound("resources/music/SoundEffect/get-coin/get-coin3.mp3");
     SetSoundVolume(_wave_horn_sfx, 0.5f);
     for(int i = 0;i<3;i++) SetSoundVolume(_get_coin_sfx[i], 0.5f);
     // canvas
@@ -630,7 +642,7 @@ void game::close(){
     for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
     UnloadTexture(_shop_goblin_texture);
     // music
-    for(int i = 0;i<3;i++) UnloadMusicStream(_bgm[i]);
+    for(int i = 0;i<7;i++) UnloadMusicStream(_bgm[i]);
     // sound
     UnloadSound(_wave_horn_sfx);
     for(int i = 0;i<3;i++) UnloadSound(_get_coin_sfx[i]);
@@ -754,39 +766,37 @@ void game::handle_tutorial(){
     }
 }
 void game::handle_pause(){
-    const char* item[7] = {"[1] Attack +1","[2] Player HP +10","[3] Castle HP +20","[4] Max Gold +50","[5] Attack Speed","[6] Multi Shot +1","[7] Move SpeedUp"};
-    const int cost[7] = {20,20,20,40,50,80,40};
-    const int cost_gain[7] = {10,10,10,30,30,80,20};
     DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
     for(int i = 0;i<7;i++){
-        DrawText(TextFormat("%s",item[i]), 700, 250 + i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
-        DrawText(TextFormat("Lv: %d", _player_level[i]), 1200, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
-        DrawText(TextFormat("Cost: %d",cost[i]+cost_gain[i]*_player_level[i]), 1350, 250+i*60, 40, _golds >= cost[i]+cost_gain[i]*_player_level[i] ? BLUE : GRAY);
-        
+        int c = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
+        DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 700, 250 + i*60, 40, _golds >= c ? BLUE : GRAY);
+        DrawText(TextFormat("Lv: %d", _player_level[i]), 1200, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
+        DrawText(TextFormat("Cost: %d", c), 1350, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
     }
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 700, 40, GOLD);
     DrawText("Press ESC to continue", 700, 760, 40, DARKGRAY);
-    
-    if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]+cost_gain[0]*_player_level[0]){
-        _golds -= cost[0]+cost_gain[0]*_player_level[0]; _player_damage += 1.0f; _player_level[0]++;
+
+    auto get_cost = [&](int i){ return UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i]; };
+    if(IsKeyPressed(KEY_ONE) && _golds >= get_cost(0)){
+        _golds -= get_cost(0); _player_damage += 10.0f; _player_level[0]++;
     }
-    if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]+cost_gain[1]*_player_level[1]){
-        _golds -= cost[1]+cost_gain[1]*_player_level[1]; _player.increase_max_hp(10); _player_level[1]++;
+    if(IsKeyPressed(KEY_TWO) && _golds >= get_cost(1)){
+        _golds -= get_cost(1); _player.increase_max_hp(50); _player_level[1]++;
     }
-    if(IsKeyPressed(KEY_THREE) && _golds >= cost[2]+cost_gain[2]*_player_level[2]){
-        _golds -= cost[2]+cost_gain[2]*_player_level[2]; _castle.increase_max_hp(20); _player_level[2]++;
+    if(IsKeyPressed(KEY_THREE) && _golds >= get_cost(2)){
+        _golds -= get_cost(2); _castle.increase_max_hp(100); _player_level[2]++;
     }
-    if(IsKeyPressed(KEY_FOUR) && _golds >= cost[3]+cost_gain[3]*_player_level[3]){
-        _golds -= cost[3]+cost_gain[3]*_player_level[3]; _max_golds += 50; _player_level[3]++;
+    if(IsKeyPressed(KEY_FOUR) && _golds >= get_cost(3)){
+        _golds -= get_cost(3); _max_golds += 50; _player_level[3]++;
     }
-    if(IsKeyPressed(KEY_FIVE) && _golds >= cost[4]+cost_gain[4]*_player_level[4]){
-        _golds -= cost[4]+cost_gain[4]*_player_level[4]; _player.decrease_cooldown(0.05f); _player_level[4]++;
+    if(IsKeyPressed(KEY_FIVE) && _golds >= get_cost(4)){
+        _golds -= get_cost(4); _player.decrease_cooldown(0.05f); _player_level[4]++;
     }
-    if(IsKeyPressed(KEY_SIX) && _golds >= cost[5]+cost_gain[5]*_player_level[5]){
-        _golds -= cost[5]+cost_gain[5]*_player_level[5]; _multi_shot += 1; _player_level[5]++;
+    if(IsKeyPressed(KEY_SIX) && _golds >= get_cost(5)){
+        _golds -= get_cost(5); _multi_shot += 1; _player_level[5]++;
     }
-    if(IsKeyPressed(KEY_SEVEN) && _golds >= cost[6]+cost_gain[6]*_player_level[6]){
-        _golds -= cost[6]+cost_gain[6]*_player_level[6]; _player.increase_move_speed(10); _player_level[6]++;
+    if(IsKeyPressed(KEY_SEVEN) && _golds >= get_cost(6)){
+        _golds -= get_cost(6); _player.increase_move_speed(10); _player_level[6]++;
     }
     // pause to playing
     _press_delay -= GetFrameTime();
@@ -825,12 +835,12 @@ void game::handle_wave_shop(){
     
     if(IsKeyPressed(KEY_ONE) && _golds >= POTION_COST[HEAL_PLAYER_POTION]){
         _golds -= POTION_COST[HEAL_PLAYER_POTION];
-        _player.heal(_player.get_max_hp() * 0.5f);
+        _player.heal(_player.get_max_hp());
         _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_TWO) && _golds >= POTION_COST[HEAL_CASTLE_POTION]){
         _golds -= POTION_COST[HEAL_CASTLE_POTION];
-        _castle.heal(_castle.get_max_hp() * 0.5f);
+        _castle.heal(_castle.get_max_hp());
         _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_THREE) && _golds >= WEAPON_COST[_shop_weapon1]){

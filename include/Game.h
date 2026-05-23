@@ -47,7 +47,7 @@ class game{
         float _wave_rest_duration = 4.0f;
         int _current_wave = 0;        
         // player
-        float _player_damage = 2.0f;
+        float _player_damage = PLAYER_VALUES.damage;
         int _multi_shot = 1;
         // enemy
         int _enemies_spawned = 0;
@@ -104,7 +104,7 @@ class game{
 
         // music
         int _current_bgm = 0;
-        Music _bgm[3];
+        Music _bgm[7];
         Sound _wave_horn_sfx;
         Sound _get_coin_sfx[3];
         float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
