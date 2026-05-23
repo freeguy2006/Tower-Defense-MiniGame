@@ -71,8 +71,6 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     1.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_FREEZE
     {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,       1.0f},   // MISSILE
 };
-
-
 //                                             hp,damage, cooldown, jump_force, move_speed            
 static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f};
 //                                             hp
