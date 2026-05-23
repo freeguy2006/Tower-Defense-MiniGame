@@ -54,7 +54,7 @@ class enemy : public character{
             }
         };
         void add_behavior(enemy_behavior* behavior){ _behaviors.push_back(behavior); }
-        std::vector<enemy_behavior*> get_behaviors() const { return _behaviors; }
+        const std::vector<enemy_behavior*>& get_behaviors() const { return _behaviors; }
         void reset_speed(){ set_speed(_base_speed); }
         // getter
         Vector2 get_base_speed() const { return _base_speed; }

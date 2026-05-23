@@ -6,7 +6,11 @@ void game::update(float dt){
     _player.set_attack_cooldown(_player.get_base_cooldown() * _potion_attack_speed.value);
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
-        Vector2 mouse_pos = GetMousePosition();
+        Vector2 mouse_raw = GetMousePosition();
+        float scale = fmin((float)GetScreenWidth()/2400.0f, (float)GetScreenHeight()/900.0f);
+        float offsetX = (GetScreenWidth() - 2400*scale) / 2;
+        float offsetY = (GetScreenHeight() - 900*scale) / 2;
+        Vector2 mouse_pos = {(mouse_raw.x - offsetX) / scale, (mouse_raw.y - offsetY) / scale};
         Vector2 player_center = {
             _player.get_position().x + _player.get_size().x / 2,
             _player.get_position().y + _player.get_size().y / 2
@@ -59,14 +63,14 @@ void game::update(float dt){
                 
                 float hpm = w.get_hp_multiplier();
                 switch(type){
-                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2300, game_factory::GROUND_Y-54}, hpm)); break;
-                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2300, game_factory::GROUND_Y-88}, hpm)); break;
-                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2300, game_factory::GROUND_Y-60}, hpm)); break;
-                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2300, game_factory::GROUND_Y-61}, hpm)); break;
-                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2300, game_factory::GROUND_Y-54}, hpm)); break;
-                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2300, game_factory::GROUND_Y-GetRandomValue(250,300)}, hpm)); break;
-                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2300, game_factory::GROUND_Y-GetRandomValue(300,550)}, hpm)); break;
-                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2300, game_factory::GROUND_Y-GetRandomValue(300,500)}, hpm)); break;
+                    case SLIMEGREEN: _enemies.push_back(game_factory::create_enemy_green({2500, game_factory::GROUND_Y-54}, hpm)); break;
+                    case SLIMEBLACK: _enemies.push_back(game_factory::create_enemy_black({2500, game_factory::GROUND_Y-88}, hpm)); break;
+                    case SLIMERED: _enemies.push_back(game_factory::create_enemy_red({2500, game_factory::GROUND_Y-60}, hpm)); break;
+                    case SLIMEPURPLE: _enemies.push_back(game_factory::create_enemy_purple({2500, game_factory::GROUND_Y-61}, hpm)); break;
+                    case SLIMEBLUE: _enemies.push_back(game_factory::create_enemy_blue({2500, game_factory::GROUND_Y-54}, hpm)); break;
+                    case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2500, game_factory::GROUND_Y-GetRandomValue(250,300)}, hpm)); break;
+                    case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2500, game_factory::GROUND_Y-GetRandomValue(300,550)}, hpm)); break;
+                    case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2500, game_factory::GROUND_Y-GetRandomValue(300,500)}, hpm)); break;
                 }
                 
                 _enemies_spawned++;
@@ -120,24 +124,25 @@ void game::update(float dt){
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->reset_speed();
     }
-    for(int i = 0;i<_enemies.size();i++){ 
-        for(int j = 0;j<_enemies.size();j++){
-            if(i==j) continue;
-            for(int k = 0;k<_enemies[j]->get_behaviors().size();k++){
-                buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[j]->get_behaviors()[k]);
+    for(const auto& i:_enemies){ 
+        for(const auto& j:_enemies){
+            if(i == j)continue;
+            const auto& behaviors = j->get_behaviors();
+            for(int k = 0;k<behaviors.size();k++){
+                buff_behavior* buff = dynamic_cast<buff_behavior*>(behaviors[k]);
                 if(buff){ // 加速，加傷害，抗性
-                    float dist = get_distance(_enemies[i],_enemies[j]);
+                    float dist = get_distance(i,j);
                     if(dist <= buff->get_buff_range()){
-                        Vector2 spd = _enemies[i]->get_speed();
+                        Vector2 spd = i->get_speed();
                         spd.x *= buff->get_speed_boost();
-                        _enemies[i]->set_speed(spd);
+                        i->set_speed(spd);
                     }
                 }
-                heal_behavior* heal = dynamic_cast<heal_behavior*>(_enemies[j]->get_behaviors()[k]);
+                heal_behavior* heal = dynamic_cast<heal_behavior*>(behaviors[k]);
                 if(heal && heal->is_able_to_heal()){ // 治療
-                    float dist = get_distance(_enemies[i],_enemies[j]);
+                    float dist = get_distance(i,j);
                     if(dist <= heal->get_heal_range()){
-                        _enemies[i]->heal(heal->get_heal_amount());
+                        i->heal(heal->get_heal_amount());
                     }
                 }
             }
@@ -369,29 +374,28 @@ void game::draw(){
     DrawTextureEx(_castle_texture,_castle.get_position(),0,0.6,WHITE);
     // enemy
     for(int i = 0;i<_enemies.size();i++){
-        DrawTextureEx(_enemy_textures[_enemies[i]->get_enemy_type()], _enemies[i]->get_position(), 0, _enemy_scale[_enemies[i]->get_enemy_type()], WHITE);
+        Vector2 epos = _enemies[i]->get_position();
+        Vector2 esize = _enemies[i]->get_size();
+        int etype = _enemies[i]->get_enemy_type();
+        DrawTextureEx(_enemy_textures[etype], epos, 0, _enemy_scale[etype], WHITE);
         // enemy 血條
-        DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x, 5}, GRAY);
-        DrawRectangleRec({_enemies[i]->get_position().x, _enemies[i]->get_position().y-5, (float)_enemies[i]->get_size().x * (float)_enemies[i]->get_hp() / (float)_enemies[i]->get_max_hp(), 5}, RED);
+        DrawRectangleRec({epos.x, epos.y-5, esize.x, 5}, GRAY);
+        DrawRectangleRec({epos.x, epos.y-5, esize.x * _enemies[i]->get_hp() / _enemies[i]->get_max_hp(), 5}, RED);
     }
     // buff, heal 光圈
     for(int i = 0;i<_enemies.size();i++){
-        for(int j = 0;j < _enemies[i]->get_behaviors().size();j++){
-            buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[i]->get_behaviors()[j]);
+        Vector2 epos = _enemies[i]->get_position();
+        Vector2 esize = _enemies[i]->get_size();
+        Vector2 center = {epos.x + esize.x/2, epos.y + esize.y/2};
+        const auto& behaviors = _enemies[i]->get_behaviors();
+        for(int j = 0;j < behaviors.size();j++){
+            buff_behavior* buff = dynamic_cast<buff_behavior*>(behaviors[j]);
             if(buff){
-                Vector2 center = {
-                    _enemies[i]->get_position().x+_enemies[i]->get_size().x/2,
-                    _enemies[i]->get_position().y+_enemies[i]->get_size().y/2
-                };
-                DrawCircleLines(center.x,center.y,buff->get_buff_range(),BLUE); 
+                DrawCircleLines(center.x,center.y,buff->get_buff_range(),BLUE);
             }
-            heal_behavior* heal = dynamic_cast<heal_behavior*>(_enemies[i]->get_behaviors()[j]);
+            heal_behavior* heal = dynamic_cast<heal_behavior*>(behaviors[j]);
             if(heal){
-                Vector2 center = {
-                    _enemies[i]->get_position().x+_enemies[i]->get_size().x/2,
-                    _enemies[i]->get_position().y+_enemies[i]->get_size().y/2
-                };
-                DrawCircleLines(center.x,center.y,heal->get_heal_range(),YELLOW); 
+                DrawCircleLines(center.x,center.y,heal->get_heal_range(),YELLOW);
             }
         }
     }
@@ -400,12 +404,13 @@ void game::draw(){
         Vector2 spd = _projectiles[i].get_speed(); 
         float angle = atan2(spd.y, spd.x) * 180.0f / PI - 135;
         Vector2 pos = _projectiles[i].get_position();
-        float w = _weapon_textures[_projectiles[i].get_weapon_type()].width;
-        float h = _weapon_textures[_projectiles[i].get_weapon_type()].height;
+        const Texture2D& tex = _weapon_textures[_projectiles[i].get_weapon_type()];
+        float w = tex.width;
+        float h = tex.height;
         Rectangle source = {0, 0, w, h};
         Rectangle dest = {pos.x, pos.y, w, h};
         Vector2 origin = {w/2, h/2};
-        DrawTexturePro(_weapon_textures[_projectiles[i].get_weapon_type()], source, dest, origin, angle, WHITE);
+        DrawTexturePro(tex, source, dest, origin, angle, WHITE);
     }
     // player
     float w = _player_texture.width;
@@ -432,22 +437,25 @@ void game::draw(){
     }
     //血條
     //castle
+    DrawRectangleRec({18, 18, 1004, 29}, BLACK);
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
     DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
-    DrawText(TextFormat("Castle HP: %.0f",_castle.get_hp()),20,20,25,BLACK);
+    DrawText(TextFormat("Castle HP: %.0f",_castle.get_hp()),25,20,25,BLACK);
     //player
+    DrawRectangleRec({18, 58, 504, 29}, BLACK);
     DrawRectangleRec({20, 60, 500, 25}, GRAY);
     DrawRectangleRec({20, 60, 500.0f * _player.get_hp() / _player.get_max_hp(), 25}, ORANGE);
-    DrawText(TextFormat("Player HP: %.0f",_player.get_hp()),20,60,25,BLACK);
+    DrawText(TextFormat("Player HP: %.0f",_player.get_hp()),25,60,25,BLACK);
     // golds
-    float gold_bar_width = 250.0f * _golds / _max_golds;
-    DrawRectangleRec({2100, 20, 250, 30}, GRAY);
+    float gold_bar_width = 300.0f * _golds / _max_golds;
+    DrawRectangleRec({2048, 18, 304, 34}, BLACK);
+    DrawRectangleRec({2050, 20, 300, 30}, GRAY);
     DrawRectangleRec({2350 - gold_bar_width, 20, gold_bar_width, 30}, GOLD);
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2100, 20, 30, BLACK);
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
-    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1300,20,40,BLACK );
+    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1400,20,40,BLACK );
     //_shop_goblin   
     if(_shop_goblin != nullptr){
         DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
@@ -541,8 +549,8 @@ void game::reset(){
     _wave_rest_timer = 0;
     // golds
     _coins.clear();
-    _golds = 0;
-    _max_golds = 100;
+    _golds = PLAYER_VALUES.start_golds;
+    _max_golds = PLAYER_VALUES.max_golds;
     // player_levels
     for(int i = 0;i<9;i++){
         _player_level[i] = 0;
@@ -762,40 +770,38 @@ void game::handle_tutorial(){
 void game::handle_pause(){
     DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
     DrawTextureEx(_stickman_texture, {1500,100}, 0, 2.0f, WHITE);
-    for(int i = 0;i<9;i++){
-        int c = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
-        DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 400, 250 + i*60, 40, _golds >= c ? BLUE : GRAY);
-        DrawText(TextFormat("Lv: %d", _player_level[i]), 900, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
-        DrawText(TextFormat("Cost: %d", c), 1100, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
+    int cost[9];
+    for(int i = 0; i < 9; i++){
+        cost[i] = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
+        DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 400, 250 + i*60, 40, _golds >= cost[i] ? BLUE : GRAY);
+        DrawText(TextFormat("Lv: %d", _player_level[i]), 900, 250+i*60, 40, _golds >= cost[i] ? BLUE : GRAY);
+        DrawText(TextFormat("Cost: %d", cost[i]), 1100, 250+i*60, 40, _golds >= cost[i] ? BLUE : GRAY);
     }
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 600, 40, GOLD);
     DrawText("Press ESC to continue", 1500, 660, 40, DARKGRAY);
-
-    int cost[9], i;
-    for(i = 0; i < 9; i++) cost[i] = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
     if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]){
-        _golds -= cost[0]; _player_damage += 10.0f; _player_level[0]++;
+        _golds -= cost[0]; _player_damage += 3.0f; _player_level[0]++;
     }
     if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]){
         _golds -= cost[1]; _player.increase_max_hp(50); _player_level[1]++;
     }
     if(IsKeyPressed(KEY_THREE) && _golds >= cost[2]){
-        _golds -= cost[2]; _castle.increase_max_hp(100); _player_level[2]++;
+        _golds -= cost[2]; _castle.increase_max_hp(50); _player_level[2]++;
     }
     if(IsKeyPressed(KEY_FOUR) && _golds >= cost[3]){
         _golds -= cost[3]; _max_golds += 50; _player_level[3]++;
     }
     if(IsKeyPressed(KEY_FIVE) && _golds >= cost[4]){
-        _golds -= cost[4]; _player.decrease_cooldown(0.05f); _player_level[4]++;
+        _golds -= cost[4]; _player.decrease_cooldown(0.02f); _player_level[4]++;
     }
     if(IsKeyPressed(KEY_SIX) && _golds >= cost[5]){
         _golds -= cost[5]; _multi_shot += 1; _player_level[5]++;
     }
     if(IsKeyPressed(KEY_SEVEN) && _golds >= cost[6]){
-        _golds -= cost[6]; _player.increase_move_speed(10); _player_level[6]++;
+        _golds -= cost[6]; _player.increase_move_speed(30); _player_level[6]++;
     }
     if(IsKeyPressed(KEY_EIGHT) && _golds >= cost[7]){
-        _golds -= cost[7]; _player_crit_chance += 0.01f; _player_level[7]++;
+        _golds -= cost[7]; _player_crit_chance += 0.02f; _player_level[7]++;
     }
     if(IsKeyPressed(KEY_NINE) && _golds >= cost[8]){
         _golds -= cost[8]; _player_crit_multiplier += 0.25f; _player_level[8]++;
@@ -809,51 +815,47 @@ void game::handle_pause(){
 }
 void game::handle_wave_shop(){
 
-    DrawTextureEx(_shop_goblin_texture, {1500,100}, 0, 1.0f, WHITE);
-    DrawText("~~Wave Shop~~",550,50,100,GREEN);
+    DrawTextureEx(_shop_goblin_texture, {1600,300}, 0, 1.0f, WHITE);
+    DrawText("~~Wave Shop~~",640,50,100,GREEN);
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 690, 60, GOLD);
     DrawText("Press ESC to skip", 700, 760, 30, DARKGRAY);
     // 1
     DrawTextureEx(_potion_textures[0], {650, 250}, 0, 1.0f, WHITE);
     DrawText(TextFormat("[1] %s", POTION_NAME[0]), 700, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[0]), 1000, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[0]), 1200, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
     // 2
     DrawTextureEx(_potion_textures[1], {650, 330}, 0, 1.0f, WHITE);
     DrawText(TextFormat("[2] %s", POTION_NAME[1]), 700, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[1]), 1000, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[1]), 1200, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
     // 3
     DrawTextureEx(_weapon_textures[_shop_weapon1], {650, 410}, 0, 1.0f, WHITE);
     DrawText(TextFormat("[3] %s", WEAPON_NAME[_shop_weapon1]), 700, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon1]), 1000, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon1]), 1200, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
     // 4
     DrawTextureEx(_weapon_textures[_shop_weapon2], {650, 490}, 0, 1.0f, WHITE);
     DrawText(TextFormat("[4] %s", WEAPON_NAME[_shop_weapon2]), 700, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon2]), 1000, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY); 
+    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon2]), 1200, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY); 
     // 5 
     DrawTextureEx(_potion_textures[_shop_potion], {650, 570}, 0, 1.0f, WHITE);
     DrawText(TextFormat("[5] %s", POTION_NAME[_shop_potion]), 700, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1000, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1200, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
     
     
     if(IsKeyPressed(KEY_ONE) && _golds >= POTION_COST[HEAL_PLAYER_POTION]){
         _golds -= POTION_COST[HEAL_PLAYER_POTION];
         _player.heal(_player.get_max_hp());
-        _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_TWO) && _golds >= POTION_COST[HEAL_CASTLE_POTION]){
         _golds -= POTION_COST[HEAL_CASTLE_POTION];
         _castle.heal(_castle.get_max_hp());
-        _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_THREE) && _golds >= WEAPON_COST[_shop_weapon1]){
         _golds -= WEAPON_COST[_shop_weapon1];
         _current_weapon = _shop_weapon1;
-        _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_FOUR) && _golds >= WEAPON_COST[_shop_weapon2]){
         _golds -= WEAPON_COST[_shop_weapon2];
         _current_weapon = _shop_weapon2;
-        _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_FIVE) && _golds >= POTION_COST[_shop_potion]){
         _golds -= POTION_COST[_shop_potion];
@@ -883,7 +885,6 @@ void game::handle_wave_shop(){
             default:
                 break;
         }
-        _game_statement = PLAYING;
     }
     if(IsKeyPressed(KEY_ESCAPE)){
         _game_statement = PLAYING;

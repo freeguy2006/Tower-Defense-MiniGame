@@ -731,14 +731,14 @@
     //  DATA DEFINITIONS
     // ─────────────────────────────────────────────────────────────────────────────
     const ENEMIES = [
-      { code: 'SK', name: '黑色史萊姆', color: '#333333', img: 'monster/slime/monster_black.png' },
-      { code: 'SR', name: '紅色史萊姆', color: '#F44336', img: 'monster/slime/monster_red.png' },
-      { code: 'SG', name: '綠色史萊姆', color: '#4CAF50', img: 'monster/slime/monster_green.png' },
-      { code: 'SB', name: '藍色史萊姆', color: '#2196F3', img: 'monster/slime/monster_blue.png' },
-      { code: 'SP', name: '紫色史萊姆', color: '#9C27B0', img: 'monster/slime/monster_purple.png' },
-      { code: 'FA', name: '天使', color: '#BDBDBD', img: 'monster/angel/angel_2.png' },
-      { code: 'FB', name: '小鳥', color: '#FF9800', img: 'monster/bird/bird_24.png' },
-      { code: 'FD', name: '飛龍', color: '#FF5722', img: 'monster/dragon/dragon_2.png' },
+      { code: 'SK', name: '黑色史萊姆', color: '#333333', img: '../resources/object/monster/monster_black.png' },
+      { code: 'SR', name: '紅色史萊姆', color: '#F44336', img: '../resources/object/monster/monster_red.png' },
+      { code: 'SG', name: '綠色史萊姆', color: '#4CAF50', img: '../resources/object/monster/monster_green.png' },
+      { code: 'SB', name: '藍色史萊姆', color: '#2196F3', img: '../resources/object/monster/monster_blue.png' },
+      { code: 'SP', name: '紫色史萊姆', color: '#9C27B0', img: '../resources/object/monster/monster_purple.png' },
+      { code: 'FA', name: '天使', color: '#BDBDBD', img: '../resources/object/monster/angel_2.png' },
+      { code: 'FB', name: '小鳥', color: '#FF9800', img: '../resources/object/monster/bird_24.png' },
+      { code: 'FD', name: '飛龍', color: '#FF5722', img: '../resources/object/monster/dragon_2.png' },
     ];
     const ENEMY_MAP = Object.fromEntries(ENEMIES.map(e => [e.code, e]));
 
@@ -1109,7 +1109,7 @@
             parts.push(`${item.code}*${item.count}`);
           }
         });
-        lines.push(`${wi + 1}\t${parts.join(' ')}`);
+        lines.push(parts.join(' '));
       });
       return lines.join('\n');
     }

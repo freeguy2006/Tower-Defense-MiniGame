@@ -31,6 +31,8 @@ struct player_value{
     float cooldown;
     float jump_force;
     float move_speed;
+    int start_golds;
+    int max_golds;
 };
 struct castle_value{
     float hp;
@@ -55,11 +57,11 @@ struct weapon_value{
 static constexpr const char* WEAPON_NAME[] = {"Mud", "Arrow", "Stone Arrow", "Ice Slow", "Poison Arrow", "Piercing Arrow", "Iron Ball", "Fire Ball", "Rocket", "Ice Freeze", "Missile"};
 static constexpr const char* POTION_NAME[] = {"Heal Player", "Heal Castle", "Attack", "Attack Speed", "Shield", "Move Speed", "Regenerate"};
 static constexpr int WEAPON_COST[] = {0, 150, 150, 100, 100, 150, 100, 150, 100, 100, 150};  // 11 個
-static constexpr int POTION_COST[] = {20, 20, 30, 30, 40, 20, 30};  // 7 個
+static constexpr int POTION_COST[] = {30, 30, 30, 30, 40, 20, 30};  // 7 個
 
 //   Dmg*  Col*  CritChance  Crit*  CritHp%  Pierce  Slow%  SlowTime  FrezTime  Poison*  PoisonInterval  SplashRange  Splash*
 static constexpr weapon_value WEAPON_VALUES[] = {
-    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.1f, 1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // MUD
+    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.1f, 1.0f,      0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // MUD
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ARROW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // STONE
     {1.2f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.6f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
@@ -71,21 +73,21 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     1.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_FREEZE
     {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,       1.0f},   // MISSILE
 };
-//                                             hp,damage, cooldown, jump_force, move_speed            
-static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f};
+//                                             hp,damage, cooldown, jump_force, move_speed, start_golds, max_golds
+static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f, 200 ,200};
 //                                             hp
 static constexpr castle_value CASTLE_VALUES = {500.0f};
 //       name         cost_base,cost_gain
 static constexpr upgrade_value UPGRADE_VALUES[] = {
-    {"[1] Attack +1",        20,  5},   // 攻擊力
-    {"[2] Player HP +30",    20,  20},   // 玩家血量
-    {"[3] Castle HP +100",   20,  20},   // 城堡血量
-    {"[4] Max Gold +50",     50,  30},   // 金幣上限
-    {"[5] Attack Speed",     80,  20},   // 攻速
-    {"[6] Multi Shot +1",    150, 100},   // 多重射擊
-    {"[7] Move SpeedUp",     50,  30},   // 移動速度
-    {"[8] Crit Rate +5%",    60,  40},   // 暴擊率
-    {"[9] Crit Damage +0.5", 60,  40},   // 暴擊傷害
+    {"[1] Attack +3",       20,  5},   // 攻擊力
+    {"[2] Player HP +50",   20,  5},   // 玩家血量
+    {"[3] Castle HP +50",   20,  5},   // 城堡血量
+    {"[4] Max Gold +50",    50,  20},   // 金幣上限
+    {"[5] Attack Speed",    80,  20},   // 攻速
+    {"[6] Multi Shot +1",   150, 100},   // 多重射擊
+    {"[7] Move SpeedUp",    50,  50},   // 移動速度
+    {"[8] Crit Rate +2%",   30,  50},   // 暴擊率
+    {"[9] Crit Damage +25%",30,  50},   // 暴擊傷害
 };
 
 //    hp       speed      reward   JumpMin    JumpMax       JumpCd(÷100)  FlyAmp     fly_spd(÷100)
@@ -173,7 +175,7 @@ class game_factory {
         static flying_enemy* create_enemy_angel(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGANGEL];
             flying_enemy* e = new flying_enemy(position, {88,81}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGANGEL, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)v.reward.x,(int)v.reward.y));
-            e->add_behavior(new heal_behavior(2,2,200));
+            e->add_behavior(new heal_behavior(5.0f*hp_multiplier,0.5f,200));
             return e;
         }
         // 小鳥

@@ -65,8 +65,8 @@ class game{
         void handle_wave_shop();
         void handle_end();
         // golds
-        int _golds = 0;
-        int _max_golds = 100;
+        int _golds = PLAYER_VALUES.start_golds;
+        int _max_golds = PLAYER_VALUES.max_golds;
         // player_levels
         int _player_level[9] = {0};
         // debug
