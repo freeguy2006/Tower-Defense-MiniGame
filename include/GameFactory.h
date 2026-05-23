@@ -84,6 +84,8 @@ static constexpr upgrade_value UPGRADE_VALUES[] = {
     {"[5] Attack Speed",     80,  20},   // 攻速
     {"[6] Multi Shot +1",    150, 100},   // 多重射擊
     {"[7] Move SpeedUp",     50,  30},   // 移動速度
+    {"[8] Crit Rate +5%",    60,  40},   // 暴擊率
+    {"[9] Crit Damage +0.5", 60,  40},   // 暴擊傷害
 };
 
 //    hp       speed      reward   JumpMin    JumpMax       JumpCd(÷100)  FlyAmp     fly_spd(÷100)

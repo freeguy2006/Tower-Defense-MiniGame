@@ -189,14 +189,16 @@ void game::update(float dt){
                     }
                 }
                 // 乘傷區
-                if(_projectiles[i].get_crit_chance() > 0){
+                float total_crit_chance = _projectiles[i].get_crit_chance() + _player_crit_chance;
+                float total_crit_multiplier = _projectiles[i].get_crit_multiplier() + _player_crit_multiplier;
+                if(total_crit_chance > 0){
                     float roll = (float)GetRandomValue(0,100)/100.0f;
-                    if(roll <= _projectiles[i].get_crit_chance()){
-                        damage = damage * _projectiles[i].get_crit_multiplier() + _projectiles[i].get_crit_damage();
+                    if(roll <= total_crit_chance){
+                        damage = damage * total_crit_multiplier;
                     }
-                }
-                if(_projectiles[i].get_crit_hp_percent()>0){
-                    damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
+                    if(_projectiles[i].get_crit_hp_percent()>0){
+                        damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
+                    }
                 }
                 damage = damage * _potion_attack.value;
                 _enemies[j]->take_damage(damage);
@@ -523,6 +525,8 @@ void game::reset(){
     _game_statement = START;
     // player
     _player_damage = PLAYER_VALUES.damage;
+    _player_crit_chance = 0.0f;
+    _player_crit_multiplier = 0.0f;
     _multi_shot = 1;
     // enemy
     _enemies.clear();
@@ -540,7 +544,7 @@ void game::reset(){
     _golds = 0;
     _max_golds = 100;
     // player_levels
-    for(int i = 0;i<7;i++){
+    for(int i = 0;i<9;i++){
         _player_level[i] = 0;
     }
     // announce
@@ -577,37 +581,26 @@ void game::init(){
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetExitKey(0);  // 取消 ESC 關閉視窗
     SetTargetFPS(60);
-    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/object/monster_green.png");
-    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/object/monster_black.png");
-    _enemy_textures[SLIMERED] = LoadTexture("resources/object/monster_red.png");
-    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/object/monster_purple.png");
-    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/object/monster_blue.png");
-    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/angel_2.png");
-    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/bird_24.png");
-    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/dragon_2.png");
+    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/object/monster/monster_green.png");
+    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/object/monster/monster_black.png");
+    _enemy_textures[SLIMERED] = LoadTexture("resources/object/monster/monster_red.png");
+    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/object/monster/monster_purple.png");
+    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/object/monster/monster_blue.png");
+    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/monster/angel_2.png");
+    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/monster/bird_24.png");
+    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/monster/dragon_2.png");
     _castle_texture = LoadTexture("resources/object/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/object/player_archer.png");
-    _coin_texture = LoadTexture("resources/object/coin_4.png");
-    _weapon_textures[MUD] = LoadTexture("resources/object/ammo_1.png");
-    _weapon_textures[ARROW] = LoadTexture("resources/object/ammo_3.png");
-    _weapon_textures[STONE] = LoadTexture("resources/object/ammo_13.png");
-    _weapon_textures[ICE_SLOW] = LoadTexture("resources/object/ammo_11.png");
-    _weapon_textures[POISON] = LoadTexture("resources/object/ammo_18.png");
-    _weapon_textures[PIERCING_ARROW] = LoadTexture("resources/object/ammo_17.png");
-    _weapon_textures[IRON_BALL] = LoadTexture("resources/object/ammo_24.png");
-    _weapon_textures[FIRE_BALL] = LoadTexture("resources/object/ammo_19.png");
-    _weapon_textures[ROCKET] = LoadTexture("resources/object/ammo_5.png");
-    _weapon_textures[ICE_FREEZE] = LoadTexture("resources/object/ammo_12.png");
-    _weapon_textures[MISSILE] = LoadTexture("resources/object/ammo_26.png");
-    _potion_textures[HEAL_PLAYER_POTION] = LoadTexture("resources/object/ammo_14.png");
-    _potion_textures[HEAL_CASTLE_POTION] = LoadTexture("resources/object/ammo_6.png");
-    _potion_textures[ATTACK_POTION] = LoadTexture("resources/object/ammo_4.png");
-    _potion_textures[ATTACK_SPEED_POTION] = LoadTexture("resources/object/ammo_28.png");
-    _potion_textures[SHIELD_POTION] = LoadTexture("resources/object/ammo_21.png");
-    _potion_textures[MOVE_SPEED_POTION] = LoadTexture("resources/object/ammo_9.png");
-    _potion_textures[REGENERATION_POTION] = LoadTexture("resources/object/ammo_10.png");
-    _shop_goblin_texture = LoadTexture("resources/object/goblin.png");
+    _coin_texture = LoadTexture("resources/object/coin/coin_4.png");
+    for(int i = 0; i < WEAPON_COUNT; i++){
+        _weapon_textures[i] = LoadTexture(TextFormat("resources/object/weapon/weapon_%d.png", i));
+    }
+    for(int i = 0; i < POTION_COUNT; i++){
+        _potion_textures[i] = LoadTexture(TextFormat("resources/object/potion/potion_%d.png", i));
+    }
+    _shop_goblin_texture = LoadTexture("resources/object/shop/goblin.png");
+    _stickman_texture = LoadTexture("resources/object/shop/stickman.png");
     // music
     InitAudioDevice();
     for(int i = 0; i < 7; i++){
@@ -641,6 +634,7 @@ void game::close(){
     for(int i = 0;i<WEAPON_COUNT;i++) UnloadTexture(_weapon_textures[i]);
     for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
     UnloadTexture(_shop_goblin_texture);
+    UnloadTexture(_stickman_texture);
     // music
     for(int i = 0;i<7;i++) UnloadMusicStream(_bgm[i]);
     // sound
@@ -767,14 +761,15 @@ void game::handle_tutorial(){
 }
 void game::handle_pause(){
     DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
-    for(int i = 0;i<7;i++){
+    DrawTexture(_shop_goblin_texture, 1500, 200, WHITE);
+    for(int i = 0;i<9;i++){
         int c = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
-        DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 700, 250 + i*60, 40, _golds >= c ? BLUE : GRAY);
-        DrawText(TextFormat("Lv: %d", _player_level[i]), 1200, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
-        DrawText(TextFormat("Cost: %d", c), 1350, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
+        DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 400, 250 + i*60, 40, _golds >= c ? BLUE : GRAY);
+        DrawText(TextFormat("Lv: %d", _player_level[i]), 900, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
+        DrawText(TextFormat("Cost: %d", c), 1100, 250+i*60, 40, _golds >= c ? BLUE : GRAY);
     }
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 700, 40, GOLD);
-    DrawText("Press ESC to continue", 700, 760, 40, DARKGRAY);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 600, 40, GOLD);
+    DrawText("Press ESC to continue", 1500, 660, 40, DARKGRAY);
 
     auto get_cost = [&](int i){ return UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i]; };
     if(IsKeyPressed(KEY_ONE) && _golds >= get_cost(0)){
@@ -797,6 +792,12 @@ void game::handle_pause(){
     }
     if(IsKeyPressed(KEY_SEVEN) && _golds >= get_cost(6)){
         _golds -= get_cost(6); _player.increase_move_speed(10); _player_level[6]++;
+    }
+    if(IsKeyPressed(KEY_EIGHT) && _golds >= get_cost(7)){
+        _golds -= get_cost(7); _player_crit_chance += 0.01f; _player_level[7]++;
+    }
+    if(IsKeyPressed(KEY_NINE) && _golds >= get_cost(8)){
+        _golds -= get_cost(8); _player_crit_multiplier += 0.25f; _player_level[8]++;
     }
     // pause to playing
     _press_delay -= GetFrameTime();

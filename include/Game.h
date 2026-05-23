@@ -48,6 +48,8 @@ class game{
         int _current_wave = 0;        
         // player
         float _player_damage = PLAYER_VALUES.damage;
+        float _player_crit_chance = 0.0f;
+        float _player_crit_multiplier = 0.0f;
         int _multi_shot = 1;
         // enemy
         int _enemies_spawned = 0;
@@ -66,7 +68,7 @@ class game{
         int _golds = 0;
         int _max_golds = 100;
         // player_levels
-        int _player_level[7] = {0};
+        int _player_level[9] = {0};
         // debug
         bool _debug_hitbox = false;
         // details
@@ -101,6 +103,7 @@ class game{
         Texture2D _weapon_textures[11];
         Texture2D _potion_textures[7];
         Texture2D _shop_goblin_texture;
+        Texture2D _stickman_texture;
 
         // music
         int _current_bgm = 0;
