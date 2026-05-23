@@ -761,7 +761,7 @@ void game::handle_tutorial(){
 }
 void game::handle_pause(){
     DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
-    DrawTexture(_shop_goblin_texture, 1500, 200, WHITE);
+    DrawTextureEx(_stickman_texture, {1500,100}, 0, 2.0f, WHITE);
     for(int i = 0;i<9;i++){
         int c = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
         DrawText(TextFormat("%s", UPGRADE_VALUES[i].name), 400, 250 + i*60, 40, _golds >= c ? BLUE : GRAY);
@@ -771,33 +771,34 @@ void game::handle_pause(){
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 600, 40, GOLD);
     DrawText("Press ESC to continue", 1500, 660, 40, DARKGRAY);
 
-    auto get_cost = [&](int i){ return UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i]; };
-    if(IsKeyPressed(KEY_ONE) && _golds >= get_cost(0)){
-        _golds -= get_cost(0); _player_damage += 10.0f; _player_level[0]++;
+    int cost[9], i;
+    for(i = 0; i < 9; i++) cost[i] = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
+    if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]){
+        _golds -= cost[0]; _player_damage += 10.0f; _player_level[0]++;
     }
-    if(IsKeyPressed(KEY_TWO) && _golds >= get_cost(1)){
-        _golds -= get_cost(1); _player.increase_max_hp(50); _player_level[1]++;
+    if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]){
+        _golds -= cost[1]; _player.increase_max_hp(50); _player_level[1]++;
     }
-    if(IsKeyPressed(KEY_THREE) && _golds >= get_cost(2)){
-        _golds -= get_cost(2); _castle.increase_max_hp(100); _player_level[2]++;
+    if(IsKeyPressed(KEY_THREE) && _golds >= cost[2]){
+        _golds -= cost[2]; _castle.increase_max_hp(100); _player_level[2]++;
     }
-    if(IsKeyPressed(KEY_FOUR) && _golds >= get_cost(3)){
-        _golds -= get_cost(3); _max_golds += 50; _player_level[3]++;
+    if(IsKeyPressed(KEY_FOUR) && _golds >= cost[3]){
+        _golds -= cost[3]; _max_golds += 50; _player_level[3]++;
     }
-    if(IsKeyPressed(KEY_FIVE) && _golds >= get_cost(4)){
-        _golds -= get_cost(4); _player.decrease_cooldown(0.05f); _player_level[4]++;
+    if(IsKeyPressed(KEY_FIVE) && _golds >= cost[4]){
+        _golds -= cost[4]; _player.decrease_cooldown(0.05f); _player_level[4]++;
     }
-    if(IsKeyPressed(KEY_SIX) && _golds >= get_cost(5)){
-        _golds -= get_cost(5); _multi_shot += 1; _player_level[5]++;
+    if(IsKeyPressed(KEY_SIX) && _golds >= cost[5]){
+        _golds -= cost[5]; _multi_shot += 1; _player_level[5]++;
     }
-    if(IsKeyPressed(KEY_SEVEN) && _golds >= get_cost(6)){
-        _golds -= get_cost(6); _player.increase_move_speed(10); _player_level[6]++;
+    if(IsKeyPressed(KEY_SEVEN) && _golds >= cost[6]){
+        _golds -= cost[6]; _player.increase_move_speed(10); _player_level[6]++;
     }
-    if(IsKeyPressed(KEY_EIGHT) && _golds >= get_cost(7)){
-        _golds -= get_cost(7); _player_crit_chance += 0.01f; _player_level[7]++;
+    if(IsKeyPressed(KEY_EIGHT) && _golds >= cost[7]){
+        _golds -= cost[7]; _player_crit_chance += 0.01f; _player_level[7]++;
     }
-    if(IsKeyPressed(KEY_NINE) && _golds >= get_cost(8)){
-        _golds -= get_cost(8); _player_crit_multiplier += 0.25f; _player_level[8]++;
+    if(IsKeyPressed(KEY_NINE) && _golds >= cost[8]){
+        _golds -= cost[8]; _player_crit_multiplier += 0.25f; _player_level[8]++;
     }
     // pause to playing
     _press_delay -= GetFrameTime();
