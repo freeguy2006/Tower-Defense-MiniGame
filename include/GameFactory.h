@@ -61,10 +61,10 @@ static constexpr int POTION_COST[] = {30, 30, 30, 30, 40, 20, 30};  // 7 個
 
 //   Dmg*  Col*  CritChance  Crit*  CritHp%  Pierce  Slow%  SlowTime  FrezTime  Poison*  PoisonInterval  SplashRange  Splash*
 static constexpr weapon_value WEAPON_VALUES[] = {
-    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.1f, 1.0f,      0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // MUD
+    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.1f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // MUD
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ARROW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // STONE
-    {1.2f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.6f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
+    {1.2f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.5f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.2f,    1.0f,           0.0f,        0.0f},   // POISON
     {1.5f, 1.5f, 0.10f,      2.0f,  0.0f,    true,   0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // PIERCING_ARROW
     {2.5f, 1.0f, 0.03f,      1.0f,  0.9f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // IRON_BALL
@@ -93,13 +93,13 @@ static constexpr upgrade_value UPGRADE_VALUES[] = {
 //    hp       speed      reward   JumpMin    JumpMax       JumpCd(÷100)  FlyAmp     fly_spd(÷100)
 static constexpr enemy_value ENEMY_VALUES[] = {
     { 70.0f,   {150,200}, {1,4},   {500,650},  {0,0},       {145,155},   {0,0},      {0,0}       },  // SLIMEGREEN
-    { 500.0f,  {50,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLACK
+    { 500.0f,  {60,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLACK
     { 40.0f,   {300,500}, {1,4},   {700,900},  {0,0},       {95,145},    {0,0},      {0,0}       },  // SLIMERED
     { 200.0f,  {110,150}, {6,15},  {750,850},  {1300,1600}, {135,155},   {0,0},      {0,0}       },  // SLIMEPURPLE
-    { 150.0f,  {80,110},  {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
-    { 170.0f,  {80,110},  {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
+    { 150.0f,  {50,80},  {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
+    { 170.0f,  {50,70},  {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
     { 40.0f,   {160,200}, {1,3},   {0,0},      {0,0},       {0,0},       {100,160},  {300,500}   },  // FLYINGBIRD
-    { 1000.0f, {40,60},   {60,100},{0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
+    { 1000.0f, {60,80},   {60,100},{0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
 };
 
 class game_factory {
