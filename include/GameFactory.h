@@ -10,6 +10,7 @@
 #include "Goblin.h"
 enum weapon_type { MUD, ARROW, STONE, ICE_SLOW, POISON, PIERCING_ARROW, IRON_BALL, FIRE_BALL, ROCKET, ICE_FREEZE, MISSILE, WEAPON_COUNT};
 enum potion_type { HEAL_PLAYER_POTION, HEAL_CASTLE_POTION, ATTACK_POTION, ATTACK_SPEED_POTION, SHIELD_POTION, MOVE_SPEED_POTION, REGENERATION_POTION, POTION_COUNT};
+enum buff_type { BUFF_ATTACK, BUFF_ATTACK_SPEED, BUFF_MOVE_SPEED, BUFF_REGEN, BUFF_SHIELD, DEBUFF ,BUFF_COUNT };
 struct enemy_value{
     float hp;
     Vector2 speed;          // {min_speed, max_speed}
@@ -96,8 +97,8 @@ static constexpr enemy_value ENEMY_VALUES[] = {
     { 500.0f,  {60,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLACK
     { 40.0f,   {300,500}, {1,4},   {700,900},  {0,0},       {95,145},    {0,0},      {0,0}       },  // SLIMERED
     { 200.0f,  {110,150}, {6,15},  {750,850},  {1300,1600}, {135,155},   {0,0},      {0,0}       },  // SLIMEPURPLE
-    { 150.0f,  {50,80},  {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
-    { 170.0f,  {50,70},  {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
+    { 150.0f,  {50,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
+    { 170.0f,  {50,70},   {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
     { 40.0f,   {160,200}, {1,3},   {0,0},      {0,0},       {0,0},       {100,160},  {300,500}   },  // FLYINGBIRD
     { 1000.0f, {60,80},   {60,100},{0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
 };

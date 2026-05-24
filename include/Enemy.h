@@ -22,6 +22,9 @@ class enemy : public character{
         float _poison_damage = 0;
         float _poison_timer = 0;
         float _poison_interval = 1.0f;
+        bool _has_nearby_buff = false;
+        bool _has_nearby_heal = false;
+        
 
     protected: // 只會被自己或是flyingenemy用到
         bool update_status(float dt){ // 狀態更新
@@ -62,7 +65,10 @@ class enemy : public character{
         int get_reward() const { return _reward; }
         float get_target_x() const { return _target_x; }
         bool is_frozen() const { return _freeze_timer > 0; }
-
+        bool is_slowed() const { return _slow_timer > 0; }
+        bool is_poisoned() const { return _poison_combo > 0; }
+        bool has_nearby_buff() const { return _has_nearby_buff; }
+        bool has_nearby_heal() const { return _has_nearby_heal; }
         void apply_slow(float percent, float duration){
             _slow_multiplier *= 1.0f - percent;
             _slow_timer = std::max(_slow_timer, duration);
@@ -75,6 +81,8 @@ class enemy : public character{
             _poison_damage = damage;
             _poison_interval = (_poison_interval * (_poison_combo-1) + interval) / _poison_combo;  //求平均的poison interval
         }
+        void set_nearby_buff(bool v) { _has_nearby_buff = v; }
+        void set_nearby_heal(bool v) { _has_nearby_heal = v; }
         // update - move
         void update(float dt) override {
             if(update_status(dt)) return; // 被冰就跳過

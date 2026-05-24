@@ -78,7 +78,7 @@ class game{
         float _announce_wave_duration = 3.0f;
         bool _is_announcing_wave = false;
 
-        // tutorial
+        // tutorialdd
         int _tutorial_page = 0;
         // shop
         goblin* _shop_goblin = nullptr;
@@ -87,11 +87,14 @@ class game{
         potion_type _shop_potion = HEAL_PLAYER_POTION;
 
         // potion effects
-        potion_effect _potion_attack = {1.0f, 1.0f, 0};
-        potion_effect _potion_attack_speed = {1.0f, 1.0f, 0};
-        potion_effect _potion_move_speed = {1.0f, 1.0f, 0};
-        potion_effect _potion_regen = {0, 0, 0};
-        potion_effect _potion_shield = {1.0f ,1.0f, 0};
+        potion_effect _buffs[BUFF_COUNT] = {
+            {1.0f, 1.0f, 0},  // BUFF_ATTACK
+            {1.0f, 1.0f, 0},  // BUFF_ATTACK_SPEED
+            {1.0f, 1.0f, 0},  // BUFF_MOVE_SPEED
+            {0, 0, 0},        // BUFF_REGEN
+            {1.0f, 1.0f, 0},  // BUFF_SHIELD
+        };
+        Texture2D _buff_textures[BUFF_COUNT];
 
         // textures
         
@@ -99,9 +102,9 @@ class game{
         Texture2D _background_texture;
         Texture2D _player_texture;
         Texture2D _coin_texture;
-        Texture2D _enemy_textures[8];
-        Texture2D _weapon_textures[11];
-        Texture2D _potion_textures[7];
+        Texture2D _enemy_textures[7];
+        Texture2D _weapon_textures[WEAPON_COUNT];
+        Texture2D _potion_textures[POTION_COUNT];
         Texture2D _shop_goblin_texture;
         Texture2D _stickman_texture;
 
@@ -113,8 +116,11 @@ class game{
         float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
 
         // 虛擬畫布
+        bool _should_quit = false;
         RenderTexture2D _canvas;
-
+        float _canvas_scale = 1.0f;
+        float _canvas_offset_x = 0;
+        float _canvas_offset_y = 0;
         // damage text
         std::vector<damage_text> _damage_text;
 

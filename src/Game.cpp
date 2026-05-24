@@ -3,14 +3,11 @@
 void game::update(float dt){
     // 1. 輸入              --------------------------------------------
     // player shoot
-    _player.set_attack_cooldown(_player.get_base_cooldown() * _potion_attack_speed.value);
+    _player.set_attack_cooldown(_player.get_base_cooldown() * _buffs[BUFF_ATTACK_SPEED].value);
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _player.is_attackable()){
         _player.reset_attack_timer();
         Vector2 mouse_raw = GetMousePosition();
-        float scale = fmin((float)GetScreenWidth()/2400.0f, (float)GetScreenHeight()/900.0f);
-        float offsetX = (GetScreenWidth() - 2400*scale) / 2;
-        float offsetY = (GetScreenHeight() - 900*scale) / 2;
-        Vector2 mouse_pos = {(mouse_raw.x - offsetX) / scale, (mouse_raw.y - offsetY) / scale};
+        Vector2 mouse_pos = {(mouse_raw.x - _canvas_offset_x) / _canvas_scale, (mouse_raw.y - _canvas_offset_y) / _canvas_scale};
         Vector2 player_center = {
             _player.get_position().x + _player.get_size().x / 2,
             _player.get_position().y + _player.get_size().y / 2
@@ -82,33 +79,33 @@ void game::update(float dt){
                 _current_wave++;
                 _enemy_spawn_timer = 0;
                 // 藥水效果倒數
-                if(_potion_attack.waves > 0){ 
-                    _potion_attack.waves--; 
-                    if(_potion_attack.waves == 0) _potion_attack.value = 1.0f; 
+                if(_buffs[BUFF_ATTACK].waves > 0){ 
+                    _buffs[BUFF_ATTACK].waves--; 
+                    if(_buffs[BUFF_ATTACK].waves == 0) _buffs[BUFF_ATTACK].value = 1.0f; 
                 }
-                if(_potion_attack_speed.waves > 0){
-                    _potion_attack_speed.waves--; 
-                    if(_potion_attack_speed.waves == 0){ 
-                        _potion_attack_speed.value = 1.0f;
+                if(_buffs[BUFF_ATTACK_SPEED].waves > 0){
+                    _buffs[BUFF_ATTACK_SPEED].waves--; 
+                    if(_buffs[BUFF_ATTACK_SPEED].waves == 0){ 
+                        _buffs[BUFF_ATTACK_SPEED].value = 1.0f;
                         _player.set_attack_cooldown(_player.get_base_cooldown());
                     }
                 }
-                if(_potion_shield.waves > 0){
-                    _potion_shield.waves--;
-                    if(_potion_shield.waves == 0){
-                        _potion_shield.value = 1.0f;
+                if(_buffs[BUFF_SHIELD].waves > 0){
+                    _buffs[BUFF_SHIELD].waves--;
+                    if(_buffs[BUFF_SHIELD].waves == 0){
+                        _buffs[BUFF_SHIELD].value = 1.0f;
                     }
                 }
-                if(_potion_move_speed.waves > 0){ 
-                    _potion_move_speed.waves--; 
-                    if(_potion_move_speed.waves == 0){
-                        _potion_move_speed.value = 1.0f;
+                if(_buffs[BUFF_MOVE_SPEED].waves > 0){ 
+                    _buffs[BUFF_MOVE_SPEED].waves--; 
+                    if(_buffs[BUFF_MOVE_SPEED].waves == 0){
+                        _buffs[BUFF_MOVE_SPEED].value = 1.0f;
                         _player.set_move_speed(_player.get_move_base_speed());
                     }
                 }
-                if(_potion_regen.waves > 0){ 
-                    _potion_regen.waves--; 
-                    if(_potion_regen.waves == 0) _potion_regen.value = 0; 
+                if(_buffs[BUFF_REGEN].waves > 0){ 
+                    _buffs[BUFF_REGEN].waves--; 
+                    if(_buffs[BUFF_REGEN].waves == 0) _buffs[BUFF_REGEN].value = 0; 
                 }
                 // 每三波進去shop
                 if(_current_wave%3 == 0){
@@ -123,6 +120,8 @@ void game::update(float dt){
     // 3. 狀態更新              --------------------------------------------
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->reset_speed();
+        _enemies[i]->set_nearby_buff(false);
+        _enemies[i]->set_nearby_heal(false);
     }
     for(const auto& i:_enemies){ 
         for(const auto& j:_enemies){
@@ -136,6 +135,7 @@ void game::update(float dt){
                         Vector2 spd = i->get_speed();
                         spd.x *= buff->get_speed_boost();
                         i->set_speed(spd);
+                        i->set_nearby_buff(true);
                     }
                 }
                 heal_behavior* heal = dynamic_cast<heal_behavior*>(behaviors[k]);
@@ -143,6 +143,7 @@ void game::update(float dt){
                     float dist = get_distance(i,j);
                     if(dist <= heal->get_heal_range()){
                         i->heal(heal->get_heal_amount());
+                        i->set_nearby_heal(true);
                     }
                 }
             }
@@ -205,9 +206,9 @@ void game::update(float dt){
                         damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
                     }
                 }
-                damage = damage * _potion_attack.value;
+                damage = damage * _buffs[BUFF_ATTACK].value;
                 _enemies[j]->take_damage(damage);
-                _damage_text.push_back({_enemies[j]->get_position(),damage,0.0f,1.0f,RED});
+                _damage_text.push_back({{_enemies[j]->get_position().x+GetRandomValue(-20,20),_enemies[j]->get_position().y},damage,0.0f,1.0f,RED});
                 if(_projectiles[i].get_splash_range() > 0){
                     for(int k = _enemies.size()-1;k>=0;k--){
                         if(k == j) continue;
@@ -259,7 +260,7 @@ void game::update(float dt){
                     }
                 }
             }
-            _castle.take_damage(damage*_potion_shield.value);
+            _castle.take_damage(damage*_buffs[BUFF_SHIELD].value);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -280,7 +281,7 @@ void game::update(float dt){
                     }
                 }
             }
-            _player.take_damage(damage*_potion_shield.value);
+            _player.take_damage(damage*_buffs[BUFF_SHIELD].value);
             delete _enemies[i];
             _enemies.erase(_enemies.begin() + i);
         }
@@ -317,7 +318,7 @@ void game::update(float dt){
     
     // 5. 效果              --------------------------------------------
     // player heal
-    _player.heal(_potion_regen.value * dt);
+    _player.heal(_buffs[BUFF_REGEN].value * dt);
     for(int i = _enemies.size()-1 ; i>=0 ; i--){ 
         if(_enemies[i]->get_hp()<=0){
             Vector2 pos = _enemies[i]->get_position();
@@ -381,6 +382,22 @@ void game::draw(){
         // enemy 血條
         DrawRectangleRec({epos.x, epos.y-5, esize.x, 5}, GRAY);
         DrawRectangleRec({epos.x, epos.y-5, esize.x * _enemies[i]->get_hp() / _enemies[i]->get_max_hp(), 5}, RED);
+        float icon_x = epos.x - 20;
+        if(_enemies[i]->is_frozen() || _enemies[i]->is_slowed() || _enemies[i]->is_poisoned()){
+            DrawTexturePro(_buff_textures[DEBUFF], {0,0,512,512}, {icon_x, epos.y-25, 20, 20}, {0,0}, 0, WHITE);
+        }
+        if(_enemies[i]->has_nearby_buff()){
+            icon_x += 22;
+            DrawTexturePro(_buff_textures[BUFF_ATTACK], {0,0,512,512}, {icon_x, epos.y-25, 20, 20}, {0,0}, 0, WHITE);
+            icon_x += 22;
+            DrawTexturePro(_buff_textures[BUFF_MOVE_SPEED], {0,0,512,512}, {icon_x, epos.y-25, 20, 20}, {0,0}, 0, WHITE);
+            icon_x += 22;
+            DrawTexturePro(_buff_textures[BUFF_SHIELD], {0,0,512,512}, {icon_x, epos.y-25, 20, 20}, {0,0}, 0, WHITE);
+        }
+        if(_enemies[i]->has_nearby_heal()){
+            icon_x += 22;
+            DrawTexturePro(_buff_textures[BUFF_REGEN], {0,0,512,512}, {icon_x, epos.y-25, 20, 20}, {0,0}, 0, WHITE);
+        }
     }
     // buff, heal 光圈
     for(int i = 0;i<_enemies.size();i++){
@@ -441,11 +458,23 @@ void game::draw(){
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
     DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
     DrawText(TextFormat("Castle HP: %.0f",_castle.get_hp()),25,20,25,BLACK);
+    for(int i = 0;i<7;i++){
+
+    }
     //player
     DrawRectangleRec({18, 58, 504, 29}, BLACK);
     DrawRectangleRec({20, 60, 500, 25}, GRAY);
     DrawRectangleRec({20, 60, 500.0f * _player.get_hp() / _player.get_max_hp(), 25}, ORANGE);
     DrawText(TextFormat("Player HP: %.0f",_player.get_hp()),25,60,25,BLACK);
+    int icon_x = 530;
+    for(int i = 0; i < BUFF_COUNT; i++){
+        if(_buffs[i].waves > 0){
+            DrawTexturePro(_buff_textures[i], {0,0,512,512}, {(float)icon_x, 55, 30, 30}, {0,0}, 0, WHITE);
+            icon_x += 35;
+        }
+    }
+    
+
     // golds
     float gold_bar_width = 300.0f * _golds / _max_golds;
     DrawRectangleRec({2048, 18, 304, 34}, BLACK);
@@ -480,7 +509,7 @@ void game::draw(){
 
 // ----------------------------- run -------------------------------
 void game::run(){
-    while(WindowShouldClose() == false){
+    while(WindowShouldClose() == false && !_should_quit){
         // 音樂
         if(IsMusicStreamPlaying(_bgm[_current_bgm]) == false){
             int temp;
@@ -491,6 +520,11 @@ void game::run(){
             PlayMusicStream(_bgm[_current_bgm]);
         }
         UpdateMusicStream(_bgm[_current_bgm]);
+        
+        _canvas_scale = fmin((float)GetScreenWidth()/2400.0f, (float)GetScreenHeight()/900.0f);
+        _canvas_offset_x = (GetScreenWidth() - 2400*_canvas_scale) / 2;
+        _canvas_offset_y = (GetScreenHeight() - 900*_canvas_scale) / 2;
+        
         BeginTextureMode(_canvas);
         ClearBackground(RAYWHITE);
         if(_game_statement == START){               // start
@@ -510,10 +544,7 @@ void game::run(){
 
         BeginDrawing();
         ClearBackground(BLACK);
-        float scale = fmin((float)GetScreenWidth()/2400, (float)GetScreenHeight()/900);
-        float x = (GetScreenWidth() - 2400*scale) / 2;
-        float y = (GetScreenHeight() - 900*scale) / 2;
-        DrawTexturePro(_canvas.texture,{0, 0, 2400, -900},{x, y, 2400*scale, 900*scale},{0, 0}, 0, WHITE);
+        DrawTexturePro(_canvas.texture, {0,0,2400,-900}, {_canvas_offset_x, _canvas_offset_y, 2400*_canvas_scale, 900*_canvas_scale}, {0,0}, 0, WHITE);
         EndDrawing();
     }
 }
@@ -561,11 +592,11 @@ void game::reset(){
     // weapon
     _current_weapon = MUD;
     // potion effects
-    _potion_attack = {1.0f, 1.0f, 0};
-    _potion_attack_speed = {1.0f, 1.0f, 0};
-    _potion_shield = {1.0f, 1.0f, 0};
-    _potion_move_speed = {1.0f, 1.0f, 0};
-    _potion_regen = {0, 0, 0};
+    _buffs[BUFF_ATTACK] = {1.0f, 1.0f, 0};
+    _buffs[BUFF_ATTACK_SPEED] = {1.0f, 1.0f, 0};
+    _buffs[BUFF_SHIELD] = {1.0f, 1.0f, 0};
+    _buffs[BUFF_MOVE_SPEED] = {1.0f, 1.0f, 0};
+    _buffs[BUFF_REGEN] = {0, 0, 0};
     // tutorial
     _tutorial_page = 0;
     // debug
@@ -577,6 +608,9 @@ void game::reset(){
         delete _shop_goblin;
         _shop_goblin = nullptr;
     }
+
+    // damage text
+    _damage_text.clear();
     _shop_weapon1 = MUD;
     _shop_weapon2 = MUD;
     _shop_potion = HEAL_PLAYER_POTION;
@@ -601,15 +635,22 @@ void game::init(){
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/object/player_archer.png");
     _coin_texture = LoadTexture("resources/object/coin/coin_4.png");
-    for(int i = 0; i < WEAPON_COUNT; i++){
-        _weapon_textures[i] = LoadTexture(TextFormat("resources/object/weapon/weapon_%d.png", i));
-    }
-    for(int i = 0; i < POTION_COUNT; i++){
-        _potion_textures[i] = LoadTexture(TextFormat("resources/object/potion/potion_%d.png", i));
-    }
+    for(int i = 0; i < WEAPON_COUNT; i++) _weapon_textures[i] = LoadTexture(TextFormat("resources/object/weapon/weapon_%d.png", i));
+    for(int i = 0; i < POTION_COUNT; i++) _potion_textures[i] = LoadTexture(TextFormat("resources/object/potion/potion_%d.png", i));
     _shop_goblin_texture = LoadTexture("resources/object/shop/goblin.png");
     _stickman_texture = LoadTexture("resources/object/shop/stickman.png");
+    _buff_textures[BUFF_ATTACK] = LoadTexture("resources/effect/atk_buff.png");
+    _buff_textures[BUFF_ATTACK_SPEED] = LoadTexture("resources/effect/atk_buff.png");
+    _buff_textures[BUFF_MOVE_SPEED] = LoadTexture("resources/effect/move_buff.png");
+    _buff_textures[BUFF_REGEN] = LoadTexture("resources/effect/regen_buff.png");
+    _buff_textures[BUFF_SHIELD] = LoadTexture("resources/effect/shield_buff.png");
+    _buff_textures[DEBUFF] = LoadTexture("resources/effect/debuff.png");
+    
+    
+    
+    
     // music
+    
     InitAudioDevice();
     for(int i = 0; i < 7; i++){
         _bgm[i] = LoadMusicStream(TextFormat("resources/music/BGM/GameBoyBGM-%d.mp3", i+1));
@@ -620,9 +661,7 @@ void game::init(){
     SetMusicVolume(_bgm[_current_bgm], 0.8f);
     // sound 
     _wave_horn_sfx = LoadSound("resources/music/SoundEffect/wave-horn/wave-horn.mp3");
-    _get_coin_sfx[0] = LoadSound("resources/music/SoundEffect/get-coin/get-coin1.mp3");
-    _get_coin_sfx[1] = LoadSound("resources/music/SoundEffect/get-coin/get-coin2.mp3");
-    _get_coin_sfx[2] = LoadSound("resources/music/SoundEffect/get-coin/get-coin3.mp3");
+    for(int i = 0;i<3;i++) _get_coin_sfx[i] = LoadSound(TextFormat("resources/music/SoundEffect/get-coin/get-coin%d.mp3",i+1));
     SetSoundVolume(_wave_horn_sfx, 0.5f);
     for(int i = 0;i<3;i++) SetSoundVolume(_get_coin_sfx[i], 0.5f);
     // canvas
@@ -643,6 +682,7 @@ void game::close(){
     for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
     UnloadTexture(_shop_goblin_texture);
     UnloadTexture(_stickman_texture);
+    for(int i = 0;i<BUFF_COUNT;i++) UnloadTexture(_buff_textures[i]);
     // music
     for(int i = 0;i<7;i++) UnloadMusicStream(_bgm[i]);
     // sound
@@ -861,26 +901,26 @@ void game::handle_wave_shop(){
         _golds -= POTION_COST[_shop_potion];
         switch(_shop_potion){
             case ATTACK_POTION:
-                _potion_attack.value = 1.3f;
-                _potion_attack.waves += 3;
+                _buffs[BUFF_ATTACK].value = 1.3f;
+                _buffs[BUFF_ATTACK].waves += 3;
                 break;
             case ATTACK_SPEED_POTION:
-                _potion_attack_speed.value = 0.7f;
-                _potion_attack_speed.waves += 3;
-                _player.set_attack_cooldown(_player.get_attack_cooldown() * _potion_attack_speed.value);
+                _buffs[BUFF_ATTACK_SPEED].value = 0.7f;
+                _buffs[BUFF_ATTACK_SPEED].waves += 3;
+                _player.set_attack_cooldown(_player.get_attack_cooldown() * _buffs[BUFF_ATTACK_SPEED].value);
                 break;
             case SHIELD_POTION:
-                _potion_shield.value = 0.3f;  // 受傷 -70%
-                _potion_shield.waves += 3;
+                _buffs[BUFF_SHIELD].value = 0.3f;  // 受傷 -70%
+                _buffs[BUFF_SHIELD].waves += 3;
                 break;
             case MOVE_SPEED_POTION:
-                _potion_move_speed.value = 1.3f;
-                _potion_move_speed.waves += 3;
-                _player.set_move_speed(_player.get_move_base_speed() * _potion_move_speed.value);
+                _buffs[BUFF_MOVE_SPEED].value = 1.3f;
+                _buffs[BUFF_MOVE_SPEED].waves += 3;
+                _player.set_move_speed(_player.get_move_base_speed() * _buffs[BUFF_MOVE_SPEED].value);
                 break;
             case REGENERATION_POTION:
-                _potion_regen.value = _player.get_max_hp()*0.01f;
-                _potion_regen.waves += 3;
+                _buffs[BUFF_REGEN].value = _player.get_max_hp()*0.01f;
+                _buffs[BUFF_REGEN].waves += 3;
                 break;
             default:
                 break;
@@ -906,7 +946,7 @@ void game::handle_end(){
         reset();
     }
     if(IsKeyPressed(KEY_Q)){
-        CloseWindow();
+        _should_quit = true;
     }
 }
 void game::handle_playing(){
