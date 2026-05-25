@@ -107,6 +107,18 @@ void game::update(float dt){
                     _buffs[BUFF_REGEN].waves--; 
                     if(_buffs[BUFF_REGEN].waves == 0) _buffs[BUFF_REGEN].value = 0; 
                 }
+                if(_buffs[BUFF_CRIT_RATE].waves>0){
+                    _buffs[BUFF_CRIT_RATE].waves--;
+                    if(_buffs[BUFF_CRIT_RATE].waves == 0){
+                        _buffs[BUFF_CRIT_RATE].value = 0.0f;
+                    }
+                }
+                if(_buffs[BUFF_CRIT_DAMAGE].waves>0){
+                    _buffs[BUFF_CRIT_DAMAGE].waves--;
+                    if(_buffs[BUFF_CRIT_DAMAGE].waves == 0){
+                        _buffs[BUFF_CRIT_DAMAGE].value = 1.0f;
+                    }
+                }
                 // 每三波進去shop
                 if(_current_wave%3 == 0){
                     _shop_weapon1 = (weapon_type)GetRandomValue(0,WEAPON_COUNT-1); 
@@ -198,17 +210,27 @@ void game::update(float dt){
                 // 乘傷區
                 float total_crit_chance = _projectiles[i].get_crit_chance() + _player_crit_chance;
                 float total_crit_multiplier = _projectiles[i].get_crit_multiplier() + _player_crit_multiplier;
+                if(_buffs[BUFF_CRIT_RATE].waves>0){
+                    total_crit_chance += _buffs[BUFF_CRIT_RATE].value;
+                }
+                if(_buffs[BUFF_CRIT_DAMAGE].waves>0){
+                    total_crit_multiplier += total_crit_multiplier * _buffs[BUFF_CRIT_DAMAGE].value;
+                }
+                bool is_crit = false;
                 if(total_crit_chance > 0){
                     float roll = (float)GetRandomValue(1,10000)/10000.0f;
                     if(roll <= total_crit_chance){
                         damage = damage * total_crit_multiplier;
                         damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
+                        is_crit = true;
                     }
                     
                 }
                 damage = damage * _buffs[BUFF_ATTACK].value;
                 _enemies[j]->take_damage(damage);
-                _damage_text.push_back({{_enemies[j]->get_position().x+GetRandomValue(-20,20),_enemies[j]->get_position().y},damage,0.0f,1.0f,RED});
+                if(is_crit) _damage_text.push_back({{_enemies[j]->get_position().x+GetRandomValue(-20,20),_enemies[j]->get_position().y},TextFormat("crit! %d",(int)damage),0.0f,1.0f,ORANGE});
+                else _damage_text.push_back({{_enemies[j]->get_position().x+GetRandomValue(-20,20),_enemies[j]->get_position().y},TextFormat("%d",(int)damage),0.0f,1.0f,RED});
+                
                 if(_projectiles[i].get_splash_range() > 0){
                     float splashdmg = damage * _projectiles[i].get_splash_damage();
                     for(int k = _enemies.size()-1;k>=0;k--){
@@ -216,7 +238,7 @@ void game::update(float dt){
                         float dist = get_distance(_enemies[j],_enemies[k]);
                         if(dist <= _projectiles[i].get_splash_range()){
                             _enemies[k]->take_damage(splashdmg);
-                            _damage_text.push_back({{_enemies[k]->get_position().x+GetRandomValue(-20,20),_enemies[k]->get_position().y},splashdmg,0.0f,1.0f,RED});
+                            _damage_text.push_back({{_enemies[k]->get_position().x+GetRandomValue(-20,20),_enemies[k]->get_position().y},TextFormat("Splash! %d",(int)splashdmg),0.0f,1.0f,RED});
                             if(_projectiles[i].get_slow_percent() > 0)
                                 _enemies[k]->apply_slow(_projectiles[i].get_slow_percent(), _projectiles[i].get_slow_duration());
                             if(_projectiles[i].get_freeze_duration() > 0)
@@ -358,7 +380,7 @@ void game::update(float dt){
             float dmg = _enemies[i]->get_poison_tick_damage();
             _enemies[i]->take_damage(dmg);
             _enemies[i]->decay_poison_combo();
-            _damage_text.push_back({_enemies[i]->get_position(), dmg, 0.0f, 1.0f, GREEN});
+            _damage_text.push_back({_enemies[i]->get_position(), TextFormat("Poison! %d", (int)dmg), 0.0f, 1.0f, GREEN});
         }
     }
     
@@ -512,7 +534,7 @@ void game::draw(){
     }
     // damage text
     for(int i = 0;i<_damage_text.size();i++){
-        DrawText(TextFormat("%.0f",_damage_text[i].value),_damage_text[i].position.x,_damage_text[i].position.y-20,30,_damage_text[i].color);
+        DrawText(_damage_text[i].text.c_str(),_damage_text[i].position.x,_damage_text[i].position.y-20,30,_damage_text[i].color);
     }
     // debug hitbox
     if(_debug_hitbox){
@@ -618,6 +640,8 @@ void game::reset(){
     _buffs[BUFF_SHIELD] = {1.0f, 1.0f, 0};
     _buffs[BUFF_MOVE_SPEED] = {1.0f, 1.0f, 0};
     _buffs[BUFF_REGEN] = {0, 0, 0};
+    _buffs[BUFF_CRIT_RATE] = {0.0f, 0.0f, 0};
+    _buffs[BUFF_CRIT_DAMAGE] = {1.0f, 1.0f, 0};
     // tutorial
     _tutorial_page = 0;
     // debug
@@ -665,6 +689,8 @@ void game::init(){
     _buff_textures[BUFF_MOVE_SPEED] = LoadTexture("resources/effect/move_buff.png");
     _buff_textures[BUFF_REGEN] = LoadTexture("resources/effect/regen_buff.png");
     _buff_textures[BUFF_SHIELD] = LoadTexture("resources/effect/shield_buff.png");
+    _buff_textures[BUFF_CRIT_RATE] = LoadTexture("resources/effect/crit_rate_buff.png");
+    _buff_textures[BUFF_CRIT_DAMAGE] = LoadTexture("resources/effect/crit_dmg_buff.png");
     _buff_textures[DEBUFF] = LoadTexture("resources/effect/debuff.png");
     
     
@@ -924,24 +950,30 @@ void game::handle_wave_shop(){
         switch(_shop_potion){
             case ATTACK_POTION:
                 _buffs[BUFF_ATTACK].value = 1.3f;
-                _buffs[BUFF_ATTACK].waves += 3;
+                _buffs[BUFF_ATTACK].waves += 5;
                 break;
             case ATTACK_SPEED_POTION:
                 _buffs[BUFF_ATTACK_SPEED].value = 0.7f;
-                _buffs[BUFF_ATTACK_SPEED].waves += 3;
+                _buffs[BUFF_ATTACK_SPEED].waves += 5;
                 break;
             case SHIELD_POTION:
                 _buffs[BUFF_SHIELD].value = 0.3f;  // 受傷 -70%
-                _buffs[BUFF_SHIELD].waves += 3;
+                _buffs[BUFF_SHIELD].waves += 5;
                 break;
             case MOVE_SPEED_POTION:
                 _buffs[BUFF_MOVE_SPEED].value = 1.3f;
-                _buffs[BUFF_MOVE_SPEED].waves += 3;
+                _buffs[BUFF_MOVE_SPEED].waves += 5;
                 _player.set_move_speed(_player.get_move_base_speed() * _buffs[BUFF_MOVE_SPEED].value);
                 break;
             case REGENERATION_POTION:
                 _buffs[BUFF_REGEN].value = _player.get_max_hp()*0.01f;
                 _buffs[BUFF_REGEN].waves += 3;
+                break;
+            case CRIT_POTION:
+                _buffs[BUFF_CRIT_RATE].value = 0.2f;
+                _buffs[BUFF_CRIT_RATE].waves += 6;
+                _buffs[BUFF_CRIT_DAMAGE].value = 0.5f;
+                _buffs[BUFF_CRIT_DAMAGE].waves += 3;
                 break;
             default:
                 break;

@@ -9,8 +9,8 @@
 #include "Projectile.h"
 #include "Goblin.h"
 enum weapon_type { MUD, ARROW, STONE, ICE_SLOW, POISON, PIERCING_ARROW, IRON_BALL, FIRE_BALL, ROCKET, ICE_FREEZE, MISSILE, WEAPON_COUNT};
-enum potion_type { HEAL_PLAYER_POTION, HEAL_CASTLE_POTION, ATTACK_POTION, ATTACK_SPEED_POTION, SHIELD_POTION, MOVE_SPEED_POTION, REGENERATION_POTION, POTION_COUNT};
-enum buff_type { BUFF_ATTACK, BUFF_ATTACK_SPEED, BUFF_MOVE_SPEED, BUFF_REGEN, BUFF_SHIELD, DEBUFF ,BUFF_COUNT };
+enum potion_type { HEAL_PLAYER_POTION, HEAL_CASTLE_POTION, ATTACK_POTION, ATTACK_SPEED_POTION, SHIELD_POTION, MOVE_SPEED_POTION, REGENERATION_POTION, CRIT_POTION, POTION_COUNT};
+enum buff_type { BUFF_ATTACK, BUFF_ATTACK_SPEED, BUFF_MOVE_SPEED, BUFF_REGEN, BUFF_SHIELD, BUFF_CRIT_RATE, BUFF_CRIT_DAMAGE, DEBUFF ,BUFF_COUNT };
 struct enemy_value{
     float hp;
     Vector2 speed;          // {min_speed, max_speed}
@@ -56,9 +56,9 @@ struct weapon_value{
 
 
 static constexpr const char* WEAPON_NAME[] = {"Mud", "Arrow", "Stone Arrow", "Ice Slow", "Poison Arrow", "Piercing Arrow", "Iron Ball", "Fire Ball", "Rocket", "Ice Freeze", "Missile"};
-static constexpr const char* POTION_NAME[] = {"Heal Player", "Heal Castle", "Attack", "Attack Speed", "Shield", "Move Speed", "Regenerate"};
+static constexpr const char* POTION_NAME[] = {"Heal Player", "Heal Castle", "Attack", "Attack Speed", "Shield", "Move Speed", "Regenerate", "Crit Boost"};
 static constexpr int WEAPON_COST[] = {0, 150, 150, 100, 100, 150, 100, 150, 100, 100, 150};  // 11 個
-static constexpr int POTION_COST[] = {30, 30, 30, 30, 40, 20, 30};  // 7 個
+static constexpr int POTION_COST[] = {30, 30, 30, 30, 40, 20, 30, 40};  // 8 個
 
 //   Dmg*  Col*  CritChance  Crit*  CritHp%  Pierce  Slow%  SlowTime  FrezTime  Poison*  PoisonInterval  SplashRange  Splash*
 static constexpr weapon_value WEAPON_VALUES[] = {
@@ -66,8 +66,8 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ARROW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // STONE
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.5f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
-    {1.2f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.2f,  3.0f,     0.0f,     1.2f,    1.0f,           0.0f,        0.0f},   // POISON
-    {1.5f, 1.5f, 0.10f,      2.0f,  0.0f,    true,   0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // PIERCING_ARROW
+    {0.8f, 0.8f, 0.10f,      2.0f,  0.0f,    false,  0.2f,  3.0f,     0.0f,     1.2f,    1.0f,           0.0f,        0.0f},   // POISON
+    {1.3f, 1.3f, 0.10f,      2.0f,  0.0f,    true,   0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // PIERCING_ARROW
     {2.5f, 1.0f, 0.01f,      1.0f,  0.8f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // IRON_BALL
     {1.8f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           140.0f,      0.4f},   // FIRE_BALL
     {1.7f, 1.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ROCKET
@@ -75,7 +75,7 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,      1.0f},   // MISSILE
 };
 //                                             hp,damage, cooldown, jump_force, move_speed, start_golds, max_golds
-static constexpr player_value PLAYER_VALUES = {500.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 100};
+static constexpr player_value PLAYER_VALUES = {300.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 150};
 //                                             hp
 static constexpr castle_value CASTLE_VALUES = {500.0f};
 //       name         cost_base,cost_gain

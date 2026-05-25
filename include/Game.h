@@ -38,7 +38,7 @@ class game{
         std::vector<wave> _waves;
         std::vector<coin> _coins;
         // weapon
-        weapon_type _current_weapon = FIRE_BALL;
+        weapon_type _current_weapon = MUD;
         // waveshop
         
         // wave
@@ -93,6 +93,8 @@ class game{
             {1.0f, 1.0f, 0},  // BUFF_MOVE_SPEED
             {0, 0, 0},        // BUFF_REGEN
             {1.0f, 1.0f, 0},  // BUFF_SHIELD
+            {0.0f, 0.0f, 0},  // BUFF_CRIT_RATE
+            {1.0f, 1.0f, 0},  // BUFF_CRIT_DAMAGE
         };
         Texture2D _buff_textures[BUFF_COUNT];
 

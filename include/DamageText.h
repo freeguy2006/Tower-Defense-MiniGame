@@ -1,9 +1,10 @@
 #pragma once
 #include "raylib.h"
+#include <string>
 
 struct damage_text{
     Vector2 position;
-    float value;
+    std::string text;
     float timer;
     float lifetime;
     Color color;
