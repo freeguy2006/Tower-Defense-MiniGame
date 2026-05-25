@@ -183,9 +183,10 @@ void game::update(float dt){
                 // 減傷區
                 for(int k = 0;k<_enemies.size();k++){ 
                     if(k == j) continue;
-                    for(int b = 0;b<_enemies[k]->get_behaviors().size();b++){
+                    const auto& behaviors = _enemies[k]->get_behaviors();
+                    for(int b = 0;b<behaviors.size();b++){
                         // dynamic cast 把 enemy 轉成 buff ，jump 變 null
-                        buff_behavior* buff = dynamic_cast<buff_behavior*>(_enemies[k]->get_behaviors()[b]); 
+                        buff_behavior* buff = dynamic_cast<buff_behavior*>(behaviors[b]); 
                         if(buff != nullptr){
                             float dist = get_distance(_enemies[j],_enemies[k]);
                             if(dist <= buff->get_buff_range()){
@@ -198,7 +199,7 @@ void game::update(float dt){
                 float total_crit_chance = _projectiles[i].get_crit_chance() + _player_crit_chance;
                 float total_crit_multiplier = _projectiles[i].get_crit_multiplier() + _player_crit_multiplier;
                 if(total_crit_chance > 0){
-                    float roll = (float)GetRandomValue(0,100)/100.0f;
+                    float roll = (float)GetRandomValue(1,10000)/10000.0f;
                     if(roll <= total_crit_chance){
                         damage = damage * total_crit_multiplier;
                         damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
@@ -209,11 +210,19 @@ void game::update(float dt){
                 _enemies[j]->take_damage(damage);
                 _damage_text.push_back({{_enemies[j]->get_position().x+GetRandomValue(-20,20),_enemies[j]->get_position().y},damage,0.0f,1.0f,RED});
                 if(_projectiles[i].get_splash_range() > 0){
+                    float splashdmg = damage * _projectiles[i].get_splash_damage();
                     for(int k = _enemies.size()-1;k>=0;k--){
                         if(k == j) continue;
                         float dist = get_distance(_enemies[j],_enemies[k]);
                         if(dist <= _projectiles[i].get_splash_range()){
-                            _enemies[k]->take_damage(_projectiles[i].get_damage());
+                            _enemies[k]->take_damage(splashdmg);
+                            _damage_text.push_back({{_enemies[k]->get_position().x+GetRandomValue(-20,20),_enemies[k]->get_position().y},splashdmg,0.0f,1.0f,RED});
+                            if(_projectiles[i].get_slow_percent() > 0)
+                                _enemies[k]->apply_slow(_projectiles[i].get_slow_percent(), _projectiles[i].get_slow_duration());
+                            if(_projectiles[i].get_freeze_duration() > 0)
+                                _enemies[k]->apply_freeze(_projectiles[i].get_freeze_duration());
+                            if(_projectiles[i].get_poison_damage() > 0)
+                                _enemies[k]->add_poison(_projectiles[i].get_poison_damage(), _projectiles[i].get_poison_interval());
                         }
                     }
                 }
@@ -231,8 +240,9 @@ void game::update(float dt){
                     Vector2 spd = _projectiles[i].get_speed();
                     float len = sqrt(spd.x * spd.x + spd.y * spd.y);
                     if(len > 0){
-                        pos.x += (spd.x / len) * _enemies[j]->get_size().x;
-                        pos.y += (spd.y / len) * _enemies[j]->get_size().y;
+                        float skip = fmax(_enemies[j]->get_size().x, _enemies[j]->get_size().y);
+                        pos.x += (spd.x / len) * skip;
+                        pos.y += (spd.y / len) * skip;
                         _projectiles[i].set_position(pos);
                     }
                 }
@@ -699,6 +709,7 @@ void game::close(){
     // sound
     UnloadSound(_wave_horn_sfx);
     for(int i = 0;i<3;i++) UnloadSound(_get_coin_sfx[i]);
+    
     CloseAudioDevice();
     UnloadRenderTexture(_canvas);
     CloseWindow();
@@ -834,13 +845,13 @@ void game::handle_pause(){
         _golds -= cost[0]; _player_damage += 3.0f; _player_level[0]++;
     }
     if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]){
-        _golds -= cost[1]; _player.increase_max_hp(50); _player_level[1]++;
+        _golds -= cost[1]; _player.increase_max_hp(100); _player_level[1]++;
     }
     if(IsKeyPressed(KEY_THREE) && _golds >= cost[2]){
-        _golds -= cost[2]; _castle.increase_max_hp(50); _player_level[2]++;
+        _golds -= cost[2]; _castle.increase_max_hp(100); _player_level[2]++;
     }
     if(IsKeyPressed(KEY_FOUR) && _golds >= cost[3]){
-        _golds -= cost[3]; _max_golds += 50; _player_level[3]++;
+        _golds -= cost[3]; _max_golds += 100; _player_level[3]++;
     }
     if(IsKeyPressed(KEY_FIVE) && _golds >= cost[4]){
         _golds -= cost[4]; _player.decrease_cooldown(0.02f); _player_level[4]++;
@@ -918,7 +929,6 @@ void game::handle_wave_shop(){
             case ATTACK_SPEED_POTION:
                 _buffs[BUFF_ATTACK_SPEED].value = 0.7f;
                 _buffs[BUFF_ATTACK_SPEED].waves += 3;
-                _player.set_attack_cooldown(_player.get_attack_cooldown() * _buffs[BUFF_ATTACK_SPEED].value);
                 break;
             case SHIELD_POTION:
                 _buffs[BUFF_SHIELD].value = 0.3f;  // 受傷 -70%

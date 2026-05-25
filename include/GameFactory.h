@@ -65,30 +65,30 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.1f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // MUD
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ARROW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // STONE
-    {1.2f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.5f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
-    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.2f,  3.0f,     0.0f,     1.2f,    1.0f,           0.0f,        0.0f},   // POISON
+    {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.5f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
+    {1.2f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.2f,  3.0f,     0.0f,     1.2f,    1.0f,           0.0f,        0.0f},   // POISON
     {1.5f, 1.5f, 0.10f,      2.0f,  0.0f,    true,   0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // PIERCING_ARROW
     {2.5f, 1.0f, 0.01f,      1.0f,  0.8f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // IRON_BALL
-    {1.8f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           140.0f,       0.3f},   // FIRE_BALL
+    {1.8f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           140.0f,      0.4f},   // FIRE_BALL
     {1.7f, 1.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ROCKET
-    {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     1.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_FREEZE
-    {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,       1.0f},   // MISSILE
+    {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.3f,  5.0f,     0.2f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_FREEZE
+    {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,      1.0f},   // MISSILE
 };
 //                                             hp,damage, cooldown, jump_force, move_speed, start_golds, max_golds
-static constexpr player_value PLAYER_VALUES = {200.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 150};
+static constexpr player_value PLAYER_VALUES = {500.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 100};
 //                                             hp
 static constexpr castle_value CASTLE_VALUES = {500.0f};
 //       name         cost_base,cost_gain
 static constexpr upgrade_value UPGRADE_VALUES[] = {
-    {"[1] Attack +3",       20,  5},   // 攻擊力
-    {"[2] Player HP +50",   20,  5},   // 玩家血量
-    {"[3] Castle HP +50",   20,  5},   // 城堡血量
-    {"[4] Max Gold +50",    50,  20},   // 金幣上限
-    {"[5] Attack Speed",    80,  20},   // 攻速
-    {"[6] Multi Shot +1",   150, 100},   // 多重射擊
-    {"[7] Move SpeedUp",    50,  50},   // 移動速度
-    {"[8] Crit Rate +2%",   30,  50},   // 暴擊率
-    {"[9] Crit Damage +25%",30,  50},   // 暴擊傷害
+    {"[1] Attack +3",        20,  5},   // 攻擊力
+    {"[2] Player HP +100",   20,  5},   // 玩家血量
+    {"[3] Castle HP +100",   20,  5},   // 城堡血量
+    {"[4] Max Gold +100",    50,  50},   // 金幣上限
+    {"[5] Attack SpeedUp",   50,  30},   // 攻速
+    {"[6] Multi Shot +1",    150, 150},   // 多重射擊
+    {"[7] Move SpeedUp",     50,  50},   // 移動速度
+    {"[8] Crit Rate +2%",    30,  50},   // 暴擊率
+    {"[9] Crit Damage +25%", 30,  50},   // 暴擊傷害
 };
 
 //    hp       speed      reward   JumpMin    JumpMax       JumpCd(÷100)  FlyAmp     fly_spd(÷100)
@@ -209,7 +209,7 @@ class game_factory {
             }
             if(w.splash_range > 0){
                 p.set_splash_range(w.splash_range);
-                p.set_splash_damage(p.get_damage() * w.splash_multi);
+                p.set_splash_damage(w.splash_multi);
             }
         }
 };

@@ -38,7 +38,7 @@ class game{
         std::vector<wave> _waves;
         std::vector<coin> _coins;
         // weapon
-        weapon_type _current_weapon = MUD;
+        weapon_type _current_weapon = FIRE_BALL;
         // waveshop
         
         // wave
@@ -126,7 +126,15 @@ class game{
 
     public:
         game();
-        ~game() = default;
+        ~game(){
+            for(int i = 0;i<_enemies.size();i++){
+                delete _enemies[i];
+            }
+            _enemies.clear();
+            if(_shop_goblin!=nullptr){
+                delete _shop_goblin;
+            }
+        }
         void init();
         void close();
         void reset();
