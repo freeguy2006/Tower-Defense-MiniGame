@@ -22,6 +22,7 @@ class enemy : public character{
         float _poison_damage = 0;
         float _poison_timer = 0;
         float _poison_interval = 1.0f;
+        bool _poison_ready = false;
         bool _has_nearby_buff = false;
         bool _has_nearby_heal = false;
         
@@ -40,8 +41,7 @@ class enemy : public character{
             if(_poison_combo > 0){
                 _poison_timer -= dt;
                 if(_poison_timer < 0){ // 毒的效果，對 效果
-                    take_damage(_poison_damage * _poison_combo);
-                    _poison_combo = (int)((float)_poison_combo * 0.8f);
+                    _poison_ready = true;
                     _poison_timer += _poison_interval;
                 }
             }
@@ -67,22 +67,34 @@ class enemy : public character{
         bool is_frozen() const { return _freeze_timer > 0; }
         bool is_slowed() const { return _slow_timer > 0; }
         bool is_poisoned() const { return _poison_combo > 0; }
+        float get_poison_tick_damage() const { return _poison_damage * _poison_combo; }
+        int get_poison_combo() const { return _poison_combo; }
+        bool is_poison_ready(){ return _poison_ready; }        
         bool has_nearby_buff() const { return _has_nearby_buff; }
         bool has_nearby_heal() const { return _has_nearby_heal; }
+        
+        
         void apply_slow(float percent, float duration){
-            _slow_multiplier *= 1.0f - percent;
+            _slow_multiplier = std::min(_slow_multiplier, 1.0f - percent);
             _slow_timer = std::max(_slow_timer, duration);
         }
         void apply_freeze(float duration){
             _freeze_timer = std::max(_freeze_timer, duration);
         }
+        
         void add_poison(float damage, float interval){
             _poison_combo++;
             _poison_damage = damage;
             _poison_interval = (_poison_interval * (_poison_combo-1) + interval) / _poison_combo;  //求平均的poison interval
         }
+        void set_poison_ready(bool v){ _poison_ready = v; }
+        void decay_poison_combo() { _poison_combo -= 1; }
+        
         void set_nearby_buff(bool v) { _has_nearby_buff = v; }
         void set_nearby_heal(bool v) { _has_nearby_heal = v; }
+        
+        
+        
         // update - move
         void update(float dt) override {
             if(update_status(dt)) return; // 被冰就跳過

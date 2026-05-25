@@ -102,7 +102,7 @@ class game{
         Texture2D _background_texture;
         Texture2D _player_texture;
         Texture2D _coin_texture;
-        Texture2D _enemy_textures[7];
+        Texture2D _enemy_textures[8];
         Texture2D _weapon_textures[WEAPON_COUNT];
         Texture2D _potion_textures[POTION_COUNT];
         Texture2D _shop_goblin_texture;

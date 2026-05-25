@@ -201,10 +201,9 @@ void game::update(float dt){
                     float roll = (float)GetRandomValue(0,100)/100.0f;
                     if(roll <= total_crit_chance){
                         damage = damage * total_crit_multiplier;
-                    }
-                    if(_projectiles[i].get_crit_hp_percent()>0){
                         damage += _enemies[j]->get_hp() * _projectiles[i].get_crit_hp_percent();
                     }
+                    
                 }
                 damage = damage * _buffs[BUFF_ATTACK].value;
                 _enemies[j]->take_damage(damage);
@@ -331,6 +330,7 @@ void game::update(float dt){
             _kill_count++;
         }
     }
+    // goblin
     if(_shop_goblin != nullptr && !_shop_goblin->is_alive()){
         Vector2 pos = _shop_goblin->get_position();
         int coin_num = _shop_goblin->get_reward();
@@ -339,6 +339,17 @@ void game::update(float dt){
         }
         delete _shop_goblin;
         _shop_goblin = nullptr;
+    }
+    
+    // enemy_poison
+    for(int i = 0; i < _enemies.size(); i++){
+        if(_enemies[i]->is_poison_ready()){
+            _enemies[i]->set_poison_ready(false);
+            float dmg = _enemies[i]->get_poison_tick_damage();
+            _enemies[i]->take_damage(dmg);
+            _enemies[i]->decay_poison_combo();
+            _damage_text.push_back({_enemies[i]->get_position(), dmg, 0.0f, 1.0f, GREEN});
+        }
     }
     
     // 6. 清理              --------------------------------------------

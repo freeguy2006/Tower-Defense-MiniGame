@@ -66,9 +66,9 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {1.4f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ARROW
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // STONE
     {1.2f, 0.6f, 0.10f,      2.0f,  0.0f,    false,  0.5f,  1.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_SLOW
-    {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.2f,    1.0f,           0.0f,        0.0f},   // POISON
+    {1.0f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.2f,  3.0f,     0.0f,     1.2f,    1.0f,           0.0f,        0.0f},   // POISON
     {1.5f, 1.5f, 0.10f,      2.0f,  0.0f,    true,   0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // PIERCING_ARROW
-    {2.5f, 1.0f, 0.03f,      1.0f,  0.9f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // IRON_BALL
+    {2.5f, 1.0f, 0.01f,      1.0f,  0.8f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // IRON_BALL
     {1.8f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           140.0f,       0.3f},   // FIRE_BALL
     {1.7f, 1.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ROCKET
     {1.7f, 1.0f, 0.10f,      2.0f,  0.0f,    false,  0.0f,  0.0f,     1.0f,     0.0f,    0.0f,           0.0f,        0.0f},   // ICE_FREEZE

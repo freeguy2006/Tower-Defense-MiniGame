@@ -1,5 +1,5 @@
 # ninja log v7
-19	43	8013161384920655	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+19	42	8014054637136798	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
 151	379	8004658997306193	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/utils.c.obj	e10dfd21b7486c6b
 131	726	8004658997099411	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rshapes.c.obj	da7b1123851205b9
 138	1177	8004658997175996	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rtext.c.obj	1ab3fd8a20b4c547
@@ -17,8 +17,8 @@
 380	2106	8004658999605467	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_window.c.obj	ad2464b0e4156cc2
 164	260	8008229433607257	CMakeFiles/TowerDefenseGame_lib.dir/src/Player.cpp.obj	d86288fd0cc68fbb
 732	2355	8004659003219765	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/null_joystick.c.obj	6c933f4d5f35f345
-46	874	8013128253247577	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-49	450	8013128253313173	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+45	869	8014054637394193	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+48	425	8014054637421946	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
 1179	2673	8004659007621413	_deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/win32_module.c.obj	13732b3e335589f8
 126	2827	8004658997054289	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rmodels.c.obj	c9f820fcd856eb14
 122	2922	8004658997009056	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rcore.c.obj	887542d55c8b0588
@@ -32,8 +32,8 @@
 145	3619	8004658997244212	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/rtextures.c.obj	54db2932a7cdf4b4
 118	4634	8004658996948176	_deps/raylib-build/raylib/CMakeFiles/raylib.dir/raudio.c.obj	71b6982c07f3e816
 4634	4878	8004659042132310	_deps/raylib-build/raylib/libraylib.a	357b737842a93f64
-874	956	8013128261557833	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-956	1370	8013128262384507	TowerDefenseGame.exe	bb92f8a3d106999c
+869	976	8014054645629926	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+976	1424	8014054646695649	TowerDefenseGame.exe	bb92f8a3d106999c
 82	2236	8011569357519001	build.ninja	a7dc2ad3646b0c56
 82	2236	8011569357519001	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/cmake_install.cmake	a7dc2ad3646b0c56
 82	2236	8011569357519001	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/cmake_install.cmake	a7dc2ad3646b0c56
@@ -42,45 +42,54 @@
 82	2236	8011569357519001	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/external/glfw/src/cmake_install.cmake	a7dc2ad3646b0c56
 82	2236	8011569357519001	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/CTestTestfile.cmake	a7dc2ad3646b0c56
 82	2236	8011569357519001	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/_deps/raylib-build/raylib/CTestTestfile.cmake	a7dc2ad3646b0c56
-13	36	8013162168477248	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-14	36	8013163612952082	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-43	436	8013163613246513	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-40	863	8013163613216837	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-863	945	8013163621447838	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-946	1340	8013163622282946	TowerDefenseGame.exe	bb92f8a3d106999c
-19	42	8013164616938347	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-45	835	8013164617176426	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-835	915	8013164625100654	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-915	1330	8013164625894045	TowerDefenseGame.exe	bb92f8a3d106999c
-20	43	8013167376174292	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-51	440	8013167376475648	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-47	857	8013167376435324	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-857	941	8013167384532214	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-941	1383	8013167385384929	TowerDefenseGame.exe	bb92f8a3d106999c
-20	44	8013167914451860	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-50	445	8013167914746196	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-48	860	8013167914726214	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-861	943	8013167922824612	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-943	1378	8013167923683557	TowerDefenseGame.exe	bb92f8a3d106999c
-18	42	8013187487948556	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-48	438	8013187488247693	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-19	41	8013190229577106	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-49	431	8013190229859383	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-46	871	8013190229811042	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-871	959	8013190238096177	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-959	1388	8013190238976058	TowerDefenseGame.exe	bb92f8a3d106999c
-18	40	8013190673979326	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-47	434	8013190674269489	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-43	867	8013190674230459	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-868	949	8013190682476159	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-949	1363	8013190683283171	TowerDefenseGame.exe	bb92f8a3d106999c
-20	43	8013196429965383	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-12	35	8013196681005855	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-41	426	8013196681293475	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
-38	852	8013196681241344	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-853	938	8013196689414005	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-938	1368	8013196690241668	TowerDefenseGame.exe	bb92f8a3d106999c
-19	41	8013200212264535	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
-45	839	8013200212529275	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
-839	921	8013200220472036	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
-921	1358	8013200221294601	TowerDefenseGame.exe	bb92f8a3d106999c
+23	48	8014055380062987	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+12	34	8014055469913060	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+41	420	8014055470211213	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+38	854	8014055470179831	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+855	941	8014055478348786	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+941	1385	8014055479213700	TowerDefenseGame.exe	bb92f8a3d106999c
+21	42	8014056461016570	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+49	441	8014056461299049	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+46	864	8014056461274419	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+865	945	8014056469460174	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+945	1381	8014056470271691	TowerDefenseGame.exe	bb92f8a3d106999c
+19	43	8014057061338289	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+50	419	8014057061636930	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+47	852	8014057061604516	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+853	934	8014057069637085	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+934	1351	8014057070477849	TowerDefenseGame.exe	bb92f8a3d106999c
+20	43	8014057694184467	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+12	34	8014059224890947	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+41	426	8014059225181373	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+38	868	8014059225147461	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+868	947	8014059233445740	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+947	1371	8014059234237875	TowerDefenseGame.exe	bb92f8a3d106999c
+20	43	8014059595682011	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+14	36	8014060445467841	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+42	437	8014060445751163	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+39	881	8014060445717392	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+881	967	8014060454138945	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+967	1395	8014060454992155	TowerDefenseGame.exe	bb92f8a3d106999c
+18	40	8014061013601602	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+46	446	8014061013904616	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+43	879	8014061013875027	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+879	957	8014061022213658	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+957	1395	8014061023009113	TowerDefenseGame.exe	bb92f8a3d106999c
+19	41	8014063022141665	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+45	906	8014063022406993	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+907	991	8014063031023023	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+991	1445	8014063031859084	TowerDefenseGame.exe	bb92f8a3d106999c
+19	42	8014063798834406	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+46	829	8014063799112090	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+829	910	8014063806945276	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+910	1363	8014063807747197	TowerDefenseGame.exe	bb92f8a3d106999c
+18	41	8014064380009091	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+47	433	8014064380301958	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+44	868	8014064380270434	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+868	948	8014064388494010	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+948	1399	8014064389314131	TowerDefenseGame.exe	bb92f8a3d106999c
+19	41	8014065326890551	D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/build/CMakeFiles/cmake.verify_globs	3a476e0e052e2408
+48	423	8014065327181262	CMakeFiles/TowerDefenseGame.dir/src/main.cpp.obj	3c0dfb3b9b006065
+45	850	8014065327135370	CMakeFiles/TowerDefenseGame_lib.dir/src/Game.cpp.obj	6bb918de6b1dd759
+851	931	8014065335181335	libTowerDefenseGame_lib.a	23e8ae6e65b64f88
+931	1371	8014065335994331	TowerDefenseGame.exe	bb92f8a3d106999c
