@@ -30,9 +30,18 @@ void game::update(float dt){
         }
     }
     // 2. 生成              --------------------------------------------
-    if(_current_wave >= _waves.size()){
-        _game_statement = WIN;
-    }else{
+    if(_current_wave >= _waves.size() && _is_crown_collected == false){
+        if(_victory_crown == nullptr){
+            _victory_crown = new crown({2000,-100}, game_factory::GROUND_Y-68);
+        }
+        _victory_crown->update(dt);
+        if(CheckCollisionRecs(_player.get_rect(), _victory_crown->get_rect())){
+            _is_crown_collected = true;
+            delete _victory_crown;
+            _victory_crown = nullptr;
+            _game_statement = WIN;
+        }
+    }else if(_current_wave < _waves.size()){
         if(_is_wave_active == false){
             // 中場休息
             if(_is_announcing_wave){
@@ -129,6 +138,12 @@ void game::update(float dt){
             }
         }
     }
+    // gift
+    if(_is_gift_active == true && _special_gift == nullptr){
+        _special_gift = game_factory::create_special_gift({1500, -100}, game_factory::GROUND_Y - 106);
+        _is_gift_active = false;
+    }
+    
     // 3. 狀態更新              --------------------------------------------
     for(int i = 0;i<_enemies.size();i++){
         _enemies[i]->reset_speed();
@@ -172,20 +187,14 @@ void game::update(float dt){
             _damage_text.erase(_damage_text.begin() + i);
         }
     }
+
     _player.update(dt);
     _castle.update(dt);
-    for(int i = 0;i<_enemies.size();i++){
-        _enemies[i]->update(dt);
-    }
-    for(int i = 0;i<_projectiles.size();i++){
-        _projectiles[i].update(dt);
-    }
-    for(int i = 0;i<_coins.size();i++){
-        _coins[i].update(dt);
-    }
-    if(_shop_goblin != nullptr){
-        _shop_goblin->update(dt);
-    }
+    for(int i = 0;i<_enemies.size();i++)        _enemies[i]->update(dt);
+    for(int i = 0;i<_projectiles.size();i++)    _projectiles[i].update(dt);
+    for(int i = 0;i<_coins.size();i++)          _coins[i].update(dt);
+    if(_shop_goblin != nullptr)                 _shop_goblin->update(dt);
+    if(_special_gift != nullptr)                _special_gift->update(dt);
     // 4. 碰撞              --------------------------------------------
     // projectile, enemy
     for(int i = _projectiles.size()-1 ; i>=0 ; i--){ 
@@ -346,6 +355,18 @@ void game::update(float dt){
             _shop_goblin = nullptr;
         }
     }
+    // player, gift
+    if(_special_gift != nullptr && CheckCollisionRecs(_player.get_rect(),_special_gift->get_rect())){
+        delete _special_gift;
+        _special_gift = nullptr;
+        _golds = 9999;
+        _max_golds = 9999;
+        _player.increase_max_hp(9999.0f - _player.get_max_hp());
+        _player.heal(9999.0f);
+        _castle.increase_max_hp(9999.0f - _castle.get_max_hp());
+        _castle.heal(9999.0f);
+        _player_damage += 200.0f;   
+    }
     
     // 5. 效果              --------------------------------------------
     // player heal
@@ -489,21 +510,12 @@ void game::draw(){
             DrawText(TextFormat("<<< wave %d",_current_wave+1), 1700, 400, 100 ,RED);
         }
     }
-    
-
-    // coin
-    for(int i = 0;i<_coins.size();i++){
-        DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
-    }
     //血條
     //castle
     DrawRectangleRec({18, 18, 1004, 29}, BLACK);
     DrawRectangleRec({20, 20, 1000, 25}, GRAY);
     DrawRectangleRec({20, 20, 1000.0f * _castle.get_hp() / _castle.get_max_hp(), 25}, RED);
     DrawText(TextFormat("Castle HP: %.0f",_castle.get_hp()),25,20,25,BLACK);
-    for(int i = 0;i<7;i++){
-
-    }
     //player
     DrawRectangleRec({18, 58, 504, 29}, BLACK);
     DrawRectangleRec({20, 60, 500, 25}, GRAY);
@@ -516,22 +528,27 @@ void game::draw(){
             icon_x += 35;
         }
     }
-    
-
     // golds
     float gold_bar_width = 300.0f * _golds / _max_golds;
     DrawRectangleRec({2048, 18, 304, 34}, BLACK);
     DrawRectangleRec({2050, 20, 300, 30}, GRAY);
     DrawRectangleRec({2350 - gold_bar_width, 20, gold_bar_width, 30}, GOLD);
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2100, 20, 30, BLACK);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2060, 20, 30, BLACK);
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
     // 第幾波
     DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1400,20,40,BLACK );
+    
+    
     //_shop_goblin   
-    if(_shop_goblin != nullptr){
-        DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
-    }
+    if(_shop_goblin != nullptr)  DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
+    //_special_gift
+    if(_special_gift != nullptr) DrawTextureEx(_special_gift_texture, _special_gift->get_position(), 0, 0.3f, WHITE);
+    // coin
+    for(int i = 0;i<_coins.size();i++) DrawTextureEx(_coin_texture,_coins[i].get_position(),0,1,WHITE);
+    // crown
+    if(_victory_crown != nullptr) DrawTextureEx(_victory_crown_texture, _victory_crown->get_position(), 0, 0.07f, WHITE);
+    
     // damage text
     for(int i = 0;i<_damage_text.size();i++){
         DrawText(_damage_text[i].text.c_str(),_damage_text[i].position.x,_damage_text[i].position.y-20,30,_damage_text[i].color);
@@ -540,12 +557,11 @@ void game::draw(){
     if(_debug_hitbox){
         DrawRectangleLinesEx(_castle.get_rect(), 2, GREEN);
         DrawRectangleLinesEx(_player.get_rect(), 2, GREEN);
-        for(int i = 0; i < _enemies.size(); i++)
-            DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
-        for(int i = 0; i < _coins.size(); i++)
-            DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
-        if(_shop_goblin != nullptr)
-            DrawRectangleLinesEx(_shop_goblin->get_rect(), 2, GREEN);
+        for(int i = 0; i < _enemies.size(); i++) DrawRectangleLinesEx(_enemies[i]->get_rect(), 2, GREEN);
+        for(int i = 0; i < _coins.size(); i++) DrawRectangleLinesEx(_coins[i].get_rect(), 2, GREEN);
+        if(_shop_goblin != nullptr) DrawRectangleLinesEx(_shop_goblin->get_rect(), 2, GREEN);
+        if(_victory_crown != nullptr) DrawRectangleLinesEx(_victory_crown->get_rect(), 2, GREEN);
+        if(_special_gift != nullptr) DrawRectangleLinesEx(_special_gift->get_rect(), 2, GREEN);
     }
     
 }
@@ -595,14 +611,62 @@ void game::run(){
 
 game::game() : _player(game_factory::create_player({640, game_factory::GROUND_Y-30})), _castle(game_factory::create_castle({-10, game_factory::GROUND_Y-568})){}
 
+void game::init(){
+    // 開window, 載入圖片
+    InitWindow(2400, 900, "Tower Defense Game");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetExitKey(0);  // 取消 ESC 關閉視窗
+    SetTargetFPS(60);
+    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/object/monster/monster_green.png");
+    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/object/monster/monster_black.png");
+    _enemy_textures[SLIMERED] = LoadTexture("resources/object/monster/monster_red.png");
+    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/object/monster/monster_purple.png");
+    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/object/monster/monster_blue.png");
+    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/monster/angel_2.png");
+    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/monster/bird_24.png");
+    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/monster/dragon_2.png");
+    _castle_texture = LoadTexture("resources/object/castle.png");
+    _background_texture = LoadTexture("resources/background/background.png");
+    _player_texture = LoadTexture("resources/object/player_archer.png");
+    _coin_texture = LoadTexture("resources/object/coin/coin_4.png");
+    for(int i = 0; i < WEAPON_COUNT; i++) _weapon_textures[i] = LoadTexture(TextFormat("resources/object/weapon/weapon_%d.png", i));
+    for(int i = 0; i < POTION_COUNT; i++) _potion_textures[i] = LoadTexture(TextFormat("resources/object/potion/potion_%d.png", i));
+    _shop_goblin_texture = LoadTexture("resources/object/shop/goblin.png");
+    _stickman_texture = LoadTexture("resources/object/shop/stickman.png");
+    _victory_crown_texture = LoadTexture("resources/object/special/crown.png");
+    _special_gift_texture = LoadTexture("resources/object/special/gift.png");
+    _buff_textures[BUFF_ATTACK] = LoadTexture("resources/effect/atk_buff.png");
+    _buff_textures[BUFF_ATTACK_SPEED] = LoadTexture("resources/effect/atk_buff.png");
+    _buff_textures[BUFF_MOVE_SPEED] = LoadTexture("resources/effect/move_buff.png");
+    _buff_textures[BUFF_REGEN] = LoadTexture("resources/effect/regen_buff.png");
+    _buff_textures[BUFF_SHIELD] = LoadTexture("resources/effect/shield_buff.png");
+    _buff_textures[BUFF_CRIT_RATE] = LoadTexture("resources/effect/crit_rate_buff.png");
+    _buff_textures[BUFF_CRIT_DAMAGE] = LoadTexture("resources/effect/crit_dmg_buff.png");
+    _buff_textures[DEBUFF] = LoadTexture("resources/effect/debuff.png");
+    // music
+    
+    InitAudioDevice();
+    for(int i = 0; i < 7; i++){
+        _bgm[i] = LoadMusicStream(TextFormat("resources/music/BGM/GameBoyBGM-%d.mp3", i+1));
+        SetMusicVolume(_bgm[i], 0.8f);
+    }
+    _current_bgm = GetRandomValue(0, 6);
+    PlayMusicStream(_bgm[_current_bgm]);
+    SetMusicVolume(_bgm[_current_bgm], 0.8f);
+    // sound 
+    _wave_horn_sfx = LoadSound("resources/music/SoundEffect/wave-horn/wave-horn.mp3");
+    for(int i = 0;i<3;i++) _get_coin_sfx[i] = LoadSound(TextFormat("resources/music/SoundEffect/get-coin/get-coin%d.mp3",i+1));
+    SetSoundVolume(_wave_horn_sfx, 0.5f);
+    for(int i = 0;i<3;i++) SetSoundVolume(_get_coin_sfx[i], 0.5f);
+    // canvas
+    _canvas = LoadRenderTexture(2400, 900);
+    // wave
+    load_waves("resources/levels.txt");
+}
 void game::reset(){
     _player = game_factory::create_player({640, game_factory::GROUND_Y-30});
     _castle = game_factory::create_castle({-10, game_factory::GROUND_Y-568});
-    
-    for(int i = 0;i<_enemies.size();i++){
-        delete _enemies[i];
-    }
-    
+    for(int i = 0;i<_enemies.size();i++) delete _enemies[i];
     // game
     _game_statement = START;
     // player
@@ -626,9 +690,7 @@ void game::reset(){
     _golds = PLAYER_VALUES.start_golds;
     _max_golds = PLAYER_VALUES.max_golds;
     // player_levels
-    for(int i = 0;i<9;i++){
-        _player_level[i] = 0;
-    }
+    for(int i = 0;i<9;i++) _player_level[i] = 0;
     // announce
     _announce_wave_timer = 0;
     _is_announcing_wave = false;
@@ -649,72 +711,18 @@ void game::reset(){
     // press delay
     _press_delay = 0;
     // shop
-    if(_shop_goblin != nullptr){
-        delete _shop_goblin;
-        _shop_goblin = nullptr;
-    }
+    if(_shop_goblin != nullptr){ delete _shop_goblin; _shop_goblin = nullptr; }
+    // crown
+    _is_crown_collected = false;
+    if(_victory_crown != nullptr){ delete _victory_crown; _victory_crown = nullptr; }
+    // gift
+    if(_special_gift != nullptr) { delete _special_gift; _special_gift = nullptr; }
 
     // damage text
     _damage_text.clear();
     _shop_weapon1 = MUD;
     _shop_weapon2 = MUD;
     _shop_potion = HEAL_PLAYER_POTION;
-}
-
-// init 
-void game::init(){
-    // 開window, 載入圖片
-    InitWindow(2400, 900, "Tower Defense Game");
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
-    SetExitKey(0);  // 取消 ESC 關閉視窗
-    SetTargetFPS(60);
-    _enemy_textures[SLIMEGREEN] = LoadTexture("resources/object/monster/monster_green.png");
-    _enemy_textures[SLIMEBLACK] = LoadTexture("resources/object/monster/monster_black.png");
-    _enemy_textures[SLIMERED] = LoadTexture("resources/object/monster/monster_red.png");
-    _enemy_textures[SLIMEPURPLE] = LoadTexture("resources/object/monster/monster_purple.png");
-    _enemy_textures[SLIMEBLUE] = LoadTexture("resources/object/monster/monster_blue.png");
-    _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/monster/angel_2.png");
-    _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/monster/bird_24.png");
-    _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/monster/dragon_2.png");
-    _castle_texture = LoadTexture("resources/object/castle.png");
-    _background_texture = LoadTexture("resources/background/background.png");
-    _player_texture = LoadTexture("resources/object/player_archer.png");
-    _coin_texture = LoadTexture("resources/object/coin/coin_4.png");
-    for(int i = 0; i < WEAPON_COUNT; i++) _weapon_textures[i] = LoadTexture(TextFormat("resources/object/weapon/weapon_%d.png", i));
-    for(int i = 0; i < POTION_COUNT; i++) _potion_textures[i] = LoadTexture(TextFormat("resources/object/potion/potion_%d.png", i));
-    _shop_goblin_texture = LoadTexture("resources/object/shop/goblin.png");
-    _stickman_texture = LoadTexture("resources/object/shop/stickman.png");
-    _buff_textures[BUFF_ATTACK] = LoadTexture("resources/effect/atk_buff.png");
-    _buff_textures[BUFF_ATTACK_SPEED] = LoadTexture("resources/effect/atk_buff.png");
-    _buff_textures[BUFF_MOVE_SPEED] = LoadTexture("resources/effect/move_buff.png");
-    _buff_textures[BUFF_REGEN] = LoadTexture("resources/effect/regen_buff.png");
-    _buff_textures[BUFF_SHIELD] = LoadTexture("resources/effect/shield_buff.png");
-    _buff_textures[BUFF_CRIT_RATE] = LoadTexture("resources/effect/crit_rate_buff.png");
-    _buff_textures[BUFF_CRIT_DAMAGE] = LoadTexture("resources/effect/crit_dmg_buff.png");
-    _buff_textures[DEBUFF] = LoadTexture("resources/effect/debuff.png");
-    
-    
-    
-    
-    // music
-    
-    InitAudioDevice();
-    for(int i = 0; i < 7; i++){
-        _bgm[i] = LoadMusicStream(TextFormat("resources/music/BGM/GameBoyBGM-%d.mp3", i+1));
-        SetMusicVolume(_bgm[i], 0.8f);
-    }
-    _current_bgm = GetRandomValue(0, 6);
-    PlayMusicStream(_bgm[_current_bgm]);
-    SetMusicVolume(_bgm[_current_bgm], 0.8f);
-    // sound 
-    _wave_horn_sfx = LoadSound("resources/music/SoundEffect/wave-horn/wave-horn.mp3");
-    for(int i = 0;i<3;i++) _get_coin_sfx[i] = LoadSound(TextFormat("resources/music/SoundEffect/get-coin/get-coin%d.mp3",i+1));
-    SetSoundVolume(_wave_horn_sfx, 0.5f);
-    for(int i = 0;i<3;i++) SetSoundVolume(_get_coin_sfx[i], 0.5f);
-    // canvas
-    _canvas = LoadRenderTexture(2400, 900);
-    // wave
-    load_waves("resources/levels.txt");
 }
 
 
@@ -729,6 +737,8 @@ void game::close(){
     for(int i = 0;i<POTION_COUNT;i++) UnloadTexture(_potion_textures[i]);
     UnloadTexture(_shop_goblin_texture);
     UnloadTexture(_stickman_texture);
+    UnloadTexture(_victory_crown_texture);
+    UnloadTexture(_special_gift_texture);
     for(int i = 0;i<BUFF_COUNT;i++) UnloadTexture(_buff_textures[i]);
     // music
     for(int i = 0;i<7;i++) UnloadMusicStream(_bgm[i]);
@@ -794,9 +804,6 @@ float get_distance(enemy* a, enemy* b){
     return sqrt(dx*dx + dy*dy);
 }
 
-
-
-
 // 特殊 gamestatement 的介面
 void game::handle_start(){
     DrawText("Tower Defense Game",200,400,100,DARKGRAY);
@@ -834,30 +841,42 @@ void game::handle_tutorial(){
         DrawText("ICE SLIME can buff enemies around them", 250, 500, 70, BLACK);
         DrawText("Press Enter to continue !!", 250, 700, 90, RED);
     }else if(_tutorial_page == 3){
-        DrawText("Useful tips :", 250, 300, 70, BLACK);
+        DrawText("HOT tips :", 250, 200, 70, BLACK);
+        DrawText("You have 250 golds at the beginning", 250, 300, 70, BLACK);
         DrawText("Goblin is rich and you can buy useful items from it", 250, 400, 70, BLACK);
-        DrawText("You can design your level in resources/levels.txt", 250, 500, 70, BLACK);
+        DrawText("You can design your own level in resources/levels.txt", 250, 500, 70, BLACK);
         DrawText("Press Enter to continue !!!", 250, 700, 90, RED);
     }else if(_tutorial_page == 4){
-        DrawText("Good luck and have fun !", 250, 300, 70, BLACK);
-        DrawText("Upgrade your abilities to protect the castle !", 250, 400, 70, BLACK);
+        DrawText("There are 11 types of weapon and 8 types of potion", 250, 300, 70, BLACK);
+        DrawText("Good luck and have fun !", 250, 400, 70, BLACK);
+        DrawText("Upgrade your abilities to protect the castle !", 250, 500, 70, BLACK);
         DrawText("Press ESC to exit !!!", 250, 700, 90, RED);
-    }else if(_tutorial_page == 5){
+    }else if(_tutorial_page <= 50){
         DrawText("Didn't you watch my tutorial ?", 250, 300, 100, BLACK);
         DrawText("Press ESC to exit !!!", 250, 670, 120, RED);
+    }else{
+        _is_gift_active = true;
+        DrawText("Congratulations!!! ", 250, 300, 100, RED);
+        DrawText("You unlock a mystery gift !", 250, 500, 100, ORANGE);
+        DrawText("Press ESC to exit !!!", 250, 700, 70, BLACK);
     }
     
     if(IsKeyPressed(KEY_ENTER)){
         _tutorial_page++;
-        if(_tutorial_page>5) _tutorial_page = 5;
+        if(_tutorial_page>60) _tutorial_page = 60;
     }
-    if(IsKeyPressed(KEY_ESCAPE)){
-        _game_statement = START;
-    }
+    if(IsKeyPressed(KEY_ESCAPE)) _game_statement = START;
 }
 void game::handle_pause(){
     DrawText("~~ SHOP ~~",700,50,100,DARKGRAY);
-    DrawTextureEx(_stickman_texture, {1500,100}, 0, 2.0f, WHITE);
+    DrawTextureEx(_stickman_texture, {1500,270}, 0, 2.0f, WHITE);
+    // your status
+    weapon_type equiped_weapon = _current_weapon;
+    DrawTextureEx(_weapon_textures[equiped_weapon], {1550,100}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("you equiped : %s", WEAPON_NAME[equiped_weapon]), 1600, 100, 40, BLACK);
+    DrawText(TextFormat("you: %d / %d", (int)_player.get_hp(), (int)_player.get_max_hp()), 1600, 160, 40, _player.get_hp()<_player.get_max_hp()/3 ? RED : BLACK);
+    DrawText(TextFormat("castle: %d / %d", (int)_castle.get_hp(), (int)_castle.get_max_hp()), 1600, 220, 40, _castle.get_hp()<_castle.get_max_hp()/3 ? RED : BLACK);
+
     int cost[9];
     for(int i = 0; i < 9; i++){
         cost[i] = UPGRADE_VALUES[i].cost_base + UPGRADE_VALUES[i].cost_gain * _player_level[i];
@@ -865,8 +884,8 @@ void game::handle_pause(){
         DrawText(TextFormat("Lv: %d", _player_level[i]), 900, 250+i*60, 40, _golds >= cost[i] ? BLUE : GRAY);
         DrawText(TextFormat("Cost: %d", cost[i]), 1100, 250+i*60, 40, _golds >= cost[i] ? BLUE : GRAY);
     }
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 600, 40, GOLD);
-    DrawText("Press ESC to continue", 1500, 660, 40, DARKGRAY);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 690, 60, GOLD);
+    DrawText("Press ESC to continue", 1500, 760, 40, DARKGRAY);
     if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]){
         _golds -= cost[0]; _player_damage += 3.0f; _player_level[0]++;
     }
@@ -902,32 +921,40 @@ void game::handle_pause(){
     }
 }
 void game::handle_wave_shop(){
-
-    DrawTextureEx(_shop_goblin_texture, {1600,300}, 0, 1.0f, WHITE);
-    DrawText("~~Wave Shop~~",640,50,100,GREEN);
-    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 700, 690, 60, GOLD);
-    DrawText("Press ESC to skip", 700, 760, 30, DARKGRAY);
-    // 1
-    DrawTextureEx(_potion_textures[0], {650, 250}, 0, 1.0f, WHITE);
-    DrawText(TextFormat("[1] %s", POTION_NAME[0]), 700, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[0]), 1200, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
-    // 2
-    DrawTextureEx(_potion_textures[1], {650, 330}, 0, 1.0f, WHITE);
-    DrawText(TextFormat("[2] %s", POTION_NAME[1]), 700, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[1]), 1200, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
-    // 3
-    DrawTextureEx(_weapon_textures[_shop_weapon1], {650, 410}, 0, 1.0f, WHITE);
-    DrawText(TextFormat("[3] %s", WEAPON_NAME[_shop_weapon1]), 700, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon1]), 1200, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
-    // 4
-    DrawTextureEx(_weapon_textures[_shop_weapon2], {650, 490}, 0, 1.0f, WHITE);
-    DrawText(TextFormat("[4] %s", WEAPON_NAME[_shop_weapon2]), 700, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon2]), 1200, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY); 
-    // 5 
-    DrawTextureEx(_potion_textures[_shop_potion], {650, 570}, 0, 1.0f, WHITE);
-    DrawText(TextFormat("[5] %s", POTION_NAME[_shop_potion]), 700, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
-    DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1200, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
+    // you owned 
+    weapon_type equiped_weapon = _current_weapon;
+    DrawTextureEx(_weapon_textures[equiped_weapon], {1550,150}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("you equiped : %s", WEAPON_NAME[equiped_weapon]), 1600, 150, 40, BLACK);
+    DrawText(TextFormat("you: %d / %d", (int)_player.get_hp(), (int)_player.get_max_hp()), 1600, 210, 40, _player.get_hp()<_player.get_max_hp()/3 ? RED : BLACK);
+    DrawText(TextFormat("castle: %d / %d", (int)_castle.get_hp(), (int)_castle.get_max_hp()), 1600, 270, 40, _castle.get_hp()<_castle.get_max_hp()/3 ? RED : BLACK);
     
+    // title
+    DrawTextureEx(_shop_goblin_texture, {1600,400}, 0, 1.0f, WHITE);
+    DrawText("~~Wave Shop~~",640,50,100,GREEN);
+    DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 600, 690, 60, GOLD);
+    DrawText("Press ESC to skip", 600, 760, 40, DARKGRAY);
+    // 1
+    DrawTextureEx(_potion_textures[0], {600, 250}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[1] %s", POTION_NAME[0]), 650, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[0]), 1150, 250, 40, _golds >= POTION_COST[0] ? BLUE : GRAY);
+    // 2
+    DrawTextureEx(_potion_textures[1], {600, 330}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[2] %s", POTION_NAME[1]), 650, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[1]), 1150, 330, 40, _golds >= POTION_COST[1] ? BLUE : GRAY);
+    // 3
+    DrawTextureEx(_weapon_textures[_shop_weapon1], {600, 410}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[3] %s", WEAPON_NAME[_shop_weapon1]), 650, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
+    if(equiped_weapon != _shop_weapon1) DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon1]), 1150, 410, 40, _golds >= WEAPON_COST[_shop_weapon1] ? BLUE : GRAY);
+    else DrawText(TextFormat("Equiped"), 1150, 410, 40, GRAY);
+    // 4
+    DrawTextureEx(_weapon_textures[_shop_weapon2], {600, 490}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[4] %s", WEAPON_NAME[_shop_weapon2]), 650, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY);
+    if(equiped_weapon != _shop_weapon2) DrawText(TextFormat("Cost: %d", WEAPON_COST[_shop_weapon2]), 1150, 490, 40, _golds >= WEAPON_COST[_shop_weapon2] ? BLUE : GRAY);
+    else DrawText(TextFormat("Equiped"), 1150, 490, 40, GRAY);
+    // 5 
+    DrawTextureEx(_potion_textures[_shop_potion], {600, 570}, 0, 1.0f, WHITE);
+    DrawText(TextFormat("[5] %s", POTION_NAME[_shop_potion]), 650, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
+    DrawText(TextFormat("Cost: %d", POTION_COST[_shop_potion]), 1150, 570, 40, _golds >= POTION_COST[_shop_potion] ? BLUE : GRAY);
     
     if(IsKeyPressed(KEY_ONE) && _golds >= POTION_COST[HEAL_PLAYER_POTION]){
         _golds -= POTION_COST[HEAL_PLAYER_POTION];
@@ -937,11 +964,11 @@ void game::handle_wave_shop(){
         _golds -= POTION_COST[HEAL_CASTLE_POTION];
         _castle.heal(_castle.get_max_hp());
     }
-    if(IsKeyPressed(KEY_THREE) && _golds >= WEAPON_COST[_shop_weapon1]){
+    if(IsKeyPressed(KEY_THREE) && _golds >= WEAPON_COST[_shop_weapon1] && _current_weapon != _shop_weapon1){
         _golds -= WEAPON_COST[_shop_weapon1];
         _current_weapon = _shop_weapon1;
     }
-    if(IsKeyPressed(KEY_FOUR) && _golds >= WEAPON_COST[_shop_weapon2]){
+    if(IsKeyPressed(KEY_FOUR) && _golds >= WEAPON_COST[_shop_weapon2] && _current_weapon != _shop_weapon2){
         _golds -= WEAPON_COST[_shop_weapon2];
         _current_weapon = _shop_weapon2;
     }
@@ -950,30 +977,30 @@ void game::handle_wave_shop(){
         switch(_shop_potion){
             case ATTACK_POTION:
                 _buffs[BUFF_ATTACK].value = 1.3f;
-                _buffs[BUFF_ATTACK].waves += 5;
+                _buffs[BUFF_ATTACK].waves += 10;
                 break;
             case ATTACK_SPEED_POTION:
                 _buffs[BUFF_ATTACK_SPEED].value = 0.7f;
-                _buffs[BUFF_ATTACK_SPEED].waves += 5;
+                _buffs[BUFF_ATTACK_SPEED].waves += 10;
                 break;
             case SHIELD_POTION:
                 _buffs[BUFF_SHIELD].value = 0.3f;  // 受傷 -70%
-                _buffs[BUFF_SHIELD].waves += 5;
+                _buffs[BUFF_SHIELD].waves += 10;
                 break;
             case MOVE_SPEED_POTION:
                 _buffs[BUFF_MOVE_SPEED].value = 1.3f;
-                _buffs[BUFF_MOVE_SPEED].waves += 5;
+                _buffs[BUFF_MOVE_SPEED].waves += 10;
                 _player.set_move_speed(_player.get_move_base_speed() * _buffs[BUFF_MOVE_SPEED].value);
                 break;
             case REGENERATION_POTION:
                 _buffs[BUFF_REGEN].value = _player.get_max_hp()*0.01f;
-                _buffs[BUFF_REGEN].waves += 3;
+                _buffs[BUFF_REGEN].waves += 6;
                 break;
             case CRIT_POTION:
                 _buffs[BUFF_CRIT_RATE].value = 0.2f;
-                _buffs[BUFF_CRIT_RATE].waves += 6;
+                _buffs[BUFF_CRIT_RATE].waves += 15;
                 _buffs[BUFF_CRIT_DAMAGE].value = 0.5f;
-                _buffs[BUFF_CRIT_DAMAGE].waves += 3;
+                _buffs[BUFF_CRIT_DAMAGE].waves += 10;
                 break;
             default:
                 break;
@@ -986,7 +1013,8 @@ void game::handle_wave_shop(){
 }
 void game::handle_end(){
     if(_game_statement == LOSE) DrawText("Game Over",200,400,100,DARKGRAY);
-    else DrawText("VICTORY!",200,400,100,YELLOW);
+    else DrawText("VICTORY!",200,300,150,YELLOW);
+    DrawText(TextFormat("You killed %d enemies in %d waves", _kill_count, _current_wave),1000,400,70,BLACK);
     DrawText("Press Enter to restart",200,600,70,DARKGRAY);
     DrawText("Press Q to exit",200,700,70,DARKGRAY);
     // 回饋表單

@@ -22,6 +22,7 @@ set(OLD_GLOB
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/JumpBehavior.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Player.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Projectile.h"
+  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/SpecialThings.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Wave.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/raylib.h"
   )

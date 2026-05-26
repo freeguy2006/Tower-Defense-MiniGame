@@ -47,7 +47,6 @@ class enemy : public character{
             }
             return false; // 非冰凍狀態
         }
-        float get_slow_multiplier() const { return _slow_multiplier; }
     public:
         enemy(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed, float target_x, enemy_type type, int reward)
         : character(position, size, active, hp, speed), _target_x(target_x), _enemy_type(type), _base_speed(speed), _reward(reward){}
@@ -65,6 +64,7 @@ class enemy : public character{
         int get_reward() const { return _reward; }
         float get_target_x() const { return _target_x; }
         bool is_frozen() const { return _freeze_timer > 0; }
+        float get_slow_multiplier() const { return _slow_multiplier; }
         bool is_slowed() const { return _slow_timer > 0; }
         bool is_poisoned() const { return _poison_combo > 0; }
         float get_poison_tick_damage() const { return _poison_damage * _poison_combo; }
@@ -83,6 +83,9 @@ class enemy : public character{
         }
         
         void add_poison(float damage, float interval){
+            if(_poison_combo == 0){
+                _poison_timer = interval;
+            }
             _poison_combo++;
             _poison_damage = damage;
             _poison_interval = (_poison_interval * (_poison_combo-1) + interval) / _poison_combo;  //求平均的poison interval

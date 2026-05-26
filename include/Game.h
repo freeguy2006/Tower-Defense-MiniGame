@@ -18,6 +18,7 @@
 #include "Coin.h"
 #include "Goblin.h"
 #include "DamageText.h"
+#include "SpecialThings.h"
 
 enum game_statement{START,TUTORIAL,PLAYING,PAUSE,WAVE_SHOP,WIN,LOSE};
 
@@ -67,6 +68,7 @@ class game{
         // golds
         int _golds = PLAYER_VALUES.start_golds;
         int _max_golds = PLAYER_VALUES.max_golds;
+
         // player_levels
         int _player_level[9] = {0};
         // debug
@@ -109,6 +111,8 @@ class game{
         Texture2D _potion_textures[POTION_COUNT];
         Texture2D _shop_goblin_texture;
         Texture2D _stickman_texture;
+        Texture2D _victory_crown_texture;
+        Texture2D _special_gift_texture;
 
         // music
         int _current_bgm = 0;
@@ -126,6 +130,12 @@ class game{
         // damage text
         std::vector<damage_text> _damage_text;
 
+        // crown
+        bool _is_crown_collected = false;
+        crown* _victory_crown = nullptr;
+        // mystery gift
+        special_gift* _special_gift = nullptr;
+        bool _is_gift_active = false;
     public:
         game();
         ~game(){
@@ -135,6 +145,9 @@ class game{
             _enemies.clear();
             if(_shop_goblin!=nullptr){
                 delete _shop_goblin;
+            }
+            if(_special_gift!=nullptr){
+                delete _special_gift;
             }
         }
         void init();

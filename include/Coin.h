@@ -6,7 +6,7 @@ class coin: public game_object{
         Vector2 _speed;
         float _gravity = 1600;
         float _ground_y;
-        float _lifetime = 15;  
+        float _lifetime = 20;  
         float _timer = 0;
         int _value;
     public:

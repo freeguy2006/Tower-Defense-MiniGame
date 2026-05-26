@@ -34,11 +34,15 @@ class player : public character{
 
 
         void decrease_cooldown(float amount){
-            _attack_cooldown -= amount;
-            if(_attack_cooldown < 0.05f) _attack_cooldown = 0.05f;  // 最低 0.05 秒
+            _attack_base_cooldown -= amount;
+            if(_attack_base_cooldown < 0.05f) _attack_base_cooldown = 0.05f;  // 最低 0.05 秒
+            _attack_cooldown = _attack_base_cooldown;
         }
 
-        void increase_move_speed(float amount){ _move_speed += amount; }
+        void increase_move_speed(float amount){ 
+            _move_speed += amount; 
+            _move_base_speed += amount;
+        }
         void reset_attack_timer(){ _attack_timer = 0; }
         void set_attack_cooldown(float cd){ _attack_cooldown = cd; }
         void set_move_speed(float spd) { _move_speed = spd; }

@@ -8,6 +8,7 @@
 #include "HealBehavior.h"
 #include "Projectile.h"
 #include "Goblin.h"
+#include "SpecialThings.h"
 enum weapon_type { MUD, ARROW, STONE, ICE_SLOW, POISON, PIERCING_ARROW, IRON_BALL, FIRE_BALL, ROCKET, ICE_FREEZE, MISSILE, WEAPON_COUNT};
 enum potion_type { HEAL_PLAYER_POTION, HEAL_CASTLE_POTION, ATTACK_POTION, ATTACK_SPEED_POTION, SHIELD_POTION, MOVE_SPEED_POTION, REGENERATION_POTION, CRIT_POTION, POTION_COUNT};
 enum buff_type { BUFF_ATTACK, BUFF_ATTACK_SPEED, BUFF_MOVE_SPEED, BUFF_REGEN, BUFF_SHIELD, BUFF_CRIT_RATE, BUFF_CRIT_DAMAGE, DEBUFF ,BUFF_COUNT };
@@ -58,7 +59,7 @@ struct weapon_value{
 static constexpr const char* WEAPON_NAME[] = {"Mud", "Arrow", "Stone Arrow", "Ice Slow", "Poison Arrow", "Piercing Arrow", "Iron Ball", "Fire Ball", "Rocket", "Ice Freeze", "Missile"};
 static constexpr const char* POTION_NAME[] = {"Heal Player", "Heal Castle", "Attack", "Attack Speed", "Shield", "Move Speed", "Regenerate", "Crit Boost"};
 static constexpr int WEAPON_COST[] = {0, 150, 150, 100, 100, 150, 100, 150, 100, 100, 150};  // 11 個
-static constexpr int POTION_COST[] = {30, 30, 30, 30, 40, 20, 30, 40};  // 8 個
+static constexpr int POTION_COST[] = {30, 30, 30, 30, 30, 20, 30, 50};  // 8 個
 
 //   Dmg*  Col*  CritChance  Crit*  CritHp%  Pierce  Slow%  SlowTime  FrezTime  Poison*  PoisonInterval  SplashRange  Splash*
 static constexpr weapon_value WEAPON_VALUES[] = {
@@ -75,9 +76,9 @@ static constexpr weapon_value WEAPON_VALUES[] = {
     {3.0f, 5.0f, 0.10f,      5.0f,  0.0f,    false,  0.0f,  0.0f,     0.0f,     0.0f,    0.0f,           200.0f,      1.0f},   // MISSILE
 };
 //                                             hp,damage, cooldown, jump_force, move_speed, start_golds, max_golds
-static constexpr player_value PLAYER_VALUES = {300.0f, 20.0f, 0.5f, 800.0f, 200.0f, 150, 150};
+static constexpr player_value PLAYER_VALUES = {300.0f, 20.0f, 0.5f, 800.0f, 200.0f, 250, 250};
 //                                             hp
-static constexpr castle_value CASTLE_VALUES = {500.0f};
+static constexpr castle_value CASTLE_VALUES = {600.0f};
 //       name         cost_base,cost_gain
 static constexpr upgrade_value UPGRADE_VALUES[] = {
     {"[1] Attack +3",        20,  5},   // 攻擊力
@@ -118,12 +119,6 @@ class game_factory {
         static projectile create_projectile(Vector2 position, float damage, Vector2 speed) {
             return projectile(position, {10,10}, true, damage, speed);
         }
-        // 商店哥布林
-        static goblin* create_goblin(Vector2 position){
-            return new goblin(position, {62, 80}, true, 500.0f, {-150.0f, 0}, GetRandomValue(10, 40));
-        }
-
-
         // enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型)
         // jump_behavior(地面Y, 小跳力道, 跳躍間隔)
         // jump_behavior(地面Y, 小跳力道, 大跳力道, 跳躍間隔)
@@ -133,7 +128,7 @@ class game_factory {
         // 綠色（小跳）
         static enemy* create_enemy_green(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEGREEN];
-            enemy* e = new enemy(position, {60,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEGREEN, GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            enemy* e = new enemy(position, {60,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEGREEN, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -143,12 +138,12 @@ class game_factory {
         // 黑色（不跳）
         static enemy* create_enemy_black(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEBLACK];
-            return new enemy(position, {94,88}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLACK, GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            return new enemy(position, {94,88}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLACK, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         }
         // 紅色（小跳）
         static enemy* create_enemy_red(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMERED];
-            enemy* e = new enemy(position, {67,60}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMERED, GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            enemy* e = new enemy(position, {67,60}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMERED, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -158,7 +153,7 @@ class game_factory {
         // 紫色（小跳+大跳交替）
         static enemy* create_enemy_purple(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEPURPLE];
-            enemy* e = new enemy(position, {63,61}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEPURPLE, GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            enemy* e = new enemy(position, {63,61}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEPURPLE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -168,26 +163,26 @@ class game_factory {
         // 藍色（buff）
         static enemy* create_enemy_blue(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEBLUE];
-            enemy* e = new enemy(position, {61,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLUE, GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            enemy* e = new enemy(position, {61,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLUE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             e->add_behavior(new buff_behavior(385, 0.5f, 3.0f, 1.1f));
             return e;
         }
         // 天使
         static flying_enemy* create_enemy_angel(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGANGEL];
-            flying_enemy* e = new flying_enemy(position, {88,81}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGANGEL, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            flying_enemy* e = new flying_enemy(position, {88,81}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGANGEL, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             e->add_behavior(new heal_behavior(5.0f*hp_multiplier,0.5f,200));
             return e;
         }
         // 小鳥
         static flying_enemy* create_enemy_bird(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGBIRD];
-            return new flying_enemy(position, {39,37}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGBIRD, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            return new flying_enemy(position, {39,37}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGBIRD, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         }
         // 飛龍（Boss）
         static flying_enemy* create_enemy_dragon(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGDRAGON];
-            return new flying_enemy(position, {136,136}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGDRAGON, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)v.reward.x,(int)v.reward.y));
+            return new flying_enemy(position, {136,136}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGDRAGON, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         } 
 
         // 武器效果
@@ -212,4 +207,22 @@ class game_factory {
                 p.set_splash_damage(w.splash_multi);
             }
         }
+
+
+        // 特殊東東
+
+
+        // 商店哥布林
+        static goblin* create_goblin(Vector2 position){
+            return new goblin(position, {62, 80}, true, 500.0f, {-150.0f, 0}, GetRandomValue(10, 40));
+        }
+        // 勝利王冠
+        static crown* create_crown(Vector2 position, float ground_y){
+            return new crown(position, ground_y);
+        }
+        // 禮物
+        static special_gift* create_special_gift(Vector2 position, float ground_y){
+            return new special_gift(position, ground_y);
+        }
+
 };

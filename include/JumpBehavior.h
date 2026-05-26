@@ -17,8 +17,10 @@ class jump_behavior : public enemy_behavior{
         jump_behavior(float base_y,float small_jump_force, float big_jump_force ,float cooldown):_base_y(base_y),_small_jump_force(small_jump_force),_big_jump_force(big_jump_force),_jump_cooldown(cooldown){}
         
         void apply(enemy &e, float dt) override{
+            if(e.is_frozen()) return;
+            float slow = e.get_slow_multiplier();
             Vector2 enemy_pos = e.get_position();
-            _jump_timer += dt;
+            _jump_timer += dt * slow;
             if(_jump_timer>=_jump_cooldown && enemy_pos.y >= _base_y){
                 _jump_timer = 0;
                 if(_jump_count%2==0 || _big_jump_force == 0){
@@ -28,8 +30,8 @@ class jump_behavior : public enemy_behavior{
                 }
                 _jump_count++;
             }
-            _vertical_speed += _gravity * dt;
-            enemy_pos.y += _vertical_speed * dt;
+            _vertical_speed += _gravity * dt * slow;
+            enemy_pos.y += _vertical_speed * dt * slow;
             if(enemy_pos.y >= _base_y){
                 enemy_pos.y = _base_y;
                 _vertical_speed = 0;
