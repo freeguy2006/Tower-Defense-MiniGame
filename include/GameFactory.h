@@ -2,10 +2,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Castle.h"
-#include "FlyingEnemy.h"
-#include "JumpBehavior.h"
-#include "BuffBehavior.h"
-#include "HealBehavior.h"
+#include "Behaviors.h"
 #include "Projectile.h"
 #include "Goblin.h"
 #include "SpecialThings.h"
@@ -101,8 +98,9 @@ static constexpr enemy_value ENEMY_VALUES[] = {
     { 150.0f,  {50,80},   {6,15},  {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       },  // SLIMEBLUE
     { 170.0f,  {50,70},   {5,10},  {0,0},      {0,0},       {0,0},       {100,160},  {200,250}   },  // FLYINGANGEL
     { 40.0f,   {160,200}, {1,3},   {0,0},      {0,0},       {0,0},       {100,160},  {300,500}   },  // FLYINGBIRD
-    { 1000.0f, {60,80},   {60,100},{0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
-};
+    { 1200.0f, {60,80},   {60,100},{0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
+    { 500.0f,  {0,0},     {3,6},   {0,0},      {0,0},       {0,0},       {100,160},  {150,250}   },  // FLYINGWIND
+}
 
 class game_factory {
     public:
@@ -119,11 +117,13 @@ class game_factory {
         static projectile create_projectile(Vector2 position, float damage, Vector2 speed) {
             return projectile(position, {10,10}, true, damage, speed);
         }
-        // enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型)
+        // enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型, 獎勵金幣)
+        // flying_enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型, 飄動幅度, 飄動速度, 獎勵金幣)
         // jump_behavior(地面Y, 小跳力道, 跳躍間隔)
         // jump_behavior(地面Y, 小跳力道, 大跳力道, 跳躍間隔)
         // buff_behavior(範圍, 減傷倍率, 增傷倍率, 加速倍率)
-        // flying_enemy(位置, 碰撞箱大小, 活著, 血量, 速度, 目標X, 類型, 飄動幅度, 飄動速度)
+        // heal_behavior(治癒量, 治癒冷卻, 治癒範圍)
+        // fall_and_float_behavior(落地目標Y, 飄動幅度, 飄動速度)
 
         // 綠色（小跳）
         static enemy* create_enemy_green(Vector2 position, float hp_multiplier) {
@@ -183,6 +183,13 @@ class game_factory {
         static flying_enemy* create_enemy_dragon(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGDRAGON];
             return new flying_enemy(position, {136,136}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGDRAGON, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+        } 
+        // 風
+        static enemy* create_enemy_wind(Vector2 position, float hp_multiplier) {
+            const auto& v = ENEMY_VALUES[FLYINGWIND];
+            enemy* e = new enemy(position, {106,106}, true, v.hp*hp_multiplier, {0, 0}, 0, FLYINGWIND, GetRandomValue((int)(v.reward.x * hp_multiplier), (int)(v.reward.y * hp_multiplier)));
+            e->add_behavior(new fall_and_float_behavior(GROUND_Y - 106, 25.0f, 4.0f));
+            return e;
         } 
 
         // 武器效果

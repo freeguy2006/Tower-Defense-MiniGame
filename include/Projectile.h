@@ -1,6 +1,4 @@
-// 子彈 (is-a game_object)，自動沿 speed 方向移動
-// 繼承可用: get_position(), set_position(), get_size(), is_active(), get_rect()
-// 自己的: get_damage(), get_speed()
+
 #pragma once
 #include "GameObject.h"
 class projectile : public game_object{

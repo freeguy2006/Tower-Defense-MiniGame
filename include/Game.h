@@ -8,13 +8,10 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Castle.h"
-#include "FlyingEnemy.h"
 #include "Wave.h"
 #include "Projectile.h"
 #include "GameFactory.h"
-#include "BuffBehavior.h"
-#include "JumpBehavior.h"
-#include "HealBehavior.h"
+#include "Behaviors.h"
 #include "Coin.h"
 #include "Goblin.h"
 #include "DamageText.h"
@@ -106,7 +103,7 @@ class game{
         Texture2D _background_texture;
         Texture2D _player_texture;
         Texture2D _coin_texture;
-        Texture2D _enemy_textures[8];
+        Texture2D _enemy_textures[9];
         Texture2D _weapon_textures[WEAPON_COUNT];
         Texture2D _potion_textures[POTION_COUNT];
         Texture2D _shop_goblin_texture;
@@ -119,7 +116,7 @@ class game{
         Music _bgm[7];
         Sound _wave_horn_sfx;
         Sound _get_coin_sfx[3];
-        float _enemy_scale[8] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
+        float _enemy_scale[9] = {1.5f, 2.0f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f};
 
         // 虛擬畫布
         bool _should_quit = false;

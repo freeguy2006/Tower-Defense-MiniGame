@@ -1,6 +1,3 @@
-// 建築基底 (is-a game_object, has-a health)
-// 繼承自 game_object: get_position(), get_size(), set_position(), is_active(), get_rect()
-// 來自 health (has-a): get_hp(), is_alive(), take_damage(float)
 #pragma once
 #include "Health.h"
 #include "GameObject.h"

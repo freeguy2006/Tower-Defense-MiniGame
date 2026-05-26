@@ -1,7 +1,4 @@
-// 玩家 (is-a character)
-// 繼承可用: get_position(), set_position(), get_size(), is_active(), get_rect()
-//          get_hp(), is_alive(), take_damage(float), get_speed(), set_speed()
-// 自己的: get_gravity(), get_jump_force(), get_ground_y(), get_move_speed(), is_on_ground()
+
 #pragma once
 #include "Character.h"
 

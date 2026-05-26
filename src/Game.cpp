@@ -77,6 +77,7 @@ void game::update(float dt){
                     case FLYINGANGEL: _enemies.push_back(game_factory::create_enemy_angel({2500, game_factory::GROUND_Y-GetRandomValue(250,300)}, hpm)); break;
                     case FLYINGBIRD: _enemies.push_back(game_factory::create_enemy_bird({2500, game_factory::GROUND_Y-GetRandomValue(300,550)}, hpm)); break;
                     case FLYINGDRAGON: _enemies.push_back(game_factory::create_enemy_dragon({2500, game_factory::GROUND_Y-GetRandomValue(300,500)}, hpm)); break;
+                    case FLYINGWIND: _enemies.push_back(game_factory::create_enemy_wind({(float)GetRandomValue(1000, 2200), -150.0f}, hpm)); break;
                 }
                 
                 _enemies_spawned++;
@@ -625,6 +626,7 @@ void game::init(){
     _enemy_textures[FLYINGANGEL] = LoadTexture("resources/object/monster/angel_2.png");
     _enemy_textures[FLYINGBIRD] = LoadTexture("resources/object/monster/bird_24.png");
     _enemy_textures[FLYINGDRAGON] = LoadTexture("resources/object/monster/dragon_2.png");
+    _enemy_textures[FLYINGWIND] = LoadTexture("resources/object/monster/angel_1.png");
     _castle_texture = LoadTexture("resources/object/castle.png");
     _background_texture = LoadTexture("resources/background/background.png");
     _player_texture = LoadTexture("resources/object/player_archer.png");
@@ -728,7 +730,7 @@ void game::reset(){
 
 // close 
 void game::close(){
-    for(int i = 0; i < 8; i++) UnloadTexture(_enemy_textures[i]);
+    for(int i = 0; i < 9; i++) UnloadTexture(_enemy_textures[i]);
     UnloadTexture(_castle_texture);
     UnloadTexture(_background_texture);
     UnloadTexture(_player_texture);
@@ -761,7 +763,8 @@ void game::load_waves(const char* path){
         {"SP", SLIMEPURPLE},
         {"FA", FLYINGANGEL},
         {"FB", FLYINGBIRD},
-        {"FD", FLYINGDRAGON}
+        {"FD", FLYINGDRAGON},
+        {"FW", FLYINGWIND}
     };
     std::ifstream file(path);
     std::string line;

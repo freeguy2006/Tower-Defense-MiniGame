@@ -1,5 +1,4 @@
-// 抽象基底，所有遊戲物件的根類別
-// 可用: get_position(), get_size(), set_position(Vector2), is_active(), get_rect(), update(float dt)
+
 #pragma once // 引入一次
 #include "raylib.h"
 class game_object {

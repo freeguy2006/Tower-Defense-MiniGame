@@ -1,5 +1,4 @@
-// 獨立元件，用 has-a 組合進其他 class
-// 可用: get_hp(), is_alive(), take_damage(float)
+
 #pragma once
 class health{
     private:
