@@ -1,8 +1,9 @@
 #pragma once
-#include "Enemy.h"
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include "Enemy.h"
+#include "BehaviorAbstract.h"
 
 // ==========================================
 // 1. Jump Behavior (跳躍行為)

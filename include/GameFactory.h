@@ -1,8 +1,10 @@
 #pragma once
 #include "Player.h"
 #include "Enemy.h"
-#include "Castle.h"
+#include "EnemyLand.h"
+#include "EnemySky.h"
 #include "Behaviors.h"
+#include "Castle.h"
 #include "Projectile.h"
 #include "Goblin.h"
 #include "SpecialThings.h"
@@ -39,16 +41,16 @@ struct castle_value{
 struct weapon_value{
     float damage_multi;       // 傷害倍率
     float cooldown_multi;     // 攻速倍率 (<1 更快, >1 更慢)
-    float crit_chance;       // 暴擊機率
+    float crit_chance;        // 暴擊機率
     float crit_multi;         // 暴擊倍率
-    float crit_hp_percent;   // HP% 暴擊
-    bool  piercing;          // 穿透
-    float slow_percent;      // 緩速%
-    float slow_duration;     // 緩速時間
-    float freeze_duration;   // 冰凍時間
+    float crit_hp_percent;    // HP% 暴擊
+    bool  piercing;           // 穿透
+    float slow_percent;       // 緩速%
+    float slow_duration;      // 緩速時間
+    float freeze_duration;    // 冰凍時間
     float poison_multi;       // 毒傷倍率 (乘以 damage)
-    float poison_interval;   // 毒間隔
-    float splash_range;      // 範圍傷害範圍
+    float poison_interval;    // 毒間隔
+    float splash_range;       // 範圍傷害範圍
     float splash_multi;       // 範圍傷害倍率 (乘以 damage)
 };
 
@@ -78,7 +80,7 @@ static constexpr player_value PLAYER_VALUES = {300.0f, 20.0f, 0.5f, 800.0f, 200.
 static constexpr castle_value CASTLE_VALUES = {600.0f};
 //       name         cost_base,cost_gain
 static constexpr upgrade_value UPGRADE_VALUES[] = {
-    {"[1] Attack +3",        20,  5},   // 攻擊力
+    {"[1] Attack +5",        20,  5},   // 攻擊力
     {"[2] Player HP +100",   20,  5},   // 玩家血量
     {"[3] Castle HP +100",   20,  5},   // 城堡血量
     {"[4] Max Gold +100",    50,  50},   // 金幣上限
@@ -128,7 +130,7 @@ class game_factory {
         // 綠色（小跳）
         static enemy* create_enemy_green(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEGREEN];
-            enemy* e = new enemy(position, {60,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEGREEN, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            enemy* e = new land_enemy(position, {60,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEGREEN, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -138,12 +140,12 @@ class game_factory {
         // 黑色（不跳）
         static enemy* create_enemy_black(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEBLACK];
-            return new enemy(position, {94,88}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLACK, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            return new land_enemy(position, {94,88}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLACK, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         }
         // 紅色（小跳）
         static enemy* create_enemy_red(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMERED];
-            enemy* e = new enemy(position, {67,60}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMERED, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            enemy* e = new land_enemy(position, {67,60}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMERED, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -153,7 +155,7 @@ class game_factory {
         // 紫色（小跳+大跳交替）
         static enemy* create_enemy_purple(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEPURPLE];
-            enemy* e = new enemy(position, {63,61}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEPURPLE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            enemy* e = new land_enemy(position, {63,61}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEPURPLE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             if(v.jump_small.x > 0){
                 if(v.jump_big.x > 0) e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_big.x,(int)v.jump_big.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
                 else e->add_behavior(new jump_behavior(position.y, (float)GetRandomValue((int)v.jump_small.x,(int)v.jump_small.y), (float)GetRandomValue((int)v.jump_cooldown.x,(int)v.jump_cooldown.y)/100.0f));
@@ -163,31 +165,31 @@ class game_factory {
         // 藍色（buff）
         static enemy* create_enemy_blue(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[SLIMEBLUE];
-            enemy* e = new enemy(position, {61,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLUE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            enemy* e = new land_enemy(position, {61,54}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, SLIMEBLUE, GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             e->add_behavior(new buff_behavior(385, 0.5f, 3.0f, 1.1f));
             return e;
         }
         // 天使
-        static flying_enemy* create_enemy_angel(Vector2 position, float hp_multiplier) {
+        static enemy* create_enemy_angel(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGANGEL];
-            flying_enemy* e = new flying_enemy(position, {88,81}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGANGEL, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            enemy* e = new sky_enemy(position, {88,81}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGANGEL, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
             e->add_behavior(new heal_behavior(5.0f*hp_multiplier,0.5f,200));
             return e;
         }
         // 小鳥
-        static flying_enemy* create_enemy_bird(Vector2 position, float hp_multiplier) {
+        static enemy* create_enemy_bird(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGBIRD];
-            return new flying_enemy(position, {39,37}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGBIRD, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            return new sky_enemy(position, {39,37}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGBIRD, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         }
         // 飛龍（Boss）
-        static flying_enemy* create_enemy_dragon(Vector2 position, float hp_multiplier) {
+        static enemy* create_enemy_dragon(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGDRAGON];
-            return new flying_enemy(position, {136,136}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGDRAGON, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
+            return new sky_enemy(position, {136,136}, true, v.hp*hp_multiplier, {-(float)GetRandomValue((int)v.speed.x,(int)v.speed.y),0}, 0, FLYINGDRAGON, (float)GetRandomValue((int)v.fly_amplitude.x,(int)v.fly_amplitude.y),(float)GetRandomValue((int)v.fly_speed.x,(int)v.fly_speed.y)/100.0f,GetRandomValue((int)(v.reward.x * hp_multiplier),(int)(v.reward.y * hp_multiplier)));
         } 
         // 風
         static enemy* create_enemy_wind(Vector2 position, float hp_multiplier) {
             const auto& v = ENEMY_VALUES[FLYINGWIND];
-            enemy* e = new enemy(position, {106,106}, true, v.hp*hp_multiplier, {0, 0}, 0, FLYINGWIND, GetRandomValue((int)(v.reward.x * hp_multiplier), (int)(v.reward.y * hp_multiplier)));
+            enemy* e = new land_enemy(position, {106,106}, true, v.hp*hp_multiplier, {0, 0}, 0, FLYINGWIND, GetRandomValue((int)(v.reward.x * hp_multiplier), (int)(v.reward.y * hp_multiplier)));
             e->add_behavior(new fall_and_float_behavior(GROUND_Y - 106, 25.0f, 4.0f));
             return e;
         } 

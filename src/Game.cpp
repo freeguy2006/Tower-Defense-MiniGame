@@ -536,10 +536,17 @@ void game::draw(){
     DrawRectangleRec({2350 - gold_bar_width, 20, gold_bar_width, 30}, GOLD);
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 2060, 20, 30, BLACK);
     // 殺敵數
-    DrawText(TextFormat("Kills: %d",_kill_count),1100,20,40,BLACK);
+    DrawText(TextFormat("Kills: %d",_kill_count),1200,20,40,BLACK);
     // 第幾波
-    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1400,20,40,BLACK );
-    
+    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1600,20,40,BLACK );
+    // 倍率
+    float hpm = _waves[_current_wave].get_hp_multiplier();
+    float factor = (hpm - 1.0f) / 10.0f;
+    if (factor < 0.0f) factor = 0.0f;
+    if (factor > 1.0f) factor = 1.0f;
+    unsigned char val = (unsigned char)(factor * 255.0f);
+    Color x = { val, 0, 0, 255};
+    DrawText(TextFormat("Enemy HP x%.1f", hpm), 1600, 70, 30, x);
     
     //_shop_goblin   
     if(_shop_goblin != nullptr)  DrawTextureEx(_shop_goblin_texture, _shop_goblin->get_position(), 0, 0.2f, WHITE);
@@ -756,15 +763,15 @@ void game::close(){
 // load waves from  "resources\levels.txt"
 void game::load_waves(const char* path){
     std::map<std::string, enemy_type> string_to_type = {
-        {"SG", SLIMEGREEN},
-        {"SK", SLIMEBLACK},
-        {"SR", SLIMERED},
-        {"SB", SLIMEBLUE},
-        {"SP", SLIMEPURPLE},
-        {"FA", FLYINGANGEL},
-        {"FB", FLYINGBIRD},
-        {"FD", FLYINGDRAGON},
-        {"FW", FLYINGWIND}
+        {"LGN", SLIMEGREEN},
+        {"LBK", SLIMEBLACK},
+        {"LRD", SLIMERED},
+        {"LBE", SLIMEBLUE},
+        {"LPE", SLIMEPURPLE},
+        {"SAL", FLYINGANGEL},
+        {"SBD", FLYINGBIRD},
+        {"SDN", FLYINGDRAGON},
+        {"SWD", FLYINGWIND}
     };
     std::ifstream file(path);
     std::string line;
@@ -890,7 +897,7 @@ void game::handle_pause(){
     DrawText(TextFormat("Gold: %d / %d", _golds, _max_golds), 1500, 690, 60, GOLD);
     DrawText("Press ESC to continue", 1500, 760, 40, DARKGRAY);
     if(IsKeyPressed(KEY_ONE) && _golds >= cost[0]){
-        _golds -= cost[0]; _player_damage += 3.0f; _player_level[0]++;
+        _golds -= cost[0]; _player_damage += 5.0f; _player_level[0]++;
     }
     if(IsKeyPressed(KEY_TWO) && _golds >= cost[1]){
         _golds -= cost[1]; _player.increase_max_hp(100); _player_level[1]++;

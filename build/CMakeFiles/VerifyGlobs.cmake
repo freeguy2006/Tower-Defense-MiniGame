@@ -4,6 +4,7 @@
 # GAME_SOURCES at CMakeLists.txt:18 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/*.h")
 set(OLD_GLOB
+  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/BehaviorAbstract.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Behaviors.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Building.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Castle.h"
@@ -11,6 +12,8 @@ set(OLD_GLOB
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Coin.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/DamageText.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Enemy.h"
+  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/EnemyLand.h"
+  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/EnemySky.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Game.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/GameFactory.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/GameObject.h"

@@ -20,21 +20,22 @@
 | 1~7 | 購買升級 |
 | Enter | 開始 / 繼續 (教學頁面狂按 50 下解鎖彩蛋) |
 | G | 教學 |
-| H | Debug 碰撞箱 (顯示綠色 AABB 框線) |
+| H | Debug 碰撞箱 (顯示 AABB 綠色框線) |
 | F | 回饋表單 |
 
-## 敵人（8 種）
+## 敵人（9 種）
 
-| 名稱 | 血量 | 速度 | 特色 |
-|------|------|------|------|
-| 綠色史萊姆 | 70 | 快 | 小跳 |
-| 黑色史萊姆 | 500 | 慢 | 高血量坦克 |
-| 紅色史萊姆 | 40 | 極快 | 小跳 |
-| 紫色史萊姆 | 200 | 中 | 小跳 + 大跳交替 |
-| 藍色史萊姆 | 150 | 中 | 光環：增傷 + 加速 + 減傷 |
-| 天使 | 170 | 中 | 飛行 + 範圍治療 |
-| 小鳥 | 40 | 快 | 快速飛行 |
-| 飛龍 | 1000 | 慢 | Boss 級飛行 |
+| 名稱 | 代號 | 血量 | 速度 | 特色 |
+|------|------|------|------|------|
+| 綠色史萊姆 | **LGN** | 70 | 快 | 陸地移動 + 小跳 |
+| 黑色史萊姆 | **LBK** | 500 | 慢 | 陸地移動 + 高血量坦克 |
+| 紅色史萊姆 | **LRD** | 40 | 極快 | 陸地移動 + 小跳 |
+| 紫色史萊姆 | **LPE** | 200 | 中 | 陸地移動 + 小跳與大跳交替 |
+| 藍色史萊姆 | **LBE** | 150 | 中 | 陸地移動 + 增傷/加速/減傷光環 |
+| 天使 | **SAL** | 170 | 中 | 天空飛行 + 範圍治療 |
+| 小鳥 | **SBD** | 40 | 快 | 天空飛行 + 快速移動 |
+| 飛龍 | **SDN** | 1200 | 慢 | Boss 級天空飛行 |
+| 旋風怪 | **SWD** | 500 | 靜止 | 下墜落定後提供 X 軸大範圍牽引風暴 |
 
 ## 武器（11 種）
 
@@ -86,60 +87,75 @@
 *   **動態波次金幣加成**：怪獸身上掉落的金幣與該波次難度倍率 `hp_multiplier` 掛鉤，隨著遊戲難度提升，後期怪物掉落的金幣金額將動態成倍遞增！
 *   **關卡勝利王冠**：當最後一波怪物全數剿滅後，天空中會緩緩落下一頂**金色勝利王冠**。玩家必須親自走過去碰撞王冠才能觸發最後的勝利畫面，帶來極致的通關儀式感！
 
-## 波次系統
+## 波次系統與配置
 
-從 `resources/levels.txt` 讀取，可用 `resources/level_editor.html` 視覺化編輯。
+關卡資訊從 `resources/levels.txt` 讀取，並可透過 `resources/level_editor.html` 進行高質感的視覺化滑鼠拖曳編輯。
 
-語法：`cooldown 怪物代號*數量`
+語法：`cooldown 怪物代號*數量`（例如：`0.6 SBD*10` 代表間隔 0.6 秒生成 10 隻小鳥）
 
-代號：SG(綠) SK(黑) SR(紅) SP(紫) SB(藍) FA(天使) FB(小鳥) FD(飛龍)
+**九大系統代號對照表：**
+*   **陸地怪系列 (Land)**：`LGN`(綠) 、 `LBK`(黑) 、 `LRD`(紅) 、 `LBE`(藍) 、 `LPE`(紫)
+*   **天空怪系列 (Sky)**：`SAL`(天使) 、 `SBD`(小鳥) 、 `SDN`(飛龍) 、 `SWD`(風)
 
-## 架構
+---
+
+## 🏛️ 專案實體檔案結構 (Clean Architecture)
 
 ```
-main.cpp         → game g; g.init(); g.run(); g.close();
-Game.h/.cpp      → 遊戲主邏輯、狀態管理、碰撞、商店、音樂、RenderTexture
-GameFactory.h    → 工廠模式 + 所有遊戲數值 constexpr 定義
-Player.h/.cpp    → 玩家（移動、跳躍、攻擊）
-Enemy.h          → 地面敵人（含狀態效果：緩速/冰凍/中毒）
-FlyingEnemy.h    → 飛行敵人（sin 波飄動）
-EnemyBehavior.h  → 行為介面（策略模式）
-JumpBehavior.h   → 跳躍行為
-BuffBehavior.h   → 光環 Buff
-HealBehavior.h   → 範圍治療
-Projectile.h     → 子彈（穿透/緩速/冰凍/毒/範圍/暴擊）
-DamageText.h     → 傷害數字飄出
-Wave.h           → 波次資料
-Coin.h           → 金幣
-Goblin.h         → 哥布林商店 NPC
-SpecialThings.h  → 特殊地圖物件（勝利皇冠、神秘禮物盒，繼承自 GameObject）
-Castle.h / Building.h / Character.h / GameObject.h / Health.h → 基礎類別
+main.cpp             → 遊戲進入點：生命週期管理 g.init() -> g.run() -> g.close()
+Game.h/.cpp          → 遊戲中央核心：主循環、碰撞判定、渲染緩衝、UI、音樂與狀態機
+GameFactory.h        → 物件創始工廠：透過靜態成員與多元多型統一實例化與 constexpr 配置
+Player.h/.cpp        → 玩家實體：實作輸入、物理位移、重力跳躍與武器發射
+BehaviorAbstract.h   → 核心解耦行為抽象介面：用於切斷 Behavior <-> Enemy 循環包含依賴鏈
+Behaviors.h          → 行為實現類別庫：JumpBehavior, BuffBehavior, HealBehavior, FallAndFloatBehavior 策略模式實現
+Enemy.h              → 敵人純抽象基底類別：封裝 Buff/Debuff（冰/緩/毒）狀態，宣告純虛擬更新行為
+EnemyLand.h          → 陸地怪具體衍生類別：實作地面水平移動與策略行為觸發
+EnemySky.h           → 天空怪具體衍生類別：實作天空正弦波 2D 位移與策略行為觸發
+Projectile.h         → 投射物：高度擴充的子彈類別（可選穿透、範圍爆炸、緩速、冰凍、疊毒、HP%暴擊）
+DamageText.h         → 傷害漂浮文字：動態漸變傷害數值視覺表現
+Wave.h               → 關卡波次載體
+Coin.h               → 金幣實體
+Goblin.h             → 商店哥布林 NPC
+SpecialThings.h      → 物理互動地圖物件（金王冠、彩蛋禮物盒，繼承自 GameObject）
+Castle.h / Building.h / Character.h / GameObject.h / Health.h  → 基礎繼承物件層級與防護核心
 ```
 
-## OOP 概念
+---
 
-- **繼承**：GameObject → Character → Player / Enemy → FlyingEnemy
-- **多型**：virtual update()、virtual ~enemy()
-- **組合**：Character has-a Health、Enemy has-a Behavior[]
-- **策略模式**：EnemyBehavior + Jump / Buff / Heal
-- **工廠模式**：GameFactory 統一建立物件
-- **狀態機**：game_statement（START → TUTORIAL → PLAYING → PAUSE → WIN / LOSE）
+## 💎 OOP 與軟體工程高級設計觀念 (OOP & Design Patterns)
+
+為了體現極致的軟體品質，本專案在物件導向程式設計（OOP）與設計模式（Design Patterns）上進行了精雕細琢：
+
+*   **純抽象基底類別與動態繫結 (Dynamic Binding)**：
+    `class enemy` 被重構為純抽象基底類別（Abstract Base Class），將更新邏輯定義為純虛擬函式 `virtual void update(float dt) = 0;`。並由 `land_enemy` 與 `sky_enemy` 進行平行繼承覆寫。主遊戲只透過 `enemy*` 基底指標進行控制，實踐里氏替換原則（Liskov Substitution Principle）。
+*   **策略模式 (Strategy Pattern)**：
+    敵人的特殊行為（小跳、大跳、範圍治療、屬性光環、落地風暴）全部抽離為 `enemy_behavior` 策略介面。這使得任意怪物都可以藉由 `add_behavior` 在執行期（Runtime）動態組合、掛載不同的行為策略，具備強大的擴充性。
+*   **記憶體管理安全性 (Memory Safety)**：
+    基底類別寫死 `virtual ~enemy()` 虛擬解構子，確保多型刪除 `delete enemy_ptr` 時能 100% 誘發衍生類別與掛載 Behaviors 的解構釋放，達成 **0 記憶體洩漏**。
+*   **多層包含無環依賴 (DAG Include Structure)**：
+    本專案透過 `BehaviorAbstract.h` 前置宣告打破了傳統 C++ 設計中「行為需要敵人、敵人需要行為」的循環包含（Circular Include）致命死結，整理出乾淨的包含單向鏈。
+*   **組合大於繼承 (Composition over Inheritance)**：
+    `Character` 組合了 `Health`（血量元件）；`Enemy` 組合了 `std::vector<enemy_behavior*>`，將複雜功能交由專職物件處理，避免類別膨脹。
+*   **狀態模式 (State Machine)**：
+    利用 `game_statement` 有限狀態機（START $\rightarrow$ TUTORIAL $\rightarrow$ PLAYING $\rightarrow$ PAUSE $\rightarrow$ WIN / LOSE），完美管理遊戲的生命週期與轉移邏輯。
+
+---
 
 ## 資源結構
 
 ```
 resources/
-├── background/     — 背景圖片
-├── object/         — 所有遊戲物件圖片（玩家、敵人、武器、藥水、城堡、金幣、哥布林）
-├── monster/        — 怪物動畫幀（angel / bird / dragon）
+├── background/       — 背景圖片
+├── object/           — 所有遊戲物件圖片（玩家、敵人、武器、藥水、城堡、金幣、哥布林）
+├── monster/          — 怪物動畫幀（angel / bird / dragon）
 ├── music/
-│   ├── BGM/        — 7 首 GameBoy 風格背景音樂
+│   ├── BGM/          — 7 首 GameBoy 風格背景音樂
 │   └── SoundEffect/
-│       ├── get-coin/   — 撿金幣音效
-│       └── wave-horn/  — 波次開始號角
-├── other/          — 備用素材
-├── levels.txt      — 關卡設定
-└── level_editor.html — HTML 關卡編輯器
+│       ├── get-coin/ — 撿金幣音效
+│       └── wave-horn/— 波次開始號角
+├── other/            — 備用素材
+├── levels.txt        — 關卡設定
+└── level_editor.html — HTML 視覺化關卡編輯器
 ```
 
 ## 編譯與執行
