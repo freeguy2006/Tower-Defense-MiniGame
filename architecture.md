@@ -7,13 +7,9 @@
 ## 1. 新增核心擴展機制 (Advanced Systems)
 
 ### 1.1 新手教學神秘禮物盒 Easter Egg 系統 (Mystery Gift Box)
-*   **觸發源起 (Trigger)**：玩家在新手教學（`TUTORIAL` 狀態）畫面中，按 `Enter` 鍵累計超過 **50 次**，會觸發解鎖標記 `_is_gift_active = true`。
-*   **物理下落 (Physics)**：當玩家回到主選單並開戰（`PLAYING` 狀態）時，系統會調用 `game_factory::create_special_gift` 於天空中 `{1500, -100}` 生成一個禮物盒 `_special_gift`，並以重力（$800\text{ px/s}^2$）物理模擬下落，精準著陸於地表。
-*   **領取判定 (Collision)**：基於 Raylib 的 `CheckCollisionRecs` AABB 碰撞箱偵測。當玩家角色碰觸到禮物盒時，立刻銷毀物件並釋放記憶體，同時觸發無敵獎勵：
-    *   **金幣與上限**：直接拉滿至 **`9999`**
-    *   **玩家生命與上限**：利用 `increase_max_hp` 對齊並補血至 **`9999`**
-    *   **城堡生命與上限**：同樣提升並回滿至 **`9999`**
-    *   **玩家攻擊力**：永久暴增 **`+200.0f`**
+*   **觸發源起 (Trigger)**：系統內部監聽新手教學（`TUTORIAL` 狀態）下的特定使用者行為次數。一旦觸發，將標記全局解鎖旗標 `_is_gift_active = true`。
+*   **物理下落 (Physics)**：當玩家回到主選單並正式開戰（`PLAYING` 狀態）時，若旗標為真，系統會調用 `game_factory::create_special_gift` 於天空中特定座標生成一個禮物盒 `_special_gift`，並應用重力物理模擬（$800\text{ px/s}^2$）使其下墜，精準著陸於地表。
+*   **領取判定與回饋 (Collision & Rewards)**：基於 Raylib 的 `CheckCollisionRecs` AABB 碰撞箱偵測。當玩家角色碰觸到禮物盒時，立刻銷毀物件並釋放記憶體，同時觸發屬性補滿與能力值永久暴增的超大驚喜福利，詳情留待玩家在遊戲中自行探索。
 
 ### 1.2 勝利皇冠下落機制 (Victory Crown Drop)
 *   **觸發源起**：當玩家撐過最後一波（全部波次結束且畫面上沒有任何敵人）時，勝利王冠會從空中降落。
@@ -117,7 +113,7 @@ classDiagram
     *   **`SAL`** (Sky Angel)：天使（範圍治療）
     *   **`SBD`** (Sky Bird)：小鳥（高速正弦波飛行）
     *   **`SDN`** (Sky Dragon)：飛龍（Boss 級巨型飛行物）
-    *   **`SWD`** (Sky Wind)：旋風怪（墜地落定後提供 X 軸物理狂風牽引）
+    *   **`SWD`** (Sky Wind)：旋風怪（急速下墜驚嚇並襲擊玩家，隨後落定於地面微幅漂浮）
 
 ---
 
