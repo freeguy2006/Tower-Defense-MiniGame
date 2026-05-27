@@ -631,12 +631,14 @@
     }
 
     /* ── DRAG OVER ── */
-    .spawn-row.drag-over {
-      border-color: var(--accent);
-      background: var(--hover);
+    .spawn-row.drag-over,
+    .wave-item.drag-over {
+      border-color: var(--accent) !important;
+      background: var(--hover) !important;
     }
 
-    .spawn-row.dragging {
+    .spawn-row.dragging,
+    .wave-item.dragging {
       opacity: 0.4;
     }
 
@@ -682,9 +684,16 @@
         <span id="wave-count-label" style="font-size:0.8rem;color:var(--muted)">0 波</span>
       </div>
       <div class="wave-list" id="wave-list"></div>
-      <div class="sidebar-footer">
-        <button class="btn btn-primary btn-sm" onclick="addWave()">＋ 新增波次</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteWave()">✕ 刪除</button>
+      <div class="sidebar-footer" style="flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 6px; width: 100%;">
+          <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="addWave()" title="新增空白波次">＋ 新增</button>
+          <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="duplicateWave()" title="複製並插入所選波次">📋 複製</button>
+          <button class="btn btn-danger btn-sm" style="flex: 1;" onclick="deleteWave()" title="刪除所選波次">✕ 刪除</button>
+        </div>
+        <div style="display: flex; gap: 6px; width: 100%;">
+          <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="moveWaveUp()" title="將所選波次向上移動">▲ 上移</button>
+          <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="moveWaveDown()" title="將所選波次向下移動">▼ 下移</button>
+        </div>
       </div>
     </aside>
 
@@ -804,13 +813,47 @@
       waves.forEach((wave, i) => {
         const div = document.createElement('div');
         div.className = 'wave-item' + (i === selectedIdx ? ' active' : '');
+        div.draggable = true;
         div.innerHTML = `
       <div class="wave-num">${i + 1}</div>
-      <div>
+      <div style="flex: 1; min-width: 0;">
         <div style="font-size:0.85rem;font-weight:600">波次 ${i + 1}</div>
         <div class="wave-summary">${waveSummary(wave)}</div>
       </div>`;
         div.onclick = () => selectWave(i);
+
+        // HTML5 Drag and Drop events for Wave items reordering
+        div.addEventListener('dragstart', e => {
+          dragSrcIdx = i;
+          div.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', i);
+        });
+        div.addEventListener('dragend', () => {
+          div.classList.remove('dragging');
+          document.querySelectorAll('.wave-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+        div.addEventListener('dragover', e => {
+          e.preventDefault();
+          div.classList.add('drag-over');
+          e.dataTransfer.dropEffect = 'move';
+        });
+        div.addEventListener('dragleave', () => {
+          div.classList.remove('drag-over');
+        });
+        div.addEventListener('drop', e => {
+          e.preventDefault();
+          div.classList.remove('drag-over');
+          const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+          if (fromIdx !== undefined && fromIdx !== null && fromIdx !== i && !isNaN(fromIdx)) {
+            const [moved] = waves.splice(fromIdx, 1);
+            waves.splice(i, 0, moved);
+            selectedIdx = i;
+            renderAll();
+            showToast(`已將波次移動到位置 ${i + 1}`);
+          }
+        });
+
         list.appendChild(div);
       });
       document.getElementById('wave-count-label').textContent = `${waves.length} 波`;
@@ -1032,12 +1075,54 @@
       wl.scrollTop = wl.scrollHeight;
     }
 
+    function duplicateWave() {
+      if (selectedIdx < 0 || selectedIdx >= waves.length) { showToast('請先選擇要複製的波次', '#f44336'); return; }
+      const original = waves[selectedIdx];
+      const copy = {
+        hpMult: original.hpMult,
+        items: original.items.map(item => ({ ...item }))
+      };
+      waves.splice(selectedIdx + 1, 0, copy);
+      selectedIdx = selectedIdx + 1;
+      renderAll();
+      showToast('已複製波次！');
+      scrollToSelectedWave();
+    }
+
     function deleteWave() {
       if (selectedIdx < 0 || selectedIdx >= waves.length) { showToast('請先選擇要刪除的波次', '#f44336'); return; }
       if (!confirm(`確定要刪除波次 ${selectedIdx + 1}？`)) return;
       waves.splice(selectedIdx, 1);
       if (selectedIdx >= waves.length) selectedIdx = waves.length - 1;
       renderAll();
+      showToast('波次已刪除');
+    }
+
+    function moveWaveUp() {
+      if (selectedIdx <= 0 || selectedIdx >= waves.length) return;
+      const [moved] = waves.splice(selectedIdx, 1);
+      waves.splice(selectedIdx - 1, 0, moved);
+      selectedIdx = selectedIdx - 1;
+      renderAll();
+      scrollToSelectedWave();
+    }
+
+    function moveWaveDown() {
+      if (selectedIdx < 0 || selectedIdx >= waves.length - 1) return;
+      const [moved] = waves.splice(selectedIdx, 1);
+      waves.splice(selectedIdx + 1, 0, moved);
+      selectedIdx = selectedIdx + 1;
+      renderAll();
+      scrollToSelectedWave();
+    }
+
+    function scrollToSelectedWave() {
+      setTimeout(() => {
+        const activeEl = document.querySelector('.wave-item.active');
+        if (activeEl) {
+          activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      }, 50);
     }
 
     function addEnemy(code) {

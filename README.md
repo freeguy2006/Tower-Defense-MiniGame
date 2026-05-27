@@ -100,7 +100,7 @@
 
 ---
 
-## 🏛️ 專案實體檔案結構 (Clean Architecture)
+## 專案實體檔案結構 (Clean Architecture)
 
 ```
 main.cpp             → 遊戲進入點：生命週期管理 g.init() -> g.run() -> g.close()
@@ -123,7 +123,7 @@ Castle.h / Building.h / Character.h / GameObject.h / Health.h  → 基礎繼承�
 
 ---
 
-## 💎 OOP 與軟體工程高級設計觀念 (OOP & Design Patterns)
+## OOP 與軟體工程高級設計觀念 (OOP & Design Patterns)
 
 為了體現極致的軟體品質，本專案在物件導向程式設計（OOP）與設計模式（Design Patterns）上進行了精雕細琢：
 
@@ -142,21 +142,31 @@ Castle.h / Building.h / Character.h / GameObject.h / Health.h  → 基礎繼承�
 
 ---
 
-## 資源結構
+## 資源結構 (Asset Architecture)
+
+本遊戲的資源層級設計精美、分類井然有序，完整的實體資料夾結構如下：
 
 ```
 resources/
-├── background/       — 背景圖片
-├── object/           — 所有遊戲物件圖片（玩家、敵人、武器、藥水、城堡、金幣、哥布林）
-├── monster/          — 怪物動畫幀（angel / bird / dragon）
-├── music/
-│   ├── BGM/          — 7 首 GameBoy 風格背景音樂
-│   └── SoundEffect/
-│       ├── get-coin/ — 撿金幣音效
-│       └── wave-horn/— 波次開始號角
-├── other/            — 備用素材
-├── levels.txt        — 關卡設定
-└── level_editor.html — HTML 視覺化關卡編輯器
+├── background/       — 遊戲主戰場高清像素背景圖片 (白天/夜晚雙場景)
+├── effect/           — 玩家狀態強化 (Buff) 與減益 (Debuff) 視覺特效圖片
+├── monster/          — 天空飛行怪物的動態序列影格資料夾 (幀動畫渲染)
+│   ├── angel/        — 天使 (SAL) 的飛行翼動精靈圖序列影格
+│   ├── bird/         — 小鳥 (SBD) 的快速拍翅精靈圖序列影格
+│   └── dragon/       — 飛龍 (SDN) 的龐大龍翼煽動精靈圖序列影格
+├── music/            — 遊戲音訊資源庫
+│   ├── BGM/          — 7 首 GameBoy 風格的 8-bit 高音質背景音樂 (BGM)
+│   └── SoundEffect/  — 核心互動物理音效 (拾取金幣 / 波次開始號角)
+├── object/           — 核心遊戲動態/靜態實體貼圖 (已進行貼邊裁剪)
+│   ├── coin/         — 金幣物理拋物線旋轉序列影格
+│   ├── monster/      — 九大系統怪物的獨立精靈圖 (已對齊 AABB 碰撞箱)
+│   ├── potion/       — 商店販售的八種奇幻藥水瓶 Icon 貼圖
+│   ├── shop/         — 商店 NPC (哥布林商人) 與其他裝飾素材
+│   ├── special/      — 特殊地圖物理互動實體 (勝利王冠與彩蛋禮物盒)
+│   └── weapon/       — 十一種投射物武器 Icon 與飛行子彈素材
+├── other/            — 專案備用/開發備忘素材
+├── levels.txt        — 關卡怪物波次生成設定文字檔 (新代號體系)
+└── level_editor.html — HTML5 視覺化關卡編輯器 (支援滑鼠拖曳、即時預覽、一鍵導出 TXT)
 ```
 
 ## 編譯與執行

@@ -14,6 +14,7 @@ set(OLD_GLOB
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Enemy.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/EnemyLand.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/EnemySky.h"
+  "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/FallingObject.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/Game.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/GameFactory.h"
   "D:/大學/政大 課程/大一下/物件導向程式設計_紀明德/final_project/raylib-dev-template/include/GameObject.h"

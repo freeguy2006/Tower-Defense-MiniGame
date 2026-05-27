@@ -136,16 +136,11 @@ class game{
     public:
         game();
         ~game(){
-            for(int i = 0;i<_enemies.size();i++){
-                delete _enemies[i];
-            }
+            for(int i = 0;i<_enemies.size();i++) delete _enemies[i];
             _enemies.clear();
-            if(_shop_goblin!=nullptr){
-                delete _shop_goblin;
-            }
-            if(_special_gift!=nullptr){
-                delete _special_gift;
-            }
+            if(_shop_goblin!=nullptr) delete _shop_goblin;
+            if(_special_gift!=nullptr)  delete _special_gift;
+            if(_victory_crown!=nullptr) delete _victory_crown;
         }
         void init();
         void close();

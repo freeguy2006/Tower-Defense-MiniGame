@@ -538,9 +538,18 @@ void game::draw(){
     // 殺敵數
     DrawText(TextFormat("Kills: %d",_kill_count),1200,20,40,BLACK);
     // 第幾波
-    DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1600,20,40,BLACK );
+    if(_current_wave < _waves.size()){
+        DrawText(TextFormat("Wave: %d / %d", _current_wave+1 , (int)_waves.size()),1600,20,40,BLACK );
+    }else{
+        DrawText(TextFormat("Wave: %d / %d", (int)_waves.size() , (int)_waves.size()),1600,20,40,BLACK );
+    }
     // 倍率
-    float hpm = _waves[_current_wave].get_hp_multiplier();
+    float hpm = 1.0f;
+    if(_current_wave < _waves.size()){
+        hpm = _waves[_current_wave].get_hp_multiplier();
+    }else if(!_waves.empty()){
+        hpm = _waves.back().get_hp_multiplier();
+    }
     float factor = (hpm - 1.0f) / 10.0f;
     if (factor < 0.0f) factor = 0.0f;
     if (factor > 1.0f) factor = 1.0f;
@@ -763,15 +772,15 @@ void game::close(){
 // load waves from  "resources\levels.txt"
 void game::load_waves(const char* path){
     std::map<std::string, enemy_type> string_to_type = {
-        {"LGN", SLIMEGREEN},
-        {"LBK", SLIMEBLACK},
-        {"LRD", SLIMERED},
-        {"LBE", SLIMEBLUE},
-        {"LPE", SLIMEPURPLE},
-        {"SAL", FLYINGANGEL},
-        {"SBD", FLYINGBIRD},
-        {"SDN", FLYINGDRAGON},
-        {"SWD", FLYINGWIND}
+        {"SG", SLIMEGREEN},
+        {"SK", SLIMEBLACK},
+        {"SR", SLIMERED},
+        {"SB", SLIMEBLUE},
+        {"SP", SLIMEPURPLE},
+        {"FA", FLYINGANGEL},
+        {"FB", FLYINGBIRD},
+        {"FD", FLYINGDRAGON},
+        {"FW", FLYINGWIND}
     };
     std::ifstream file(path);
     std::string line;
