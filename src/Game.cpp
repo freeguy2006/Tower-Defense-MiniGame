@@ -772,15 +772,15 @@ void game::close(){
 // load waves from  "resources\levels.txt"
 void game::load_waves(const char* path){
     std::map<std::string, enemy_type> string_to_type = {
-        {"SG", SLIMEGREEN},
-        {"SK", SLIMEBLACK},
-        {"SR", SLIMERED},
-        {"SB", SLIMEBLUE},
-        {"SP", SLIMEPURPLE},
-        {"FA", FLYINGANGEL},
-        {"FB", FLYINGBIRD},
-        {"FD", FLYINGDRAGON},
-        {"FW", FLYINGWIND}
+        {"LGN", SLIMEGREEN},
+        {"LBK", SLIMEBLACK},
+        {"LRD", SLIMERED},
+        {"LBE", SLIMEBLUE},
+        {"LPE", SLIMEPURPLE},
+        {"SAL", FLYINGANGEL},
+        {"SBD", FLYINGBIRD},
+        {"SDN", FLYINGDRAGON},
+        {"SWD", FLYINGWIND}
     };
     std::ifstream file(path);
     std::string line;
