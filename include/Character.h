@@ -8,9 +8,10 @@
 class character: public game_object{
     private:
         Vector2 _speed;
+        Vector2 _base_speed;
         health _health;
     public:
-        character(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed):game_object(position, size, active), _health(hp), _speed(speed){}
+        character(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed):game_object(position, size, active), _health(hp), _speed(speed), _base_speed(speed){}
         ~character() = default;
         float get_hp() const { return _health.get_hp(); }
         float get_max_hp() const { return _health.get_max_hp(); }
@@ -19,5 +20,7 @@ class character: public game_object{
         void take_damage(float damage){ _health.take_damage(damage); }
         Vector2 get_speed()const{ return _speed; }
         void set_speed(Vector2 speed){ _speed = speed; }
+        Vector2 get_base_speed() const { return _base_speed; }
+        void reset_speed(){ _speed = _base_speed; }
         void increase_max_hp(float amount){ _health.increase_max_hp(amount); }
 };

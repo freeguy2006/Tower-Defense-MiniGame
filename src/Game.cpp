@@ -134,7 +134,7 @@ void game::update(float dt){
                     _shop_weapon1 = (weapon_type)GetRandomValue(0,WEAPON_COUNT-1); 
                     _shop_weapon2 = (weapon_type)GetRandomValue(0,WEAPON_COUNT-1); 
                     _shop_potion = (potion_type)GetRandomValue(2,POTION_COUNT-1); 
-                    _shop_goblin = game_factory::create_goblin({2300, game_factory::GROUND_Y-96});
+                    _shop_goblin = game_factory::create_goblin({2300, game_factory::GROUND_Y-96}, _waves[_current_wave-1].get_hp_multiplier());
                 }
             }
         }
@@ -603,17 +603,17 @@ void game::run(){
         
         BeginTextureMode(_canvas);
         ClearBackground(RAYWHITE);
-        if(_game_statement == START){               // start
+        if(_game_statement == START){   
             handle_start();
         }else if(_game_statement == PLAYING){
             handle_playing();
-        }else if(_game_statement == TUTORIAL){         // tutorial
+        }else if(_game_statement == TUTORIAL){        
             handle_tutorial();
-        }else if(_game_statement == PAUSE){          // pause
+        }else if(_game_statement == PAUSE){ 
             handle_pause();
         }else if(_game_statement == WAVE_SHOP){
             handle_wave_shop();
-        }else if(_game_statement == LOSE || _game_statement == WIN){    // win, lose
+        }else if(_game_statement == LOSE || _game_statement == WIN){ 
             handle_end();
         }
         EndTextureMode();

@@ -10,8 +10,9 @@ class falling_object : public game_object {
         : game_object(position, size, active), _ground_y(ground_y), _gravity(gravity), _speed(initial_speed) {}
         
         virtual ~falling_object() = default;
-        // update phyics 
-        void update_physics(float dt) { // 重力 
+        void update(float dt) override { update_physics(dt); }
+        // update phyics
+        void update_physics(float dt) { // 重力
             Vector2 pos = get_position();
             _speed.y += _gravity * dt;
             pos.x += _speed.x * dt;

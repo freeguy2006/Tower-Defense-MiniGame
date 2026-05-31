@@ -44,42 +44,281 @@
 
 ```mermaid
 classDiagram
-    GameObject <|-- Character
-    GameObject <|-- Coin
-    GameObject <|-- special_gift
-    GameObject <|-- crown
-    Character <|-- Player
-    Character <|-- enemy
-    enemy <|-- land_enemy
-    enemy <|-- sky_enemy
-    
-    enemy "1" *-- "many" enemy_behavior
-    enemy_behavior <|-- jump_behavior
-    enemy_behavior <|-- buff_behavior
-    enemy_behavior <|-- heal_behavior
-    enemy_behavior <|-- fall_and_float_behavior
+    %% ===== 繼承 (is-a) =====
+    GameObject <|-- Character : is-a
+    GameObject <|-- Building : is-a
+    GameObject <|-- Projectile : is-a
+    GameObject <|-- falling_object : is-a
+    Character <|-- Player : is-a
+    Character <|-- enemy : is-a
+    Building <|-- castle : is-a
+    enemy <|-- land_enemy : is-a
+    enemy <|-- sky_enemy : is-a
+    enemy <|-- goblin : is-a
+    falling_object <|-- Coin : is-a
+    falling_object <|-- crown : is-a
+    falling_object <|-- special_gift : is-a
+    enemy_behavior <|-- jump_behavior : is-a
+    enemy_behavior <|-- buff_behavior : is-a
+    enemy_behavior <|-- heal_behavior : is-a
+    enemy_behavior <|-- fall_and_float_behavior : is-a
+
+    %% ===== 組合 has-a (擁有生命週期) =====
+    Character *-- health : has-a
+    Building *-- health : has-a
+    enemy "1" *-- "0..*" enemy_behavior : has-a
+    wave "1" *-- "0..*" wave_data : has-a
+
+    %% ===== game 組合 (值成員) =====
+    game "1" *-- "1" Player : has-a
+    game "1" *-- "1" castle : has-a
+
+    %% ===== game 聚合 (指標/容器，動態管理) =====
+    game "1" o-- "0..*" enemy : has-many
+    game "1" o-- "0..*" Projectile : has-many
+    game "1" o-- "0..*" wave : has-many
+    game "1" o-- "0..*" Coin : has-many
+    game "1" o-- "0..*" damage_text : has-many
+    game "1" o-- "0..1" goblin : has-a
+    game "1" o-- "0..1" crown : has-a
+    game "1" o-- "0..1" special_gift : has-a
+
+    %% ===== 依賴 =====
+    game ..> game_factory : uses
+
+    %% ===== Classes =====
+    class GameObject {
+        <<abstract>>
+        -Vector2 _position
+        -Vector2 _size
+        -bool _active
+        +get_position() Vector2
+        +set_position(Vector2)
+        +get_rect() Rectangle
+        +update(dt)* void
+    }
+
+    class health {
+        -float _hp
+        -float _max_hp
+        +heal(float)
+        +take_damage(float)
+        +is_alive() bool
+        +increase_max_hp(float)
+    }
+
+    class Character {
+        -Vector2 _speed
+        -health _health
+        +get_hp() float
+        +take_damage(float)
+        +get_speed() Vector2
+        +set_speed(Vector2)
+    }
+
+    class Player {
+        -float _attack_timer
+        -float _attack_cooldown
+        -float _attack_base_cooldown
+        -float _gravity
+        -float _jump_force
+        -float _move_speed
+        -float _move_base_speed
+        +is_attackable() bool
+        +is_on_ground() bool
+        +decrease_cooldown(float)
+        +increase_move_speed(float)
+        +update(dt) void
+    }
 
     class enemy {
         <<abstract>>
-        -std::vector<enemy_behavior*> _behaviors
-        -float _freeze_timer
+        -enemy_type _enemy_type
+        -float _target_x
+        -int _reward
+        -Vector2 _base_speed
+        -std::vector~enemy_behavior*~ _behaviors
         -float _slow_timer
+        -float _slow_multiplier
+        -float _freeze_timer
+        -int _poison_combo
+        -float _poison_damage
         -float _poison_timer
-        +update(dt) void = 0
+        -bool _poison_ready
         #update_status(dt) bool
+        +apply_slow(float, float)
+        +apply_freeze(float)
+        +add_poison(float, float)
+        +is_frozen() bool
+        +is_slowed() bool
+        +is_poisoned() bool
+        +is_poison_ready() bool
+        +get_reward() int
+        +update(dt)* void
     }
+
     class land_enemy {
         +update(dt) void
     }
+
     class sky_enemy {
         -float _fly_timer
         -float _fly_amplitude
         -float _fly_speed
+        -float _base_y
         +update(dt) void
     }
+
+    class goblin {
+        +update(dt) void
+    }
+
+    class Building {
+        -health _health
+        +get_hp() float
+        +take_damage(float)
+        +heal(float)
+    }
+
+    class castle {
+        +update(dt) void
+    }
+
+    class Projectile {
+        -float _damage
+        -Vector2 _speed
+        -int _weapon_type
+        -bool _piercing
+        -float _slow_percent
+        -float _slow_duration
+        -float _freeze_duration
+        -float _splash_range
+        -float _splash_damage
+        -float _poison_damage
+        -float _poison_interval
+        +update(dt) void
+    }
+
+    class falling_object {
+        <<abstract>>
+        #Vector2 _speed
+        #float _gravity
+        #float _ground_y
+        +update_physics(dt) void
+    }
+
+    class Coin {
+        -float _lifetime
+        -float _timer
+        -int _value
+        +is_expired() bool
+        +get_value() int
+        +update(dt) void
+    }
+
+    class crown {
+        +update(dt) void
+    }
+
+    class special_gift {
+        +update(dt) void
+    }
+
     class enemy_behavior {
         <<interface>>
-        +apply(enemy&, dt) void = 0
+        +apply(enemy&, dt)* void
+    }
+
+    class jump_behavior {
+        -float _base_y
+        -float _small_jump_force
+        -float _big_jump_force
+        -float _jump_cooldown
+        +apply(enemy&, dt) void
+    }
+
+    class buff_behavior {
+        -float _buff_range
+        -float _damage_reduction
+        -float _damage_boost
+        -float _speed_boost
+        +apply(enemy&, dt) void
+    }
+
+    class heal_behavior {
+        -float _heal_amount
+        -float _heal_cooldown
+        -float _heal_range
+        +apply(enemy&, dt) void
+        +is_able_to_heal() bool
+    }
+
+    class fall_and_float_behavior {
+        -float _target_y
+        -float _fly_amplitude
+        -float _fly_speed
+        -bool _has_landed
+        +apply(enemy&, dt) void
+    }
+
+    class wave {
+        -std::vector~wave_data~ _coming_enemies
+        -float _hp_multiplier
+        +get_total_enemies() int
+        +get_hp_multiplier() float
+    }
+
+    class wave_data {
+        <<struct>>
+        +enemy_type type
+        +float cooldown
+    }
+
+    class damage_text {
+        <<struct>>
+        +Vector2 position
+        +string text
+        +float timer
+        +float lifetime
+        +Color color
+    }
+
+    class game_factory {
+        <<static>>
+        +GROUND_Y float$
+        +create_player(Vector2) Player$
+        +create_castle(Vector2) castle$
+        +create_projectile(Vector2, float, Vector2) Projectile$
+        +create_enemy_*(Vector2, float) enemy*$
+        +create_goblin(Vector2, float) goblin*$
+        +apply_weapon(Projectile&, weapon_type)$
+    }
+
+    class game {
+        -Player _player
+        -castle _castle
+        -vector~enemy*~ _enemies
+        -vector~Projectile~ _projectiles
+        -vector~wave~ _waves
+        -vector~Coin~ _coins
+        -weapon_type _current_weapon
+        -int _current_wave
+        -int _golds
+        -goblin* _shop_goblin
+        -crown* _victory_crown
+        -special_gift* _special_gift
+        -potion_effect _buffs[]
+        -handle_start()
+        -handle_tutorial()
+        -handle_playing()
+        -handle_pause()
+        -handle_wave_shop()
+        -handle_end()
+        +init()
+        +update(dt)
+        +draw()
+        +run()
+        +load_waves(const char*)
     }
 ```
 
@@ -87,6 +326,8 @@ classDiagram
 *   **抽象基底類別 `enemy`**：定義為純抽象基底類別，擁有 `virtual void update(float dt) = 0;` 純虛擬函式。負責統一管理怪物的被動 Debuff 狀態倒數（`update_status`）以及行為組合清單。
 *   **水平移動型 `land_enemy`**：專司水平 X 軸地面物理移動。
 *   **正弦飞行型 `sky_enemy`**：專司 X 軸推進伴隨 Y 軸 $A \cdot \sin(\omega t)$ 起伏飛行。
+*   **哥布林 `goblin`**：繼承 `enemy`，具備完整 Debuff 系統（可被冰凍/緩速/中毒），HP 與金幣獎勵隨波次倍率動態縮放。
+*   **物理下落抽象基底 `falling_object`**：封裝重力模擬與地面碰撞邏輯，由 `coin`、`crown`、`special_gift` 三個具體類別繼承，避免重複實作物理計算。
 *   **里氏替換原則應用**：所有產怪工廠 `game_factory` 的靜態成員函式均統一回傳基底類別指標 `enemy*`，使遊戲核心 `Game.cpp` 可以無痛、統一地藉由動態繫結調用其行為，對衍生類別完全透明。
 
 ### 3.2 策略模式 (Strategy Pattern)
@@ -114,6 +355,8 @@ classDiagram
     *   **`SBD`** (Sky Bird)：小鳥（高速正弦波飛行）
     *   **`SDN`** (Sky Dragon)：飛龍（Boss 級巨型飛行物）
     *   **`SWD`** (Sky Wind)：旋風怪（急速下墜驚嚇並襲擊玩家，隨後落定於地面微幅漂浮）
+*   **特殊怪 (Special)**
+    *   **哥布林**：每 3 波生成的商店 NPC，繼承 `enemy`，具備完整 Debuff 系統，HP/獎勵隨波次倍率縮放
 
 ---
 

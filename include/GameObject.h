@@ -24,8 +24,7 @@ class game_object {
         
         bool is_active() const { return _active; }
         virtual void update(float dt) = 0; // dt : 時間差
-
-        //for test 
+        
         Rectangle get_rect() const {
             return {_position.x, _position.y, _size.x, _size.y};
         }

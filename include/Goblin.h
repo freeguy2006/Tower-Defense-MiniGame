@@ -1,17 +1,8 @@
 #pragma once
-#include "Character.h"
+#include "Enemy.h"
 
-class goblin:public character{
-    private:
-        int _reward;
+class goblin: public enemy{
     public:
-        goblin(Vector2 position, Vector2 size, bool active,float hp, Vector2 speed, int reward)
-        : character(position, size, active, hp, speed), _reward(reward){}
-        int get_reward() const { return _reward; }
-        void update(float dt) override {
-            Vector2 pos = get_position();
-            pos.x += get_speed().x * dt;
-            set_position(pos);
-        }
-
+        goblin(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed, float target_x, enemy_type type, int reward)
+        : enemy(position, size, active, hp, speed, target_x, type, reward) {}
 };

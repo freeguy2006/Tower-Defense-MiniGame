@@ -7,14 +7,13 @@
 #include <algorithm>
 #include <cmath>
 
-enum enemy_type {SLIMEGREEN,SLIMEBLACK,SLIMERED,SLIMEPURPLE,SLIMEBLUE,FLYINGANGEL,FLYINGBIRD,FLYINGDRAGON,FLYINGWIND};
+enum enemy_type {SLIMEGREEN,SLIMEBLACK,SLIMERED,SLIMEPURPLE,SLIMEBLUE,FLYINGANGEL,FLYINGBIRD,FLYINGDRAGON,FLYINGWIND,GOBLIN};
 
 class enemy: public character{
     private:
         enemy_type _enemy_type;
         float _target_x;
         int _reward;
-        Vector2 _base_speed;
         // enemy to enemy 效果
         std::vector<enemy_behavior*> _behaviors;
         // projectile to enemy 效果
@@ -32,7 +31,7 @@ class enemy: public character{
     public:
         // constructor
         enemy(Vector2 position, Vector2 size, bool active, float hp, Vector2 speed, float target_x, enemy_type type, int reward)
-        : character(position, size, active, hp, speed), _target_x(target_x), _enemy_type(type), _base_speed(speed), _reward(reward){}
+        : character(position, size, active, hp, speed), _target_x(target_x), _enemy_type(type), _reward(reward){}
         // destructor
         virtual ~enemy(){
             for(int i = 0;i<_behaviors.size();i++){
@@ -40,31 +39,40 @@ class enemy: public character{
             }
         }
         // update
-        virtual void update(float dt) = 0; // 給 flying enemy 跟 land enemy
+        virtual void update(float dt){
+            update_status(dt);
+            if (get_position().x > get_target_x()) {
+                Vector2 temp = get_position();
+                temp.x += get_speed().x * get_slow_multiplier() * dt;
+                set_position(temp);
+            }
+            for (auto b : get_behaviors()) {
+                b->apply(*this, dt);
+            }
+        }
  
     protected:
-        // update status (freeze, poison, slow)
-        bool update_status(float dt){
+        // update status (slow, freeze, poison)
+        void update_status(float dt){
             // slow status
             if(_slow_timer > 0){
-                _slow_timer -= dt; 
+                _slow_timer -= dt;
             }else{
                 _slow_multiplier = 1.0f;
             }
+            // freeze（放在 slow 之後覆蓋 multiplier，讓敵人停住）
+            if(_freeze_timer > 0){
+                _freeze_timer -= dt;
+                _slow_multiplier = 0.0f;
+            }
             // poison status
             if(_poison_combo > 0){
-                _poison_timer -= dt;  
-                if(_poison_timer < 0){ 
-                    _poison_ready = true; 
-                    _poison_timer += _poison_interval; 
+                _poison_timer -= dt;
+                if(_poison_timer < 0){
+                    _poison_ready = true;
+                    _poison_timer += _poison_interval;
                 }
             }
-            // freeze status
-            if(_freeze_timer > 0){
-                _freeze_timer -= dt; 
-                return true;         
-            }
-            return false;
         }
 
     public:
@@ -72,9 +80,6 @@ class enemy: public character{
         void add_behavior(enemy_behavior* behavior){ _behaviors.push_back(behavior); }
         const std::vector<enemy_behavior*>& get_behaviors() const { return _behaviors; }
         
-        // speed
-        Vector2 get_base_speed() const { return _base_speed; }
-        void reset_speed(){ set_speed(_base_speed); }
         // type
         enemy_type get_enemy_type() const { return _enemy_type; }
         // reward

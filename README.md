@@ -23,7 +23,7 @@
 | H | Debug 碰撞箱 (顯示 AABB 綠色框線) |
 | F | 回饋表單 |
 
-## 敵人（9 種）
+## 敵人（10 種）
 
 | 名稱 | 代號 | 血量 | 速度 | 特色 |
 |------|------|------|------|------|
@@ -36,6 +36,7 @@
 | 小鳥 | **SBD** | 40 | 快 | 天空飛行 + 快速移動 |
 | 飛龍 | **SDN** | 1200 | 慢 | Boss 級天空飛行 |
 | 旋風怪 | **SWD** | 500 | 靜止 | 空中生成並急速下墜，以突如其來的下落驚嚇玩家，隨後地表漂浮 |
+| 哥布林 | — | 500 | 中 | 每 3 波出現，碰城堡補血，玩家碰觸進入商店|
 
 ## 武器（11 種 - 數值精確對齊）
 
@@ -115,9 +116,10 @@ EnemySky.h           → 天空怪具體衍生類別：實作天空正弦波 2D 
 Projectile.h         → 投射物：高度擴充的子彈類別（可選穿透、範圍爆炸、緩速、冰凍、疊毒、HP%暴擊）
 DamageText.h         → 傷害漂浮文字：動態漸變傷害數值視覺表現
 Wave.h               → 關卡波次載體
-Coin.h               → 金幣實體
-Goblin.h             → 商店哥布林 NPC
-SpecialThings.h      → 物理互動地圖物件（金王冠、彩蛋禮物盒，繼承自 GameObject）
+FallingObject.h      → 物理下落抽象基底類別：封裝重力模擬與地面碰撞（Coin、Crown、SpecialGift 共用）
+Coin.h               → 金幣實體（繼承 falling_object）
+Goblin.h             → 商店哥布林 NPC（繼承 enemy，可被冰凍/緩速/中毒）
+SpecialThings.h      → 物理互動地圖物件（金王冠、彩蛋禮物盒，繼承自 falling_object）
 Castle.h / Building.h / Character.h / GameObject.h / Health.h  → 基礎繼承物件層級與防護核心
 ```
 

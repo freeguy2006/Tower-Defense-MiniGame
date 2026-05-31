@@ -103,6 +103,7 @@ static constexpr enemy_value ENEMY_VALUES[] = {
     { 40.0f,   {160,200}, {1,2},   {0,0},      {0,0},       {0,0},       {100,160},  {300,500}   },  // FLYINGBIRD
     { 1500.0f, {60,80},   {50,80}, {0,0},      {0,0},       {0,0},       {100,120},  {100,150}   },  // FLYINGDRAGON
     { 500.0f,  {0,0},     {5,8},   {0,0},      {0,0},       {0,0},       {100,160},  {150,250}   },  // FLYINGWIND
+    { 500.0f,  {130,130}, {30,50}, {0,0},      {0,0},       {0,0},       {0,0},      {0,0}       }   // GOBLIN
 };
 
 class game_factory {
@@ -223,8 +224,9 @@ class game_factory {
 
 
         // 商店哥布林
-        static goblin* create_goblin(Vector2 position){
-            return new goblin(position, {62, 80}, true, 500.0f, {-150.0f, 0}, GetRandomValue(10, 40));
+        static goblin* create_goblin(Vector2 position, float hp_multiplier){
+            const auto& v = ENEMY_VALUES[GOBLIN];
+            return new goblin(position, {62, 80}, true, v.hp * hp_multiplier, {-(float)GetRandomValue((int)v.speed.x, (int)v.speed.y), 0}, 0.0f, GOBLIN, (int)(GetRandomValue((int)v.reward.x, (int)v.reward.y) * std::cbrt(hp_multiplier * hp_multiplier)));
         }
         // 勝利王冠
         static crown* create_crown(Vector2 position, float ground_y){

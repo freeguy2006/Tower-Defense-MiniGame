@@ -5,7 +5,7 @@
 #include "Building.h" 
 class castle : public building{
     public:
-        castle(Vector2 position, Vector2 size, bool active, int hp):building(position, size, active, hp){}
+        castle(Vector2 position, Vector2 size, bool active, float hp):building(position, size, active, hp){}
         ~castle() = default;
         void update(float dt) override {}
 
