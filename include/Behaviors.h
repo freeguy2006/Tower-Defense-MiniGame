@@ -5,9 +5,7 @@
 #include "Enemy.h"
 #include "BehaviorAbstract.h"
 
-// ==========================================
-// 1. Jump Behavior (跳躍行為)
-// ==========================================
+// 1. Jump Behavior (跳躍)
 class jump_behavior : public enemy_behavior {
     private:
         float _base_y;
@@ -23,7 +21,6 @@ class jump_behavior : public enemy_behavior {
             : _base_y(base_y), _small_jump_force(jump_force), _jump_cooldown(cooldown) {}
         jump_behavior(float base_y, float small_jump_force, float big_jump_force, float cooldown)
             : _base_y(base_y), _small_jump_force(small_jump_force), _big_jump_force(big_jump_force), _jump_cooldown(cooldown) {}
-        
         void apply(enemy &e, float dt) override {
             if (e.is_frozen()) return;
             float slow = e.get_slow_multiplier();
@@ -48,9 +45,7 @@ class jump_behavior : public enemy_behavior {
         }
 };
 
-// ==========================================
-// 2. Buff Behavior (光環 Buff 行為)
-// ==========================================
+// 2. Buff Behavior (光環 Buff)
 class buff_behavior : public enemy_behavior {
     private:
         float _buff_range;
@@ -61,15 +56,14 @@ class buff_behavior : public enemy_behavior {
         buff_behavior(float range, float reduction, float dmg_boost, float spd_boost)
             : _buff_range(range), _damage_reduction(reduction), _damage_boost(dmg_boost), _speed_boost(spd_boost) {}
         void apply(enemy& e, float dt) override {}
-        float get_buff_range() const { return _buff_range; }
-        float get_damage_reduction() const { return _damage_reduction; }
-        float get_damage_boost() const { return _damage_boost; }
-        float get_speed_boost() const { return _speed_boost; }
+        bool has_buff() const override { return true; }
+        float get_buff_range() const override { return _buff_range; }
+        float get_damage_reduction() const override { return _damage_reduction; }
+        float get_damage_boost() const override { return _damage_boost; }
+        float get_speed_boost() const override { return _speed_boost; }
 };
 
-// ==========================================
-// 3. Heal Behavior (範圍治療行為)
-// ==========================================
+// 3. Heal Behavior (治療)
 class heal_behavior : public enemy_behavior {
     private:
         float _heal_amount;
@@ -89,15 +83,14 @@ class heal_behavior : public enemy_behavior {
                 _can_heal = false;
             }
         }
-        bool is_able_to_heal() const { return _can_heal; }
-        float get_heal_range() const { return _heal_range; }
-        float get_heal_amount() const { return _heal_amount; }
-        float get_heal_cooldown() const { return _heal_cooldown; }
+        bool has_heal() const override { return true; } 
+        bool is_able_to_heal() const override { return _can_heal; }
+        float get_heal_range() const override { return _heal_range; }
+        float get_heal_amount() const override { return _heal_amount; }
+        float get_heal_cooldown() const override{ return _heal_cooldown; }
 };
 
-// ==========================================
-// 4. Fall and Float Behavior (旋風怪下墜浮動行為)
-// ==========================================
+// 4. Fall and Float Behavior (旋風怪下墜浮動)
 class fall_and_float_behavior : public enemy_behavior{
     private:
         float _target_y;
